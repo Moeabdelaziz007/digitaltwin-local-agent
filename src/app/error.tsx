@@ -55,7 +55,7 @@ export default function Error({
         </div>
 
         <div className="mt-12 text-[8px] text-text-faint uppercase tracking-[0.2em]">
-          Error Hash: {error.digest || 'UNKNOWN_INSTANCE'} // Diagnostic Code: 0x889100
+          Error Hash: {error.digest || 'UNKNOWN_INSTANCE'} {/* Diagnostic Code: 0x889100 */}
         </div>
       </motion.div>
     </main>

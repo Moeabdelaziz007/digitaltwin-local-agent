@@ -7,10 +7,9 @@ import {
   BarVisualizer,
   useVoiceAssistant,
   useRoomContext,
-  useConnectionState,
 } from "@livekit/components-react";
 import "@livekit/components-styles";
-import { Mic, MicOff, Loader2 } from "lucide-react";
+import { Mic, Loader2 } from "lucide-react";
 
 interface VoiceBridgeProps {
   onStateChange?: (state: string) => void;
@@ -33,8 +32,12 @@ export function VoiceBridge({ onStateChange }: VoiceBridgeProps) {
         // Let's assume process.env.NEXT_PUBLIC_LIVEKIT_URL for client or the server sends it.
         // Wait, server didn't send url in api/livekit/route.ts. We should fetch it or hardcode if we must, 
         // but it's better to update the API to return the url too.
+        if (!process.env.NEXT_PUBLIC_LIVEKIT_URL) {
+          console.error("NEXT_PUBLIC_LIVEKIT_URL is missing");
+          return;
+        }
         setToken(data.token);
-        setUrl(data.url || process.env.NEXT_PUBLIC_LIVEKIT_URL || "wss://digital-mini-twin-nwsk93xv.livekit.cloud");
+        setUrl(data.url || process.env.NEXT_PUBLIC_LIVEKIT_URL);
         setConnected(true);
       }
     } catch (e) {

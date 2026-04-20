@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Code, TerminalSquare } from 'lucide-react';
+import { ChevronDown, TerminalSquare } from 'lucide-react';
 
 interface ToolAccordionProps {
   toolName: string;
@@ -43,7 +43,7 @@ export function ToolAccordion({ toolName, toolArgs, status, result }: ToolAccord
 
       <AnimatePresence>
         {isOpen && (
-          <motion.initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }}>
+          <motion.div initial={{ height: 0 }} animate={{ height: 'auto' }} exit={{ height: 0 }}>
             <div className="p-3 bg-black/40 border-t border-white/5 text-[10px] text-text-muted font-display space-y-2">
               <div>
                 <span className="text-cyan">Payload:</span>
@@ -56,7 +56,7 @@ export function ToolAccordion({ toolName, toolArgs, status, result }: ToolAccord
                 </div>
               )}
             </div>
-          </motion.initial>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useUser, UserButton } from "@clerk/nextjs";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import pb from "@/lib/pocketbase-client";
 import type { UserProfile } from "@/types/twin";
-import { Send, Mic, Brain, Shield, Info, Database } from "lucide-react";
+import { Send, Brain, Shield, Info, Database } from "lucide-react";
 import { VoiceBridge } from "@/components/VoiceBridge";
 import { ParticleNetwork } from "@/components/ParticleNetwork";
 import { LearningProgress } from "@/components/LearningProgress";
@@ -46,7 +46,7 @@ const HologramStage = ({ voiceState }: { voiceState: string }) => {
 export default function DashboardPage() {
   const router = useRouter();
   const { user, isLoaded: userLoaded } = useUser();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [_profile, setProfile] = useState<UserProfile | null>(null);
   
   // State
   const [messages, setMessages] = useState<Array<{ role: 'user' | 'twin', content: string }>>([]);
@@ -54,7 +54,7 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [learningProgress, setLearningProgress] = useState(3);
   const [toastFact, setToastFact] = useState('');
-  const [toastVisible, setToastVisible] = useState(false);
+  const [_toastVisible, setToastVisible] = useState(false);
   const [voiceState, setVoiceState] = useState('disconnected');
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -66,7 +66,7 @@ export default function DashboardPage() {
       try {
         const record = await pb.collection("user_profiles").getFirstListItem(`user_id="${user?.id}"`);
         setProfile(record as unknown as UserProfile);
-      } catch (e) {
+      } catch (_e) {
         router.push("/onboard");
       }
     }
@@ -110,7 +110,6 @@ export default function DashboardPage() {
       
       const interval = setInterval(() => {
         setMessages(prev => {
-          const lastMsg = prev[prev.length - 1];
           const newHistory = prev.slice(0, -1);
           return [...newHistory, { role: 'twin', content: twinReply.slice(0, currentIdx + 1) }];
         });
@@ -129,7 +128,7 @@ export default function DashboardPage() {
         }
       }, 20);
 
-    } catch (err) {
+    } catch (_err) {
       setMessages(prev => [...prev, { role: 'twin', content: "SYSTEM ERROR: DATA STREAM INTERRUPTED." }]);
       setIsLoading(false);
     }

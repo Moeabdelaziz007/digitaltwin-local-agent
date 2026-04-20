@@ -1,6 +1,6 @@
 "use client";
 
-import { m, MotionValue } from "framer-motion";
+import { m, MotionValue, PanInfo } from "framer-motion";
 import { useState } from "react";
 
 type TwinState = "idle" | "listening" | "thinking" | "proposing" | "acting";
@@ -10,7 +10,7 @@ interface FloatingOrbProps {
   x: MotionValue<number>;
   y: MotionValue<number>;
   dragConstraints: React.RefObject<HTMLDivElement | null>;
-  onDragEnd: (event: any, info: any) => void;
+  onDragEnd: (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => void;
   onToggle: () => void;
 }
 

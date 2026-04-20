@@ -1,108 +1,176 @@
-# DigitalMiniTwin 🛸 v2.1
+# DigitalMiniTwin
 
-**Architecting a Secure, Immersive, Voice-First AI Digital Twin. Hardened for Production.**
+> A cinematic full-stack AI digital twin with memory, adaptive learning, local LLM support, and immersive Sci-Fi UI.
 
-<!-- START_BADGES -->
-![Status](https://img.shields.io/badge/status-production--ready-success)
-![License](https://img.shields.io/badge/license-MIT-green)
-![Stack](https://img.shields.io/badge/stack-Next.js%2016%20%7C%20Clerk%20%7C%20LiveKit-black)
-![Design](https://img.shields.io/badge/design-Industrial%20Sci--Fi-cyan)
-![Monitoring](https://img.shields.io/badge/monitoring-Sentry-violet)
-<!-- END_BADGES -->
-
-## ⚡ The Vision
-DigitalMiniTwin is a **Presence Layer** for your digital life. It has evolved from a simple chatbot into a high-fidelity digital consciousness that observes, reflects, and reacts in an immersive environment.
-
-- **Observe**: Real-time WebRTC voice capture with LiveKit.
-- **Propose**: Intelligent, non-intrusive action suggestions via Ollama.
-- **Immerse**: A state-of-the-art Industrial Sci-Fi UI featuring 3D CSS Holograms and Neural Particle backgrounds.
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue?style=for-the-badge&logo=typescript&logoColor=white)
+![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?style=for-the-badge&logo=vercel&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
 ---
 
-## 🏗️ Architecture (V2)
-The V2 architecture prioritizes **Identity Resilience** and **Low-Latency Voice**.
+## 🚀 Demo
+
+- **Live App:** [https://digital-mini-twin.vercel.app](https://digital-mini-twin.vercel.app)
+- **Preview Builds:** Vercel auto-deployments configured.
+
+<!-- TO CAPTURE: Please capture a short dashboard demo GIF and place it in docs/demo/dashboard-demo.gif -->
+![Dashboard Demo](docs/demo/dashboard-demo.gif)
+
+## 🌌 Why this project?
+
+DigitalMiniTwin is an entirely locally-adaptable, AI-first personal twin platform designed to:
+- Learn natively from iterative conversations.
+- Preserve contextual memory and decay irrelevant facts over time.
+- Evolve its persona tone, behaving like a mirror of the user.
+- Eliminate dependency on high-cost cloud APIs by supporting **local-first intelligence** (Ollama/Gemma / WebLLM).
+- Deliver a premium, uncompromised "Cyber-Clinical" UI featuring real-time audio visualization, matrix rains, and glassmorphism.
+
+---
+
+## 🛠 Features
+
+- **Security & Identity:** Clerk Auth with layered Canvas background protection.
+- **Data Persistence:** PocketBase edge storage layer.
+- **Cognitive Agentic Core:** Ollama / Gemma capabilities directly accessible via LangChain.
+- **Bi-Directional Memory Engine:** Long-term memory extraction + daily cron decay algorithms.
+- **Voice Bridge Readiness:** LiveKit real-time audio connection endpoints baked in.
+- **Immersive Dashboards:** Magnetic cursor interactions, typing terminals, tool execution accordions, and CSS 3D Holograms.
+
+---
+
+## 📐 Architecture Flow
 
 ```mermaid
 graph TD
-    User((User)) -->|Voice/Oauth| Front[Next.js 16 UI]
-    Front -->|Auth| Clerk[Clerk Auth / Google]
-    Front -->|Voice Stream| LK[LiveKit Cloud]
-    Front -->|Monitoring| Sentry[Sentry AI Tracing]
-    Front -->|Authenticated API| PB[(PocketBase)]
-    Front -->|Local Inference| Ollama[Gemma / Local LLM]
+  U[User Voice/Text] --> W[Next.js 16 App Router]
+  W --> C[Clerk Auth & AuthZ]
+  W --> A[API Layer / Edge]
+  A <--> P[PocketBase Vector Memory]
+  A <--> O[Ollama / Local LLMs]
+  V[Vercel Scheduled Cron] --> A
+  subgraph Data Evolution
+    P
+  end
 ```
 
 ---
 
-## 🌎 Overview
-A state-of-the-art, local-intelligence AI digital twin platform. It features a private voice-first pipeline, an immersive **Industrial Sci-Fi design system**, and a production-grade identity layer via Clerk. Built to protect privacy while providing a high-fidelity "Presence Layer", it integrates Sentry for automated diagnostics and LiveKit for zero-latency voice interaction.
+## 📸 Interface Gallery
 
-## 🌍 نظرة عامة
-منصة توأم رقمي ذكي متطورة تدمج الذكاء المحلي مع تجربة مستخدم سيبرانية غامرة. يتميز المشروع بنظام تصميم "Industrial Sci-Fi" المتقدم، وطبقة حضور صوتي فورية عبر LiveKit، مع تأمين كامل للهوية عبر Clerk. صُمم النظام ليكون جاهزاً للإنتاج مع مراقبة استباقية للأخطاء عبر Sentry، مما يضمن أداءً مستقراً وخصوصية مطلقة.
+### 1. Welcome to the Void (Landing)
+<!-- TO CAPTURE: Please capture landing.png and place it in docs/images/landing.png -->
+![Landing](docs/images/landing.png)
+
+### 2. Neural Handshake (Auth)
+<!-- TO CAPTURE: Please capture auth.png and place it in docs/images/auth.png -->
+![Authentication](docs/images/auth.png)
+
+### 3. Command Dashboard
+<!-- TO CAPTURE: Please capture dashboard.png and place it in docs/images/dashboard.png -->
+![Dashboard](docs/images/dashboard.png)
+
+### 4. Memory Evolution Matrix
+<!-- TO CAPTURE: Please capture memory.png and place it in docs/images/memory.png -->
+![Memory Engine](docs/images/memory.png)
 
 ---
 
-## 💎 Key Features (V2.1 Hardened)
-- **Immersive Auth (New)**: Cyberpunk-themed login with Matrix rain and particle canvas backgrounds.
-- **Google OAuth Integration**: Seamless onboarding via Clerk.
-- **Real-time Voice Bridge**: Low-latency bidirectional voice via LiveKit Cloud.
-- **Holographic Dashboard**: A reactive 3D Hologram stage that visualizes voice states (Listening, Speaking).
-- **Proactive Diagnostics**: Sentry-powered error boundaries and diagnostic API (/api/sentry-test).
-- **Cognitive Memory Architecture**: 
-  - **Memory Decay**: Simulated forgetting curve for relevant fact retention.
-  - **Automated Snapshots**: Periodic long-term memory aggregation.
+## 💻 Tech Stack
+
+| Layer | Technology |
+|---|---|
+| **Frontend Framework** | Next.js 16 (App Router), React 19, TypeScript |
+| **Styling & UI UX** | Tailwind CSS v4, Motion (Framer), Vanilla CSS System |
+| **Authentication** | Clerk Auth Hub |
+| **Database & Vector** | PocketBase |
+| **Local AI Node** | Ollama + Gemma 4 |
+| **Hosting & Automation**| Vercel + Vercel Cron Jobs |
 
 ---
 
-## 🛠️ Quick Start
+## ⚡ Getting Started
 
-### 1. Requirements
-- macOS (M1/M2/M3 recommended) or Linux.
-- [Ollama](https://ollama.ai/) (Running `gemma` or your preferred model).
-- [PocketBase](https://pocketbase.io/) (Data Layer).
-- [LiveKit Cloud](https://cloud.livekit.io) (Voice Infrastructure).
-- [Clerk](https://clerk.com) (Identity Provider).
-
-### 2. Setup
+### 1. Clone the repository
 ```bash
-# 1. Install Dependencies
+git clone https://github.com/Moeabdelaziz007/digitaltwin-local-agent.git
+cd digitaltwin-local-agent
+```
+
+### 2. Install Dependencies
+```bash
 npm install
+```
 
-# 2. Configure Environment (.env.local)
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=...
-CLERK_SECRET_KEY=...
-LIVEKIT_URL=...
-LIVEKIT_API_KEY=...
-LIVEKIT_API_SECRET=...
-NEXT_PUBLIC_SENTRY_DSN=...
-POCKETBASE_URL=http://localhost:8090
-OLLAMA_URL=http://localhost:11434
+### 3. Configure the Environment
+```bash
+cp .env.example .env.local
+```
+*(Review the Environment Variables table below and fill in the required keys in `.env.local`)*
 
-# 3. Launch Industrial Sci-Fi Environment
-npm run build
-npm run start
+### 4. Launch the Neural Link
+```bash
+npm run dev
 ```
 
 ---
 
-## 🛰️ Diagnostic Workflow
-DigitalMiniTwin 2.1 includes a built-in diagnostic layer:
-- **Scan**: Automated code auditing via `src/lib/debug.ts`.
-- **Verify**: Trigger a system test via `GET /api/sentry-test`.
-- **Catch**: Global Error Boundaries capture render-time failures on the fly.
+## 🔑 Required Environment Variables
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Yes | Clerk frontend client initialization |
+| `CLERK_SECRET_KEY` | Yes | Clerk secure backend auth |
+| `CLERK_WEBHOOK_SECRET` | Yes | Clerk identity webhook sync validation |
+| `POCKETBASE_URL` | Yes | Database external API routing |
+| `LIVEKIT_URL` / `LIVEKIT_API_KEY` | No | Required only for real-time voice bridge |
+| `CRON_SECRET` | Yes | Security bypass for Vercel CRON job execution |
 
 ---
 
-## 📂 Project Structure
-- `src/app/`: Next.js App Router (Dashboard, Auth, Onboarding).
-- `src/components/`: High-fidelity UI components (FloatingOrb, VoiceBridge, LoginBackground).
-- `src/lib/`: Core logic (Ollama, PocketBase, Sentry Logger).
-- `src/styles/`: Design System tokens (design-system.css, globals.css).
+## ⚠️ Troubleshooting
+
+<details>
+<summary><b>1. Build constantly fails on Vercel</b></summary>
+<br/>
+
+- Run `npx tsc --noEmit` locally first. Next.js 16 enforces strict TypeScript definitions.
+- Ensure you commit all fixes before deploying. If `npm run build` fails locally, it will fail on Vercel.
+- Verify environment variables exist globally within your Vercel Project Dashboard.
+</details>
+
+<details>
+<summary><b>2. Cron job rejects PocketBase connection</b></summary>
+<br/>
+
+Never use `http://127.0.0.1:8090` in production. Always substitute with a live/hosted `POCKETBASE_URL`.
+</details>
+
+<details>
+<summary><b>3. LiveKit Audio not connecting</b></summary>
+<br/>
+
+Ensure your `LIVEKIT_API_KEY` and `LIVEKIT_API_SECRET` are correct. Do NOT expose `LIVEKIT_API_SECRET` to the frontend config.
+</details>
 
 ---
 
-## 🤝 Contributing
-Lead the future of digital presence. See [CONTRIBUTING.md](./docs/CONTRIBUTING.md).
+## 🗺 Roadmap
+
+- [x] Contextual memory engine & abstraction layer
+- [x] Dynamic semantic extraction automation
+- [x] Full Clerk identity & session security implementation
+- [x] Stitch-Inspired UI/UX overhaul (Cinematic / Clinical Cyberpunk Pattern)
+- [ ] LiveKit edge deployment logic refinement
+- [ ] Fully visual Memory Map / Canvas interface
+- [ ] Hardware integration APIs (IOT / Wearable twin communication)
+- [ ] Admin Observability panel
+
+---
+
+## 🛠 Contributing
+Pull Requests, diagnostic bug reports, and architectural proposals are actively welcome. Ensure you test UX regressions running the script:
+`npm run scan-bugs` before proposing merges.
 
 ## 📄 License
-MIT License - Copyright (c) 2026 **Mohamed Hossameldin Abdelaziz** (@Moeabdelaziz007)
+This project operates under the [MIT License](LICENSE).

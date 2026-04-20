@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { Show, SignInButton, SignUpButton, UserButton, useUser } from '@clerk/nextjs';
+import { SignInButton, SignUpButton, UserButton, useUser, SignedIn, SignedOut } from '@clerk/nextjs';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 
@@ -105,7 +105,7 @@ const Hologram = () => (
 
 export default function LandingPage() {
   const router = useRouter();
-  const { isSignedIn, isLoaded } = useUser();
+  const { isSignedIn: _isSignedIn, isLoaded: _isLoaded } = useUser();
 
   return (
     <div className="relative min-h-svh bg-bg-void text-text-primary font-body overflow-x-hidden scan-overlay">
@@ -122,7 +122,7 @@ export default function LandingPage() {
         </div>
         
         <div className="flex items-center gap-6">
-          <Show when="signed-in">
+          <SignedIn>
             <button 
               onClick={() => router.push('/dashboard')}
               className="text-sm font-display text-cyan hover:text-white transition-all uppercase tracking-widest"
@@ -130,8 +130,8 @@ export default function LandingPage() {
               System Dashboard
             </button>
             <UserButton />
-          </Show>
-          <Show when="signed-out">
+          </SignedIn>
+          <SignedOut>
             <SignInButton mode="modal">
               <button className="text-sm font-display uppercase tracking-widest text-text-muted hover:text-cyan transition-all">
                 Login
@@ -142,7 +142,7 @@ export default function LandingPage() {
                 Initialize Twin
               </button>
             </SignUpButton>
-          </Show>
+          </SignedOut>
         </div>
       </nav>
 

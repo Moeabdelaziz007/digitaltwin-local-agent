@@ -9,6 +9,7 @@ const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'gemma4';
 export interface OllamaMessage {
   role: 'system' | 'user' | 'assistant' | 'tool';
   content: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tool_calls?: any[];
   tool_call_id?: string;
   name?: string;
@@ -107,7 +108,7 @@ export async function* streamOllama(
             yield json.message.content;
           }
           if (json.done) return;
-        } catch (e) {
+        } catch (_e) {
           // Partial JSON line
         }
       }
@@ -131,9 +132,10 @@ export async function callOllamaWithTools(
   systemPrompt: string,
   userMessage: string,
   tools: OllamaTool[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   toolExecutor: (name: string, args: Record<string, any>) => Promise<unknown>
 ): Promise<string> {
-  let messages: OllamaMessage[] = [
+  const messages: OllamaMessage[] = [
     { role: 'system', content: systemPrompt },
     { role: 'user', content: userMessage },
   ];

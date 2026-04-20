@@ -67,7 +67,7 @@ export async function executeRecallMemory(userId: string, topic: string): Promis
     
     return `Found ${result.items.length} facts:\n` + 
            result.items.map(f => `- ${f.fact} (category: ${f.category})`).join('\n');
-  } catch (error) {
+  } catch (_error) {
     return "Failed to recall memory due to internal error.";
   }
 }
@@ -86,7 +86,7 @@ export async function executeSaveMemory(userId: string, fact: string, category: 
       reinforced_count: 1
     });
     return `Succesfully saved and reinforced fact: "${fact}" under ${category}.`;
-  } catch (error) {
+  } catch (_error) {
     return "Failed to save fact to long-term memory.";
   }
 }
@@ -144,7 +144,7 @@ export async function buildMemoryContext(userId: string): Promise<string> {
       .sort((a, b) => b.liveScore - a.liveScore)
       .slice(0, 8)
       .map(fs => fs.fact);
-  } catch (e) {
+  } catch (_e) {
     // If facts fetch fails, fallback to snapshot
     decayFilteredFacts = profile.profile_snapshot?.top_facts || [];
   }

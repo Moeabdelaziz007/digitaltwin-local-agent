@@ -11,6 +11,7 @@ export async function scanForBugs() {
   
   // 1. Check for known "Code Smells" in browser (Smell detection)
   if (typeof window !== 'undefined') {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ((window as any).__REACT_DEVTOOLS_GLOBAL_HOOK__) {
       // Dev tools found - good for debugging
     }

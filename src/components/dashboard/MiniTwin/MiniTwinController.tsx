@@ -1,7 +1,7 @@
 "use client";
 
-import { ReactNode, useRef, useState, useEffect } from "react";
-import { LazyMotion, domAnimation, MotionConfig, useMotionValue, useSpring, animate } from "framer-motion";
+import { ReactNode, useRef, useEffect } from "react";
+import { LazyMotion, domAnimation, MotionConfig, useMotionValue, useSpring, animate, PanInfo } from "framer-motion";
 import FloatingOrb from "./FloatingOrb";
 import ProposalPanel, { Proposal } from "./ProposalPanel";
 
@@ -48,7 +48,7 @@ export default function MiniTwinController({
   }, [x, y]);
 
   // Snap to edge logic
-  const handleDragEnd = (_: any, info: any) => {
+  const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     const screenWidth = window.innerWidth;
     const snapMargin = 24;
     const orbWidth = 64; 

@@ -20,7 +20,7 @@ const STYLE_CHIPS = [
 
 export default function OnboardPage() {
   const router = useRouter();
-  const { user, isLoaded } = useUser();
+  const { user, isLoaded: _isLoaded } = useUser();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
 
@@ -129,10 +129,10 @@ Custom Prefs: ${extraPrefs}
       }
 
       router.push("/dashboard");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       setError(
-        err.message || "Failed to create profile. Ensure all fields are valid."
+        (err as Error).message || "Failed to create profile. Ensure all fields are valid."
       );
     } finally {
       setLoading(false);
@@ -188,7 +188,7 @@ Custom Prefs: ${extraPrefs}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1.5">
-                  What's the goal for this twin?
+                  What&apos;s the goal for this twin?
                 </label>
                 <input
                   value={goal}
@@ -249,7 +249,7 @@ Custom Prefs: ${extraPrefs}
         {step === 3 && (
           <div className="space-y-6 step-enter">
             <h2 className="text-xl font-semibold">Your Twin is ready</h2>
-            <p className="text-sm text-muted-foreground">This is how it thinks and sounds right now. We'll adapt it over time as you chat.</p>
+            <p className="text-sm text-muted-foreground">This is how it thinks and sounds right now. We&apos;ll adapt it over time as you chat.</p>
             
             <div className="fact-card relative">
                <div className="flex items-center gap-2 mb-3">

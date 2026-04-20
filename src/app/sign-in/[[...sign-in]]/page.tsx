@@ -1,11 +1,12 @@
 import { SignIn } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
-import { LoginBackground } from "@/components/LoginBackground";
+import { MatrixRain } from "@/components/MatrixRain";
+import { TerminalIntro } from "@/components/TerminalIntro";
 
 export default function SignInPage() {
   return (
     <main className="relative min-h-svh w-full flex items-center justify-center p-6">
-      <LoginBackground />
+      <MatrixRain />
       
       {/* ── Fixed Header ── */}
       <div className="fixed top-0 left-0 w-full p-6 flex justify-between items-center z-50 pointer-events-none">
@@ -23,9 +24,11 @@ export default function SignInPage() {
       </div>
 
       {/* ── Clerk Sign In ── */}
-      <div className="relative z-10 glass border border-cyan/20 p-8 md:p-12 rounded-lg shadow-2xl animate-in fade-in zoom-in duration-500">
-        <SignIn 
-          appearance={{
+      <div className="flex flex-col items-center gap-6 z-10 w-full max-w-md">
+        <TerminalIntro text="Neural handshake established..." />
+        <div className="w-full relative glass-embedded p-8 md:p-12 rounded-lg animate-in fade-in zoom-in duration-500">
+          <SignIn 
+            appearance={{
             baseTheme: dark,
             variables: {
               colorPrimary: '#00f0ff',
@@ -37,16 +40,17 @@ export default function SignInPage() {
             },
             elements: {
               card: "shadow-none border-none bg-transparent",
-              headerTitle: "font-display uppercase tracking-widest text-cyan",
+              headerTitle: "font-display uppercase tracking-widest text-cyan hover:glitch-text transition-all",
               headerSubtitle: "text-text-muted",
               socialButtonsBlockButton: "glass border-white/5 hover:border-cyan/50 transition-all",
-              formButtonPrimary: "neon-border bg-cyan/10 hover:bg-cyan/20 text-cyan uppercase tracking-widest font-display text-xs",
+              formButtonPrimary: "neon-button bg-cyan/10 hover:bg-cyan/20 text-white uppercase tracking-widest font-display text-xs",
               footerActionLink: "text-cyan hover:text-white transition-all",
               dividerLine: "bg-white/5",
               dividerText: "text-text-faint font-display text-[10px] uppercase",
             }
           }}
         />
+        </div>
       </div>
 
       {/* ── Subtle Footer ── */}
