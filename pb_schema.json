@@ -5,17 +5,116 @@
     "type": "base",
     "system": false,
     "schema": [
-      { "system": false, "id": "up_1", "name": "user_id", "type": "relation", "required": true, "options": { "collectionId": "_pb_users_auth_", "cascadeDelete": true, "maxSelect": 1 } },
-      { "system": false, "id": "up_2", "name": "display_name", "type": "text", "required": true, "options": { "min": 2, "max": 50 } },
-      { "system": false, "id": "up_3", "name": "personality_desc", "type": "text", "required": true, "options": { "max": 1000 } },
-      { "system": false, "id": "up_4", "name": "tone", "type": "text", "required": true, "options": { "max": 50 } },
-      { "system": false, "id": "up_5", "name": "context_main", "type": "text", "required": false, "options": { "max": 5000 } },
-      { "system": false, "id": "up_6", "name": "context_soul", "type": "text", "required": false, "options": { "max": 5000 } },
-      { "system": false, "id": "up_7", "name": "context_guards", "type": "text", "required": false, "options": { "max": 5000 } },
-      { "system": false, "id": "up_8", "name": "profile_snapshot", "type": "json", "required": false, "options": {} },
-      { "system": false, "id": "up_9", "name": "learning_progress", "type": "number", "required": false, "options": { "min": 0, "max": 100 } },
-      { "system": false, "id": "up_10", "name": "total_conversations", "type": "number", "required": false, "options": { "min": 0 } },
-      { "system": false, "id": "up_11", "name": "onboarding_complete", "type": "bool", "required": false, "options": {} }
+      {
+        "system": false,
+        "id": "up_1",
+        "name": "user_id",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": true,
+          "maxSelect": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "up_2",
+        "name": "display_name",
+        "type": "text",
+        "required": true,
+        "options": {
+          "min": 2,
+          "max": 50
+        }
+      },
+      {
+        "system": false,
+        "id": "up_3",
+        "name": "personality_desc",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 1000
+        }
+      },
+      {
+        "system": false,
+        "id": "up_4",
+        "name": "tone",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 50
+        }
+      },
+      {
+        "system": false,
+        "id": "up_5",
+        "name": "context_main",
+        "type": "text",
+        "required": false,
+        "options": {
+          "max": 5000
+        }
+      },
+      {
+        "system": false,
+        "id": "up_6",
+        "name": "context_soul",
+        "type": "text",
+        "required": false,
+        "options": {
+          "max": 5000
+        }
+      },
+      {
+        "system": false,
+        "id": "up_7",
+        "name": "context_guards",
+        "type": "text",
+        "required": false,
+        "options": {
+          "max": 5000
+        }
+      },
+      {
+        "system": false,
+        "id": "up_8",
+        "name": "profile_snapshot",
+        "type": "json",
+        "required": false,
+        "options": {}
+      },
+      {
+        "system": false,
+        "id": "up_9",
+        "name": "learning_progress",
+        "type": "number",
+        "required": false,
+        "options": {
+          "min": 0,
+          "max": 100
+        }
+      },
+      {
+        "system": false,
+        "id": "up_10",
+        "name": "total_conversations",
+        "type": "number",
+        "required": false,
+        "options": {
+          "min": 0
+        }
+      },
+      {
+        "system": false,
+        "id": "up_11",
+        "name": "onboarding_complete",
+        "type": "bool",
+        "required": false,
+        "options": {}
+      }
     ],
     "listRule": "user_id = @request.auth.id",
     "viewRule": "user_id = @request.auth.id",
@@ -29,11 +128,63 @@
     "type": "base",
     "system": false,
     "schema": [
-      { "system": false, "id": "cv_1", "name": "user_id", "type": "relation", "required": true, "options": { "collectionId": "_pb_users_auth_", "cascadeDelete": true, "maxSelect": 1 } },
-      { "system": false, "id": "cv_2", "name": "session_id", "type": "text", "required": true, "options": { "min": 1, "max": 100 } },
-      { "system": false, "id": "cv_3", "name": "role", "type": "select", "required": true, "options": { "maxSelect": 1, "values": ["user", "twin"] } },
-      { "system": false, "id": "cv_4", "name": "content", "type": "text", "required": true, "options": { "max": 50000 } },
-      { "system": false, "id": "cv_5", "name": "turn_index", "type": "number", "required": true, "options": { "min": 0 } }
+      {
+        "system": false,
+        "id": "cv_1",
+        "name": "user_id",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": true,
+          "maxSelect": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "cv_2",
+        "name": "session_id",
+        "type": "text",
+        "required": true,
+        "options": {
+          "min": 1,
+          "max": 100
+        }
+      },
+      {
+        "system": false,
+        "id": "cv_3",
+        "name": "role",
+        "type": "select",
+        "required": true,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "user",
+            "twin"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "cv_4",
+        "name": "content",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 50000
+        }
+      },
+      {
+        "system": false,
+        "id": "cv_5",
+        "name": "turn_index",
+        "type": "number",
+        "required": true,
+        "options": {
+          "min": 0
+        }
+      }
     ],
     "listRule": "user_id = @request.auth.id",
     "viewRule": "user_id = @request.auth.id",
@@ -47,16 +198,159 @@
     "type": "base",
     "system": false,
     "schema": [
-      { "system": false, "id": "fc_1", "name": "user_id", "type": "relation", "required": true, "options": { "collectionId": "_pb_users_auth_", "cascadeDelete": true, "maxSelect": 1 } },
-      { "system": false, "id": "fc_2", "name": "fact_text", "type": "text", "required": true, "options": { "max": 1000 } },
-      { "system": false, "id": "fc_3", "name": "category", "type": "select", "required": true, "options": { "maxSelect": 1, "values": ["preference", "biographical", "habit", "goal", "emotion"] } },
-      { "system": false, "id": "fc_4", "name": "tags", "type": "json", "required": false, "options": {} },
-      { "system": false, "id": "fc_5", "name": "confidence", "type": "number", "required": true, "options": { "min": 0, "max": 1 } },
-      { "system": false, "id": "fc_6", "name": "reinforced_count", "type": "number", "required": false, "options": { "min": 0 } },
-      { "system": false, "id": "fc_7", "name": "is_active", "type": "bool", "required": false, "options": {} },
-      { "system": false, "id": "fc_8", "name": "importance", "type": "number", "required": false, "options": { "min": 0, "max": 10 } },
-      { "system": false, "id": "fc_9", "name": "source_conversation", "type": "relation", "required": false, "options": { "collectionId": "conversations", "cascadeDelete": false, "maxSelect": 1 } },
-      { "system": false, "id": "fc_10", "name": "last_reinforced_at", "type": "date", "required": false, "options": {} }
+      {
+        "system": false,
+        "id": "fc_1",
+        "name": "user_id",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": true,
+          "maxSelect": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_2",
+        "name": "fact_text",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 1000
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_3",
+        "name": "category",
+        "type": "select",
+        "required": true,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "preference",
+            "biographical",
+            "habit",
+            "goal",
+            "emotion"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_4",
+        "name": "tags",
+        "type": "json",
+        "required": false,
+        "options": {}
+      },
+      {
+        "system": false,
+        "id": "fc_5",
+        "name": "confidence",
+        "type": "number",
+        "required": true,
+        "options": {
+          "min": 0,
+          "max": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_6",
+        "name": "reinforced_count",
+        "type": "number",
+        "required": false,
+        "options": {
+          "min": 0
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_7",
+        "name": "is_active",
+        "type": "bool",
+        "required": false,
+        "options": {}
+      },
+      {
+        "system": false,
+        "id": "fc_8",
+        "name": "importance",
+        "type": "number",
+        "required": false,
+        "options": {
+          "min": 0,
+          "max": 10
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_9",
+        "name": "source_conversation",
+        "type": "relation",
+        "required": false,
+        "options": {
+          "collectionId": "conversations",
+          "cascadeDelete": false,
+          "maxSelect": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_10",
+        "name": "last_reinforced_at",
+        "type": "date",
+        "required": false,
+        "options": {}
+      },
+      {
+        "system": false,
+        "id": "fc_11",
+        "name": "fact_fingerprint",
+        "type": "text",
+        "required": false,
+        "options": {
+          "max": 128
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_12",
+        "name": "status",
+        "type": "select",
+        "required": false,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "active",
+            "reinforced",
+            "conflicted",
+            "archived"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_13",
+        "name": "source",
+        "type": "text",
+        "required": false,
+        "options": {
+          "max": 120
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_14",
+        "name": "conflict_group_id",
+        "type": "text",
+        "required": false,
+        "options": {
+          "max": 64
+        }
+      }
     ],
     "listRule": "user_id = @request.auth.id",
     "viewRule": "user_id = @request.auth.id",
@@ -70,13 +364,194 @@
     "type": "base",
     "system": false,
     "schema": [
-      { "system": false, "id": "me_1", "name": "user_id", "type": "relation", "required": true, "options": { "collectionId": "_pb_users_auth_", "cascadeDelete": true, "maxSelect": 1 } },
-      { "system": false, "id": "me_2", "name": "source_fact", "type": "relation", "required": true, "options": { "collectionId": "facts", "cascadeDelete": true, "maxSelect": 1 } },
-      { "system": false, "id": "me_3", "name": "target_fact", "type": "relation", "required": true, "options": { "collectionId": "facts", "cascadeDelete": true, "maxSelect": 1 } },
-      { "system": false, "id": "me_4", "name": "relationship_type", "type": "select", "required": true, "options": { "maxSelect": 1, "values": ["supports", "contradicts", "related_to", "caused_by", "goal_of", "mentioned_with"] } },
-      { "system": false, "id": "me_5", "name": "weight", "type": "number", "required": false, "options": { "min": 0, "max": 10 } },
-      { "system": false, "id": "me_6", "name": "created_by", "type": "select", "required": true, "options": { "maxSelect": 1, "values": ["reflection", "graph_agent", "user"] } },
-      { "system": false, "id": "me_7", "name": "confidence", "type": "number", "required": false, "options": { "min": 0, "max": 1 } }
+      {
+        "system": false,
+        "id": "me_1",
+        "name": "user_id",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": true,
+          "maxSelect": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "me_2",
+        "name": "source_fact",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "facts",
+          "cascadeDelete": true,
+          "maxSelect": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "me_3",
+        "name": "target_fact",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "facts",
+          "cascadeDelete": true,
+          "maxSelect": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "me_4",
+        "name": "relationship_type",
+        "type": "select",
+        "required": true,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "supports",
+            "contradicts",
+            "related_to",
+            "caused_by",
+            "goal_of",
+            "mentioned_with"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "me_5",
+        "name": "weight",
+        "type": "number",
+        "required": false,
+        "options": {
+          "min": 0,
+          "max": 10
+        }
+      },
+      {
+        "system": false,
+        "id": "me_6",
+        "name": "created_by",
+        "type": "select",
+        "required": true,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "reflection",
+            "graph_agent",
+            "user"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "me_7",
+        "name": "confidence",
+        "type": "number",
+        "required": false,
+        "options": {
+          "min": 0,
+          "max": 1
+        }
+      }
+    ],
+    "listRule": "user_id = @request.auth.id",
+    "viewRule": "user_id = @request.auth.id",
+    "createRule": "user_id = @request.auth.id",
+    "updateRule": "user_id = @request.auth.id",
+    "deleteRule": "user_id = @request.auth.id"
+  },
+  {
+    "id": "fact_revisions",
+    "name": "fact_revisions",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "fr_1",
+        "name": "user_id",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": true,
+          "maxSelect": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "fr_2",
+        "name": "conflict_group_id",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 64
+        }
+      },
+      {
+        "system": false,
+        "id": "fr_3",
+        "name": "previous_fact_id",
+        "type": "relation",
+        "required": false,
+        "options": {
+          "collectionId": "facts",
+          "cascadeDelete": false,
+          "maxSelect": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "fr_4",
+        "name": "previous_fact",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 1000
+        }
+      },
+      {
+        "system": false,
+        "id": "fr_5",
+        "name": "revision_fact",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 1000
+        }
+      },
+      {
+        "system": false,
+        "id": "fr_6",
+        "name": "category",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 50
+        }
+      },
+      {
+        "system": false,
+        "id": "fr_7",
+        "name": "reason",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 120
+        }
+      },
+      {
+        "system": false,
+        "id": "fr_8",
+        "name": "source",
+        "type": "text",
+        "required": false,
+        "options": {
+          "max": 120
+        }
+      }
     ],
     "listRule": "user_id = @request.auth.id",
     "viewRule": "user_id = @request.auth.id",
