@@ -7,15 +7,12 @@ import { Webhook } from 'svix';
 import { headers } from 'next/headers';
 import { WebhookEvent } from '@clerk/nextjs/server';
 import PocketBase from 'pocketbase';
+import { env } from '@/lib/env';
 
-const POCKETBASE_URL = process.env.POCKETBASE_URL || 'http://localhost:8090';
+const POCKETBASE_URL = env.POCKETBASE_URL;
 
 export async function POST(req: Request) {
-  const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
-  if (!WEBHOOK_SECRET) {
-    console.error('[WEBHOOK] Missing CLERK_WEBHOOK_SECRET');
-    return new Response('Server misconfigured', { status: 500 });
-  }
+  const WEBHOOK_SECRET = env.CLERK_WEBHOOK_SECRET;
 
   // Get svix headers for verification
   const headerPayload = await headers();

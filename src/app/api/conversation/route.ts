@@ -18,6 +18,7 @@ import { callOllamaWithTools, streamOllama } from '@/lib/ollama-client';
 import { v4 as uuidv4 } from 'uuid';
 import type { ConversationRequest } from '@/types/twin';
 import crypto from 'crypto';
+import { env } from '@/lib/env';
 
 // SIDECAR_URL is resolved inside triggerReflection() to avoid stale module-level state
 
@@ -25,8 +26,7 @@ import crypto from 'crypto';
  * Server-side PocketBase client (data layer only, no auth forwarding)
  */
 function getServerPB(): PocketBase {
-  if (!process.env.POCKETBASE_URL) throw new Error('POCKETBASE_URL environment variable is required');
-  const pb = new PocketBase(process.env.POCKETBASE_URL);
+  const pb = new PocketBase(env.POCKETBASE_URL);
   pb.autoCancellation(false);
   return pb;
 }
@@ -246,7 +246,9 @@ async function triggerReflection(userId: string, sessionId: string): Promise<voi
   const signature = generateSignature(payload, SIDECAR_SECRET);
 
   try {
-    const response = await fetch(`${SIDECAR_URL}/reflect`, {
+    const url = env.SIDECAR_URL;
+    if (!url) return;
+    const response = await fetch(`${url}/reflect`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
