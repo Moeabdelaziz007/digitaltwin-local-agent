@@ -51,6 +51,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased min-h-svh safe-top safe-bottom`}>
         <ClerkProvider
+          publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
           appearance={{
             baseTheme: dark,
             variables: {

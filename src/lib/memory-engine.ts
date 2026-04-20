@@ -5,7 +5,7 @@
 
 import PocketBase from 'pocketbase';
 import type { UserProfile, ConversationMessage, ProfileSnapshot, Fact } from '@/types/twin';
-import type { OllamaTool } from '@/lib/ollama-client';
+import { OllamaTool, callOllama } from '@/lib/ollama-client';
 
 const POCKETBASE_URL = process.env.POCKETBASE_URL || 'http://localhost:8090';
 
@@ -77,17 +77,69 @@ export async function executeRecallMemory(userId: string, topic: string): Promis
  */
 export async function executeSaveMemory(userId: string, fact: string, category: string): Promise<string> {
   const pb = getServerPB();
+  
   try {
+    // 1. Query candidates for semantic check (category match + confidence > 0.4)
+    const candidates = await pb.collection('facts').getList<Fact>(1, 10, {
+      filter: `user_id = "${userId}" && category = "${category}" && confidence > 0.4`,
+      sort: '-confidence'
+    });
+
+    for (const existing of candidates.items) {
+      // 2. Ask LLM for semantic relationship
+      const prompt = `Compare these two facts and classify their relationship into EXACT one of these categories: [IDENTICAL], [REFINEMENT], [CONTRADICTION], or [NEW].
+Fact A (Existing): "${existing.fact}"
+Fact B (New): "${fact}"
+
+Classification (One word only):`;
+
+      const response = await callOllama(prompt);
+      const classification = response.toUpperCase();
+
+      if (classification.includes('IDENTICAL')) {
+        // 3a. Reinforce existing fact
+        const newConfidence = Math.min(1.0, existing.confidence + 0.1);
+        await pb.collection('facts').update(existing.id, {
+          confidence: newConfidence,
+          reinforced_count: (existing.reinforced_count || 0) + 1,
+          updated: new Date().toISOString()
+        });
+        return `Memory reinforced: "${existing.fact}" (Confirmed)`;
+      }
+
+      if (classification.includes('REFINEMENT')) {
+        // 3b. Update existing fact with the new, more detailed version
+        await pb.collection('facts').update(existing.id, {
+          fact: fact, // New fact is the refinement
+          confidence: 0.9,
+          reinforced_count: (existing.reinforced_count || 0) + 1,
+          updated: new Date().toISOString()
+        });
+        return `Memory refined: "${fact}" (Updated from "${existing.fact}")`;
+      }
+
+      if (classification.includes('CONTRADICTION')) {
+        // 3c. Flag contradiction (For now, let New fact take precedence but log the shift)
+        await pb.collection('facts').update(existing.id, {
+          confidence: 0.2, // Drastically lower confidence in the old fact
+          tags: [...(existing.tags || []), 'contradicted_by_new_input']
+        });
+        // We will continue to create the new fact below
+      }
+    }
+
+    // 4. No identical fact found, create new record
     await pb.collection('facts').create({
       user_id: userId,
       fact,
       category,
       confidence: 0.8,
-      reinforced_count: 1
+      reinforced_count: 0
     });
-    return `Succesfully saved and reinforced fact: "${fact}" under ${category}.`;
-  } catch (_error) {
-    return "Failed to save fact to long-term memory.";
+    return `Succesfully saved new fact: "${fact}" under ${category}.`;
+  } catch (error) {
+    console.error('[MEMORY/SAVE] Hardening Error:', error);
+    return "Memory system is currently stabilizing. Fact not saved.";
   }
 }
 

@@ -1,5 +1,5 @@
-// ============================================================
 // /api/conversation — Dual-Mode Chat Endpoint (Streaming + Tool-Calling)
+import * as Sentry from '@sentry/nextjs';
 //
 // GET:  Real-time streaming (Optimized for Web UI consumption)
 // POST: Atomic, tool-augmented logic (Optimized for structured UI/Reflection)
@@ -29,6 +29,32 @@ function getServerPB(): PocketBase {
   const pb = new PocketBase(process.env.POCKETBASE_URL);
   pb.autoCancellation(false);
   return pb;
+}
+
+/**
+ * PHASE 2: Sidecar Request Signing
+ * Generates an HMAC-SHA256 signature for payload verification.
+ */
+function generateSignature(payload: object, secret: string): string {
+  return crypto
+    .createHmac('sha256', secret)
+    .update(JSON.stringify(payload))
+    .digest('hex');
+}
+
+/**
+ * PHASE 1: Sequential Turn Index
+ * Fetches the next available turn index for a session.
+ */
+async function getNextTurnIndex(pb: PocketBase, sessionId: string): Promise<number> {
+  try {
+    const lastRecord = await pb.collection('conversations').getFirstListItem(`session_id="${sessionId}"`, {
+      sort: '-turn_index',
+    });
+    return (lastRecord.turn_index || 0) + 1;
+  } catch {
+    return 1;
+  }
 }
 
 /**
@@ -74,12 +100,15 @@ export async function GET(request: NextRequest) {
         // 🔥 Fire-and-Forget Persistence (async)
         (async () => {
           try {
+            const nextIndex = await getNextTurnIndex(pb, sessionId);
+
             // Save User message
             await pb.collection('conversations').create({
               user_id: userId,
               session_id: sessionId,
               role: 'user',
               content: message,
+              turn_index: nextIndex,
             });
 
             // Save Twin response
@@ -88,6 +117,7 @@ export async function GET(request: NextRequest) {
               session_id: sessionId,
               role: 'twin',
               content: fullReply,
+              turn_index: nextIndex + 1,
             });
 
             // Trigger Reflection if needed
@@ -208,14 +238,33 @@ export async function POST(request: NextRequest) {
  * Fire-and-forget reflection trigger
  */
 async function triggerReflection(userId: string, sessionId: string): Promise<void> {
+  const SIDECAR_URL = process.env.SIDECAR_URL;
+  const SIDECAR_SECRET = process.env.SIDECAR_SECRET || 'dev_secret_only';
+  if (!SIDECAR_URL) return;
+
+  const payload = { user_id: userId, session_id: sessionId, timestamp: Date.now() };
+  const signature = generateSignature(payload, SIDECAR_SECRET);
+
   try {
-    if (!process.env.SIDECAR_URL) return;
-    const url = process.env.SIDECAR_URL;
-    await fetch(`${url}/reflect`, {
+    const response = await fetch(`${SIDECAR_URL}/reflect`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: userId, session_id: sessionId }),
-      signal: AbortSignal.timeout(3000),
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Twin-Signature': signature, // PHASE 2: Signed Requests
+      },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(5000), // STEP 3: 5-second timeout
     });
-  } catch {}
+
+    if (!response.ok) {
+      throw new Error(`Sidecar responded with code: ${response.status}`);
+    }
+  } catch (error) {
+    // STEP 3: Log to Sentry with context but do not throw
+    console.warn('[CONVERSATION/REFLECTION] Silent Failure:', error);
+    Sentry.captureException(error, {
+      tags: { context: 'sidecar-reflection', userId },
+      extra: { sessionId, errorMsg: (error as Error).message }
+    });
+  }
 }
