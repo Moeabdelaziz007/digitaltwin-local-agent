@@ -15,6 +15,7 @@ import {
   executeSaveMemory
 } from '@/lib/memory-engine';
 import { callOllamaWithTools, streamOllama } from '@/lib/ollama-client';
+import { safeFetch } from '@/lib/safe-fetch';
 import { v4 as uuidv4 } from 'uuid';
 import type { ConversationRequest } from '@/types/twin';
 import crypto from 'crypto';
@@ -384,35 +385,54 @@ export async function POST(request: NextRequest) {
  * Fire-and-forget reflection trigger
  */
 async function triggerReflection(userId: string, sessionId: string): Promise<void> {
-  const SIDECAR_URL = process.env.SIDECAR_URL;
-  const SIDECAR_SECRET = process.env.SIDECAR_SECRET || 'dev_secret_only';
-  if (!SIDECAR_URL) return;
-
-  const payload = { user_id: userId, session_id: sessionId, timestamp: Date.now() };
-  const signature = generateSignature(payload, SIDECAR_SECRET);
-
   try {
     const url = env.SIDECAR_URL;
-    if (!url) return;
-    const response = await fetch(`${url}/reflect`, {
+    const secret = env.SIDECAR_SHARED_SECRET;
+    if (!url || !secret) return;
+
+    const rawBody = JSON.stringify({ user_id: userId, session_id: sessionId });
+    const ts = Math.floor(Date.now() / 1000).toString();
+    const signature = crypto
+      .createHmac('sha256', secret)
+      .update(`${ts}.${rawBody}`)
+      .digest('hex');
+
+    const result = await safeFetch(`${url}/reflect`, {
       method: 'POST',
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
-        'X-Twin-Signature': signature, // PHASE 2: Signed Requests
+        'x-dmt-ts': ts,
+        'x-dmt-signature': signature,
       },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(5000), // STEP 3: 5-second timeout
+      body: rawBody,
+    }, {
+      timeoutMs: 5000,
+      retries: 2,
+      backoffMs: 300,
+      sessionId,
     });
 
-    if (!response.ok) {
-      throw new Error(`Sidecar responded with code: ${response.status}`);
+    if (!result.ok) {
+      console.error('[triggerReflection] Sidecar reflection request failed', {
+        session_id: sessionId,
+        user_id: userId,
+        status: result.status,
+        error: result.error,
+      });
+      Sentry.captureMessage('Sidecar reflection failed', {
+        level: 'warning',
+        extra: { status: result.status, error: result.error, sessionId }
+      });
     }
   } catch (error) {
-    // STEP 3: Log to Sentry with context but do not throw
-    console.warn('[CONVERSATION/REFLECTION] Silent Failure:', error);
+    console.error('[triggerReflection] Unexpected reflection trigger error', {
+      session_id: sessionId,
+      user_id: userId,
+      error,
+    });
     Sentry.captureException(error, {
       tags: { context: 'sidecar-reflection', userId },
-      extra: { sessionId, errorMsg: (error as Error).message }
+      extra: { sessionId }
     });
   }
 }
