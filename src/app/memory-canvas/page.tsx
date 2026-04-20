@@ -93,7 +93,7 @@ export default function MemoryCanvasPage() {
       }
     }
 
-    loadCanvasMap();
+    void loadCanvasMap();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

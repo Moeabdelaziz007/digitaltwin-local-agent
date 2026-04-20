@@ -25,3 +25,14 @@ Use [Conventional Commits](https://www.conventionalcommits.org/):
 - `fix: ...`
 - `docs: ...`
 - `style: ...`
+
+## Deployment Checklist
+Before merging/deploying, verify all of the following locally or in CI:
+- `npm run check:env` passes with required environment variables present.
+- `npm run typecheck` passes with zero TypeScript errors.
+- `npm run lint` passes with zero warnings (critical rules fail the build).
+- `npm run build` passes.
+- `npm run check:smoke` passes for auth/signature guards:
+  - `/api/conversation` unauthorized branch.
+  - `/api/cron/decay` CRON secret guard.
+  - `/api/webhooks/clerk` signature verification requirement.

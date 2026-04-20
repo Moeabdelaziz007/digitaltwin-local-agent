@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
         controller.close();
 
         // 🔥 Fire-and-Forget Persistence (async)
-        (async () => {
+        void (async () => {
           try {
             // Save User message
             await pb.collection('conversations').create({
