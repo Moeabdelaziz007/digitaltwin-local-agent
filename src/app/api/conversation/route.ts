@@ -15,6 +15,7 @@ import {
   executeSaveMemory 
 } from '@/lib/memory-engine';
 import { callOllamaWithTools, streamOllama } from '@/lib/ollama-client';
+import { safeFetch } from '@/lib/safe-fetch';
 import { v4 as uuidv4 } from 'uuid';
 import type { ConversationRequest } from '@/types/twin';
 import crypto from 'crypto';
@@ -209,13 +210,43 @@ export async function POST(request: NextRequest) {
  */
 async function triggerReflection(userId: string, sessionId: string): Promise<void> {
   try {
-    if (!process.env.SIDECAR_URL) return;
+    if (!process.env.SIDECAR_URL || !process.env.SIDECAR_SHARED_SECRET) return;
     const url = process.env.SIDECAR_URL;
-    await fetch(`${url}/reflect`, {
+    const rawBody = JSON.stringify({ user_id: userId, session_id: sessionId });
+    const ts = Math.floor(Date.now() / 1000).toString();
+    const signature = crypto
+      .createHmac('sha256', process.env.SIDECAR_SHARED_SECRET)
+      .update(`${ts}.${rawBody}`)
+      .digest('hex');
+
+    const result = await safeFetch(`${url}/reflect`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: userId, session_id: sessionId }),
-      signal: AbortSignal.timeout(3000),
+      headers: {
+        'Content-Type': 'application/json',
+        'x-dmt-ts': ts,
+        'x-dmt-signature': signature,
+      },
+      body: rawBody,
+    }, {
+      timeoutMs: 3000,
+      retries: 2,
+      backoffMs: 300,
+      sessionId,
     });
-  } catch {}
+
+    if (!result.ok) {
+      console.error('[triggerReflection] Sidecar reflection request failed', {
+        session_id: sessionId,
+        user_id: userId,
+        status: result.status,
+        error: result.error,
+      });
+    }
+  } catch (error) {
+    console.error('[triggerReflection] Unexpected reflection trigger error', {
+      session_id: sessionId,
+      user_id: userId,
+      error,
+    });
+  }
 }
