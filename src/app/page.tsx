@@ -129,7 +129,7 @@ export default function LandingPage() {
             >
               System Dashboard
             </button>
-            <UserButton afterSignOutUrl="/" />
+            <UserButton />
           </Show>
           <Show when="signed-out">
             <SignInButton mode="modal">

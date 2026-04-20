@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from "react";
-import { useUser } from "@clerk/nextjs";
+import { useUser, UserButton } from "@clerk/nextjs";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import pb from "@/lib/pocketbase-client";
@@ -191,6 +191,7 @@ export default function DashboardPage() {
           <button className="text-text-muted hover:text-cyan transition-all"><Shield size={16} /></button>
           <button onClick={() => router.push('/settings')} className="text-text-muted hover:text-cyan transition-all"><Info size={16} /></button>
           <div className="h-6 w-[1px] bg-white/10 mx-2" />
+          <UserButton />
         </div>
       </header>
 
