@@ -29,6 +29,7 @@
     "@livekit/components-react": "latest",
     "@livekit/components-styles": "latest",
     "@clerk/nextjs": "latest",
+    "@clerk/themes": "latest",
     "svix": "latest"
   },
   "devDependencies": {
