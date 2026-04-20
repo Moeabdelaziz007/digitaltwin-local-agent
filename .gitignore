@@ -1,0 +1,53 @@
+# Dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Next.js & Build
+/.next/
+/out/
+/build/
+tsconfig.tsbuildinfo
+next-env.d.ts
+
+# OS & IDE
+.DS_Store
+*.pem
+.vscode/
+.idea/
+*.swp
+*.bak
+
+# Tool-specific (Cleanup)
+.kombai/
+.myhome/
+.qodo/
+CHANGELOG.md
+pb.log
+
+# Sidecar & Binaries (CRITICAL: Private/Internal only)
+/pocketbase
+/pb_data/
+/sidecar/bin/
+/sidecar/tmp/
+/sidecar/twin-worker
+/sidecar/whisper/main
+/sidecar/whisper/models/
+*.bin
+*.wav
+*.mp3
+*.webm
+
+# Environment & Secrets (NEVER COMMIT)
+.env*
+!.env.example
+
+# Third-party Source (Optional: Users should run setup scripts)
+# /sidecar/whisper/  <-- We keep the directory structure but ignore internal builds above
+.vercel
+.env.local

@@ -1,0 +1,26 @@
+# MyDigitalTwin LiveKit Infrastructure
+# Optimized for local low-latency WebRTC
+services:
+  livekit:
+    image: livekit/livekit-server:latest
+    container_name: livekit-server
+    command: --config /etc/livekit.yaml
+    restart: always
+    ports:
+      - "7880:7880"   # HTTP/WebSocket API
+      - "7881:7881"   # TCP fallback
+      - "7882:7882/udp" # WebRTC UDP
+      - "3478:3478/udp" # TURN
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml
+    environment:
+      - LIVEKIT_KEYS=devkey: secretsecret  # Placeholder: change for production
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    container_name: livekit-redis
+    command: redis-server --save 60 1 --loglevel warning
+    ports:
+      - "6379:6379"

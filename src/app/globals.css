@@ -1,0 +1,134 @@
+@import "tailwindcss";
+
+@theme {
+  /* 1. Primitive Tokens (Raw Colors) */
+  --color-primitive-bg-base: #0F1115;
+  --color-primitive-bg-elv1: #151922;
+  --color-primitive-bg-elv2: #1B2130;
+  
+  --color-primitive-text-primary: #F4F7FB;
+  --color-primitive-text-secondary: #B8C0D0;
+  --color-primitive-text-muted: #7D8798;
+  
+  --color-brand-primary: #6AA9FF;
+  --color-brand-primary-soft: #8FC8FF;
+  --color-brand-secondary: #8D7DFF;
+  --color-brand-warm: #F4B37A;
+  --color-brand-success: #59C39A;
+  
+  --color-primitive-glass: rgba(255, 255, 255, 0.05);
+  --color-primitive-border: rgba(255, 255, 255, 0.10);
+
+  /* Semantic Core Colors */
+  --color-bg-app: var(--color-primitive-bg-base);
+  --color-surface-panel: var(--color-primitive-bg-elv1);
+  --color-surface-stage: var(--color-primitive-bg-elv2);
+  --color-border-subtle: var(--color-primitive-border);
+  
+  /* Semantic State Colors */
+  --color-state-listening: var(--color-brand-success); /* Teal/Cyan-ish */
+  --color-state-thinking: var(--color-brand-secondary); /* Violet */
+  --color-state-speaking: var(--color-brand-primary-soft); /* Soft Blue */
+  --color-state-learning: var(--color-brand-warm); /* Warm Gold */
+  
+  /* Spacing Grid (4/8 based natively inside V4 via default, but explicitly custom bounds allowed) */
+}
+
+/* Base resets relying heavily on the Twin Aura Philosophy */
+@layer base {
+  :root {
+    --background: var(--color-primitive-bg-base);
+    --foreground: var(--color-primitive-text-primary);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    @apply antialiased font-sans flex flex-col min-h-screen overflow-hidden;
+  }
+}
+
+/* 2. Semantic Shadows & Borders */
+@layer utilities {
+  .glass-surface {
+    background: var(--color-primitive-glass);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--color-border-subtle);
+  }
+
+  .ambient-glow {
+    box-shadow: 0 0 40px -10px rgba(106, 169, 255, 0.15);
+  }
+  
+  .orb-glow-listening {
+    box-shadow: 0 0 60px -5px var(--color-state-listening);
+  }
+  
+  .orb-glow-thinking {
+    box-shadow: 0 0 50px 10px var(--color-state-thinking);
+  }
+
+  .orb-glow-speaking {
+    box-shadow: 0 0 80px 10px var(--color-state-speaking);
+  }
+}
+
+/* 3. Motion Curves (Cubic Bezier for premium feel) */
+@layer utilities {
+  .transition-twin {
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    transition-duration: 400ms;
+  }
+  .transition-twin-slow {
+    transition-timing-function: ease-in-out;
+    transition-duration: 800ms;
+  }
+}
+
+/* Custom Keyframes for TwinOrb */
+@keyframes breathe {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.6; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.6; }
+}
+
+@keyframes slow-orbit {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.02); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.animate-breathe {
+  animation: breathe 6s ease-in-out infinite;
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2.5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+.animate-thinking-orbit {
+  animation: slow-orbit 10s linear infinite;
+}
+
+/* Accessibility & Fallbacks */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+button:focus-visible, a:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}

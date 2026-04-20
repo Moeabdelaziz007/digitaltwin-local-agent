@@ -1,0 +1,15 @@
+# LiveKit Server Configuration
+port: 7880
+logging:
+  json: false
+  level: info
+
+rtc:
+  udp_port: 7882
+  use_external_ip: false # Set to true if accessing outside local network
+
+keys:
+  devkey: secretsecret
+
+redis:
+  address: redis:6379

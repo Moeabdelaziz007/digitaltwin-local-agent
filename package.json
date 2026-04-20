@@ -1,0 +1,44 @@
+{
+  "name": "digital-mini-twin",
+  "version": "1.0.0",
+  "description": "Architecting a Private, Voice-First AI Digital Twin. Built with Next.js 15, Go sidecars, and local LLMs.",
+  "author": "Mohamed Hossameldin Abdelaziz (@Moeabdelaziz007)",
+  "license": "MIT",
+  "scripts": {
+    "dev": "next dev --turbo",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "test:cron:decay": "curl -H 'Authorization: Bearer test' http://localhost:3000/api/cron/decay",
+    "test:cron:snapshot": "curl -H 'Authorization: Bearer test' http://localhost:3000/api/cron/snapshot"
+  },
+  "dependencies": {
+    "@xyflow/react": "^12.10.2",
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.38.0",
+    "lucide-react": "^0.460.0",
+    "next": "16.2.4",
+    "pocketbase": "^0.26.8",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^2.5.5",
+    "uuid": "^11.0.3",
+    "ai": "^4.3.0",
+    "zod": "^3.23.0",
+    "livekit-client": "latest",
+    "@livekit/components-react": "latest",
+    "@livekit/components-styles": "latest",
+    "@clerk/nextjs": "latest",
+    "svix": "latest"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.0.0-beta.8",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.4",
+    "tailwindcss": "4.0.0-beta.8",
+    "typescript": "^5"
+  }
+}
