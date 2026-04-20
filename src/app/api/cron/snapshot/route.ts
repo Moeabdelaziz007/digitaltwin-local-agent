@@ -7,14 +7,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import PocketBase from 'pocketbase';
 import type { UserProfile, Fact, ProfileSnapshot } from '@/types/twin';
+import { env } from '@/lib/env';
 
-const POCKETBASE_URL = process.env.POCKETBASE_URL || 'http://localhost:8090';
+const POCKETBASE_URL = env.POCKETBASE_URL;
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization');
   
   // 1. Validate Secret
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (authHeader !== `Bearer ${env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

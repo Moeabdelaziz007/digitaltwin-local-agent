@@ -115,16 +115,25 @@ npm run dev
 
 ---
 
-## 🔑 Required Environment Variables
+## 🔑 Environment Variables
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Yes | Clerk frontend client initialization |
-| `CLERK_SECRET_KEY` | Yes | Clerk secure backend auth |
-| `CLERK_WEBHOOK_SECRET` | Yes | Clerk identity webhook sync validation |
-| `POCKETBASE_URL` | Yes | Database external API routing |
-| `LIVEKIT_URL` / `LIVEKIT_API_KEY` | No | Required only for real-time voice bridge |
-| `CRON_SECRET` | Yes | Security bypass for Vercel CRON job execution |
+| `POCKETBASE_URL` | Yes | Server-side PocketBase URL for API routes and memory engine |
+| `CLERK_SECRET_KEY` | Yes | Clerk server auth secret |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Yes | Clerk client publishable key |
+| `CLERK_WEBHOOK_SECRET` | Yes | Signature verification for `/api/webhooks/clerk` |
+| `SIDECAR_URL` | Yes | Reflection sidecar base URL used by `/api/conversation` |
+| `SIDECAR_SHARED_SECRET` | Yes | Shared secret between app and sidecar services |
+| `CRON_SECRET` | Yes | Bearer secret required by `/api/cron/*` routes |
+| `NEXT_PUBLIC_POCKETBASE_URL` | No | Optional client-facing PocketBase URL override |
+| `OLLAMA_URL` | No | Optional Ollama API URL (defaults to local) |
+| `OLLAMA_MODEL` | No | Optional default LLM model name |
+| `LIVEKIT_URL` | No | LiveKit websocket URL for voice token generation |
+| `LIVEKIT_API_KEY` | No | LiveKit API key for server-side token minting |
+| `LIVEKIT_API_SECRET` | No | LiveKit API secret for server-side token minting |
+| `NEXT_PUBLIC_LIVEKIT_URL` | No | Optional LiveKit URL fallback on the client |
+| `NEXT_PUBLIC_SENTRY_DSN` | No | Optional browser-side Sentry DSN |
 
 ---
 

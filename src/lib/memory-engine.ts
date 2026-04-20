@@ -6,8 +6,9 @@
 import PocketBase from 'pocketbase';
 import type { UserProfile, ConversationMessage, ProfileSnapshot, Fact } from '@/types/twin';
 import type { OllamaTool } from '@/lib/ollama-client';
+import { env } from '@/lib/env';
 
-const POCKETBASE_URL = process.env.POCKETBASE_URL || 'http://localhost:8090';
+const POCKETBASE_URL = env.POCKETBASE_URL;
 
 // Server-side PocketBase client
 function getServerPB(): PocketBase {
