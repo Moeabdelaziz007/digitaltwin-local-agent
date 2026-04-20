@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { ClerkProvider } from '@clerk/nextjs';
 import { dark } from '@clerk/themes';
+import ErrorBoundary from '@/components/ErrorBoundary';
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -68,7 +69,9 @@ export default function RootLayout({
             }
           }}
         >
-          {children}
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
         </ClerkProvider>
       </body>
     </html>

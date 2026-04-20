@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import pb from "@/lib/pocketbase-client";
 import type { UserProfile } from "@/types/twin";
 import { Send, Mic, Brain, Shield, Info, Database } from "lucide-react";
+import { VoiceBridge } from "@/components/VoiceBridge";
 
 // ── UI Sub-components ──
 
@@ -52,27 +53,32 @@ const LearningToast = ({ fact, visible }: { fact: string; visible: boolean }) =>
   </AnimatePresence>
 );
 
-const HologramStage = () => (
-  <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
-    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan/5 to-bg-void pointer-events-none" />
-    <div className="relative w-64 h-64 perspective-1000">
-       <div className="absolute inset-0 border border-cyan/20 rounded-full animate-[hologram-spin_10s_linear_infinite]" 
-            style={{ transform: 'rotateX(75deg)' }} />
-       <div className="absolute inset-4 border border-violet/30 rounded-full animate-[hologram-spin_15s_linear_infinite_reverse]" 
-            style={{ transform: 'rotateX(75deg)' }} />
-       <div className="z-10 absolute inset-0 flex items-center justify-center">
-          <div className="w-32 h-32 rounded-full glass border border-cyan/40 p-1 animate-pulse">
-            <div className="w-full h-full rounded-full bg-cyan/10 flex items-center justify-center">
-              <svg width="40" height="40" viewBox="0 0 100 100" className="text-cyan">
-                <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" fill="none" stroke="currentColor" strokeWidth="4" />
-                <circle cx="50" cy="50" r="10" fill="currentColor" className="animate-ping" />
-              </svg>
+const HologramStage = ({ voiceState }: { voiceState: string }) => {
+  const isSpeaking = voiceState === 'speaking';
+  const isListening = voiceState === 'listening';
+  
+  return (
+    <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan/5 to-bg-void pointer-events-none" />
+      <div className="relative w-64 h-64 perspective-1000">
+         <div className={`absolute inset-0 border rounded-full animate-[hologram-spin_10s_linear_infinite] ${isSpeaking ? 'border-amber/40 shadow-[0_0_20px_rgba(245,158,11,0.2)]' : 'border-cyan/20'}`} 
+              style={{ transform: 'rotateX(75deg)' }} />
+         <div className={`absolute inset-4 border rounded-full animate-[hologram-spin_15s_linear_infinite_reverse] ${isSpeaking ? 'border-amber/60' : isListening ? 'border-cyan/60 shadow-[0_0_30px_rgba(0,240,255,0.2)]' : 'border-violet/30'}`} 
+              style={{ transform: 'rotateX(75deg)' }} />
+         <div className="z-10 absolute inset-0 flex items-center justify-center">
+            <div className={`w-32 h-32 rounded-full glass border p-1 ${isSpeaking ? 'border-amber/40 animate-pulse' : 'border-cyan/40 animate-pulse'}`}>
+              <div className={`w-full h-full rounded-full flex items-center justify-center ${isSpeaking ? 'bg-amber/10' : 'bg-cyan/10'}`}>
+                <svg width="40" height="40" viewBox="0 0 100 100" className={isSpeaking ? 'text-amber' : 'text-cyan'}>
+                  <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" fill="none" stroke="currentColor" strokeWidth="4" />
+                  <circle cx="50" cy="50" r="10" fill="currentColor" className={isSpeaking ? 'animate-ping' : isListening ? 'animate-bounce' : 'animate-ping'} />
+                </svg>
+              </div>
             </div>
-          </div>
-       </div>
+         </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 // ── Main Dashboard Page ──
 
@@ -88,6 +94,7 @@ export default function DashboardPage() {
   const [learningProgress, setLearningProgress] = useState(3);
   const [toastFact, setToastFact] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
+  const [voiceState, setVoiceState] = useState('disconnected');
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -199,7 +206,7 @@ export default function DashboardPage() {
       <main className="flex flex-1 overflow-hidden">
         {/* Avatar Stage (50%) */}
         <section className="hidden md:flex flex-[0.5] border-r border-white/5 bg-bg-surface/30 relative items-center justify-center">
-          <HologramStage />
+          <HologramStage voiceState={voiceState} />
           <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-center">
             <p className="font-display text-[10px] text-cyan/40 uppercase tracking-[0.4em] mb-2">Cognitive Link Status</p>
             <div className="flex items-center gap-1 justify-center">
@@ -258,9 +265,7 @@ export default function DashboardPage() {
 
       {/* ── Controls (80px) ── */}
       <footer className="h-20 border-t border-white/5 glass px-4 md:px-8 flex items-center gap-4 shrink-0 transition-all">
-        <button className="w-10 h-10 rounded-full flex items-center justify-center text-text-muted hover:text-cyan hover:bg-cyan/10 transition-all shrink-0">
-          <Mic size={20} />
-        </button>
+        <VoiceBridge onStateChange={setVoiceState} />
         
         <form onSubmit={handleSend} className="flex-1 relative">
           <input 
