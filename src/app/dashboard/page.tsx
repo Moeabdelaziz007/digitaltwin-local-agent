@@ -1,132 +1,289 @@
-"use client";
+'use client';
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
+import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 import pb from "@/lib/pocketbase-client";
 import type { UserProfile } from "@/types/twin";
-import DashboardShell from "@/components/dashboard/DashboardShell";
-import TwinStage from "@/components/dashboard/TwinStage";
-import MemorySidebar from "@/components/dashboard/MemorySidebar";
-import type { MiniTwinState } from "@/components/dashboard/MiniTwin/MiniTwinController";
-import type { Proposal } from "@/components/dashboard/MiniTwin/ProposalPanel";
+import { Send, Mic, Brain, Shield, Info, Database } from "lucide-react";
 
-import { LiveKitRoom, AudioConference, ControlBar, useTracks } from "@livekit/components-react";
-import { Track } from "livekit-client";
-import "@livekit/components-styles";
+// ── UI Sub-components ──
 
-type TwinState = "idle" | "listening" | "thinking" | "speaking" | "learning";
+const LearningProgressRing = ({ progress }: { progress: number }) => {
+  const radius = 18;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (progress / 100) * circumference;
+
+  return (
+    <div className="relative flex items-center justify-center w-12 h-12">
+      <svg className="w-full h-full -rotate-90">
+        <circle cx="24" cy="24" r={radius} fill="none" stroke="currentColor" strokeWidth="2" className="text-white/5" />
+        <circle 
+          cx="24" cy="24" r={radius} fill="none" stroke="currentColor" strokeWidth="2" 
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          className="text-cyan transition-all duration-1000 ease-out"
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-[8px] font-display font-bold text-cyan">{progress}%</span>
+      </div>
+    </div>
+  );
+};
+
+const LearningToast = ({ fact, visible }: { fact: string; visible: boolean }) => (
+  <AnimatePresence>
+    {visible && (
+      <motion.div 
+        initial={{ opacity: 0, y: 50, x: 20 }}
+        animate={{ opacity: 1, y: 0, x: 0 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        className="fixed bottom-24 right-6 glass p-4 rounded-md border-l-4 border-l-cyan max-w-xs z-50"
+      >
+        <div className="flex items-center gap-3 mb-1">
+          <Brain size={14} className="text-cyan animate-pulse" />
+          <span className="text-[10px] font-display font-bold uppercase text-cyan tracking-widest">Cognitive Adaptation</span>
+        </div>
+        <p className="text-xs text-text-muted leading-tight">Noted: {fact}</p>
+      </motion.div>
+    )}
+  </AnimatePresence>
+);
+
+const HologramStage = () => (
+  <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan/5 to-bg-void pointer-events-none" />
+    <div className="relative w-64 h-64 perspective-1000">
+       <div className="absolute inset-0 border border-cyan/20 rounded-full animate-[hologram-spin_10s_linear_infinite]" 
+            style={{ transform: 'rotateX(75deg)' }} />
+       <div className="absolute inset-4 border border-violet/30 rounded-full animate-[hologram-spin_15s_linear_infinite_reverse]" 
+            style={{ transform: 'rotateX(75deg)' }} />
+       <div className="z-10 absolute inset-0 flex items-center justify-center">
+          <div className="w-32 h-32 rounded-full glass border border-cyan/40 p-1 animate-pulse">
+            <div className="w-full h-full rounded-full bg-cyan/10 flex items-center justify-center">
+              <svg width="40" height="40" viewBox="0 0 100 100" className="text-cyan">
+                <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" fill="none" stroke="currentColor" strokeWidth="4" />
+                <circle cx="50" cy="50" r="10" fill="currentColor" className="animate-ping" />
+              </svg>
+            </div>
+          </div>
+       </div>
+    </div>
+  </div>
+);
+
+// ── Main Dashboard Page ──
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { user, isLoaded: userLoaded } = useUser();
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [callState, setCallState] = useState<TwinState>("idle");
-  const [liveCaption, setLiveCaption] = useState("Ready to connect...");
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // State
+  const [messages, setMessages] = useState<Array<{ role: 'user' | 'twin', content: string }>>([]);
+  const [inputValue, setInputValue] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [learningProgress, setLearningProgress] = useState(3);
+  const [toastFact, setToastFact] = useState('');
+  const [toastVisible, setToastVisible] = useState(false);
 
-  // LiveKit State
-  const [token, setToken] = useState<string | null>(null);
-  const url = "ws://localhost:7880";
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const [activeProposal, setActiveProposal] = useState<Proposal | null>(null);
-  const [proposalOpen, setProposalOpen] = useState(false);
-  const miniTwinState: MiniTwinState = activeProposal ? "proposing" : (callState as unknown as MiniTwinState);
-
-  const { user } = useUser();
-
-  /* ── Load user profile on mount ── */
+  // Load Profile
   useEffect(() => {
-    let isMounted = true;
+    if (!userLoaded || !user?.id) return;
     async function loadData() {
-      if (!user?.id) return;
       try {
-        const record = await pb
-          .collection("user_profiles")
-          .getFirstListItem(`user_id="${user.id}"`);
-        if (isMounted) setProfile(record as unknown as UserProfile);
-      } catch (e: any) {
-        if (isMounted) router.push("/onboard");
+        const record = await pb.collection("user_profiles").getFirstListItem(`user_id="${user?.id}"`);
+        setProfile(record as unknown as UserProfile);
+      } catch (e) {
+        router.push("/onboard");
       }
     }
     loadData();
-    return () => { isMounted = false; };
-  }, [user?.id, router]);
+  }, [user?.id, userLoaded, router]);
 
-  /* ── Subscribe to real-time agent proposals ── */
+  // Scroll to bottom
   useEffect(() => {
-    if (!profile?.user_id) return;
-    pb.collection("proposals").subscribe("*", (e) => {
-      if (e.action === "create" && e.record.user_id === profile.user_id && e.record.status === "pending") {
-        setActiveProposal(e.record as unknown as Proposal);
-      }
-    }, { requestKey: null });
-    return () => { if (profile?.user_id) pb.collection("proposals").unsubscribe("*"); };
-  }, [profile?.user_id]);
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
 
-  /* ── Handle RTC Connection ── */
-  const handleToggleRTC = async () => {
-    if (token) {
-      setToken(null);
-      setCallState("idle");
-      setLiveCaption("Disconnected.");
-    } else {
-      setCallState("thinking");
-      setLiveCaption("Connecting to Digital Twin Swarm...");
+  // Handle Send
+  const handleSend = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!inputValue.trim() || isLoading || !user?.id) return;
+
+    const userMsg = inputValue.trim();
+    setInputValue('');
+    setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/conversation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: userMsg, userId: user.id })
+      });
+
+      if (!response.ok) throw new Error("Connection lost");
+      const data = await response.json();
       
-      // MVP: In a real app, call /api/livekit/token
-      // Using the devkey/secretsecret in LiveKit server
-      setToken("dev-token-placeholder"); 
-      setCallState("listening");
-      setLiveCaption("Connected via WebRTC.");
+      // Atomic response logic for POST mode
+      // (Future: Upgrade to stream reader here for char-by-char)
+      const twinReply = data.reply || "... (No response)";
+      
+      // Typewriter Effect logic
+      let currentIdx = 0;
+      setMessages(prev => [...prev, { role: 'twin', content: '' }]);
+      
+      const interval = setInterval(() => {
+        setMessages(prev => {
+          const lastMsg = prev[prev.length - 1];
+          const newHistory = prev.slice(0, -1);
+          return [...newHistory, { role: 'twin', content: twinReply.slice(0, currentIdx + 1) }];
+        });
+        currentIdx++;
+        if (currentIdx >= twinReply.length) {
+          clearInterval(interval);
+          setIsLoading(false);
+          
+          // Trigger Learning Toast randomly for demo
+          if (messages.length % 4 === 0) {
+            setToastFact(userMsg.slice(0, 30) + "...");
+            setToastVisible(true);
+            setTimeout(() => setToastVisible(false), 4000);
+            setLearningProgress(p => Math.min(100, p + 1));
+          }
+        }
+      }, 20);
+
+    } catch (err) {
+      setMessages(prev => [...prev, { role: 'twin', content: "SYSTEM ERROR: DATA STREAM INTERRUPTED." }]);
+      setIsLoading(false);
     }
   };
 
   return (
-    <DashboardShell
-      miniTwinState={miniTwinState}
-      activeProposal={activeProposal}
-      proposalOpen={proposalOpen}
-      onToggleMiniTwin={() => setProposalOpen(!proposalOpen)}
-      onApproveProposal={() => { setActiveProposal(null); setProposalOpen(false); }}
-      onRejectProposal={() => { setActiveProposal(null); setProposalOpen(false); }}
-    >
-      <div className="flex h-full flex-col lg:flex-row">
-        {token ? (
-          <LiveKitRoom
-            audio={true}
-            video={false}
-            token={token}
-            serverUrl={url}
-            onDisconnected={() => setToken(null)}
-            className="flex-1 flex flex-col"
+    <div className="flex flex-col h-svh bg-bg-void text-text-primary font-body overflow-hidden">
+      <LearningToast fact={toastFact} visible={toastVisible} />
+      
+      {/* ── Header (48px) ── */}
+      <header className="h-12 border-b border-white/5 px-6 flex items-center justify-between glass shrink-0 z-50">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <svg width="20" height="20" viewBox="0 0 100 100" className="text-cyan">
+              <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" fill="none" stroke="currentColor" strokeWidth="8" />
+            </svg>
+            <span className="font-display font-bold text-xs tracking-tighter uppercase">Digital Twin v2.1</span>
+          </div>
+          <div className="flex items-center gap-1.5 px-2 py-0.5 bg-cyan/10 rounded-full">
+            <div className="w-1.5 h-1.5 bg-cyan rounded-full animate-pulse" />
+            <span className="text-[10px] font-display text-cyan uppercase font-bold tracking-widest">Online</span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <button className="text-text-muted hover:text-cyan transition-all"><Database size={16} /></button>
+          <button className="text-text-muted hover:text-cyan transition-all"><Shield size={16} /></button>
+          <button onClick={() => router.push('/settings')} className="text-text-muted hover:text-cyan transition-all"><Info size={16} /></button>
+          <div className="h-6 w-[1px] bg-white/10 mx-2" />
+        </div>
+      </header>
+
+      {/* ── Main Layout (Flex) ── */}
+      <main className="flex flex-1 overflow-hidden">
+        {/* Avatar Stage (50%) */}
+        <section className="hidden md:flex flex-[0.5] border-r border-white/5 bg-bg-surface/30 relative items-center justify-center">
+          <HologramStage />
+          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-center">
+            <p className="font-display text-[10px] text-cyan/40 uppercase tracking-[0.4em] mb-2">Cognitive Link Status</p>
+            <div className="flex items-center gap-1 justify-center">
+               {[...Array(5)].map((_, i) => (
+                 <motion.div 
+                   key={i}
+                   animate={{ scaleY: [1, 2, 1], opacity: [0.3, 0.6, 0.3] }}
+                   transition={{ duration: 1, repeat: Infinity, delay: i * 0.1 }}
+                   className="w-[2px] h-3 bg-cyan"
+                 />
+               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Transcript Panel */}
+        <section className="flex-1 flex flex-col bg-bg-void/50 relative overflow-hidden">
+          <div 
+            ref={scrollRef}
+            className="flex-1 overflow-y-auto p-6 md:p-12 space-y-8 scrollbar-thin scrollbar-thumb-cyan/20 scrollbar-track-transparent"
           >
-            <TwinStage
-              callState={callState}
-              profileName={profile?.display_name ?? null}
-              liveCaption={liveCaption}
-              isMicOn={true}
-              onToggleMic={handleToggleRTC}
-              onEndCall={() => setToken(null)}
-              onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
-            />
-          </LiveKitRoom>
-        ) : (
-          <TwinStage
-            callState="idle"
-            profileName={profile?.display_name ?? null}
-            liveCaption={liveCaption}
-            isMicOn={false}
-            onToggleMic={handleToggleRTC}
-            onEndCall={() => {}}
-            onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+            {messages.length === 0 && (
+              <div className="h-full flex flex-col items-center justify-center text-center opacity-20">
+                <Brain size={48} className="mb-4" />
+                <p className="font-display text-sm uppercase tracking-[0.2em]">Neural link awaiting input...</p>
+              </div>
+            )}
+            
+            {messages.map((m, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, x: m.role === 'user' ? 20 : -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <div className={`max-w-[85%] md:max-w-[70%] ${m.role === 'user' ? 'order-1' : 'order-2'}`}>
+                  <div className={`p-4 rounded-xl text-sm leading-relaxed ${
+                    m.role === 'user' 
+                      ? 'glass text-white border-white/5' 
+                      : 'bg-violet-dim/5 text-text-primary border-l-2 border-l-violet'
+                  }`}>
+                    {m.content}
+                    {isLoading && i === messages.length - 1 && m.role === 'twin' && (
+                       <span className="inline-block w-1 h-4 bg-cyan animate-pulse ml-1 align-middle" />
+                    )}
+                  </div>
+                  <p className={`text-[10px] font-display mt-2 opacity-30 uppercase tracking-widest ${m.role === 'user' ? 'text-right' : 'text-left'}`}>
+                    {m.role === 'user' ? 'Authored By User' : 'Generated Instance'}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      </main>
+
+      {/* ── Controls (80px) ── */}
+      <footer className="h-20 border-t border-white/5 glass px-4 md:px-8 flex items-center gap-4 shrink-0 transition-all">
+        <button className="w-10 h-10 rounded-full flex items-center justify-center text-text-muted hover:text-cyan hover:bg-cyan/10 transition-all shrink-0">
+          <Mic size={20} />
+        </button>
+        
+        <form onSubmit={handleSend} className="flex-1 relative">
+          <input 
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="Type a message to your twin..."
+            className="w-full bg-white/5 border border-white/10 rounded-lg px-6 py-3 text-sm focus:outline-none focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20 transition-all disabled:opacity-50"
+            disabled={isLoading}
           />
-        )}
-        <MemorySidebar
-          callState={callState}
-          mobileOpen={sidebarOpen}
-          onMobileClose={() => setSidebarOpen(false)}
-        />
-      </div>
-    </DashboardShell>
+          <button 
+            type="submit"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-cyan hover:scale-110 transition-all disabled:opacity-30"
+            disabled={isLoading || !inputValue.trim()}
+          >
+            <Send size={18} />
+          </button>
+        </form>
+
+        <div className="flex flex-col items-center shrink-0">
+          <LearningProgressRing progress={learningProgress} />
+          <span className="text-[8px] font-display text-text-muted uppercase tracking-tighter -mt-1 font-bold">Evolution</span>
+        </div>
+      </footer>
+    </div>
   );
 }
