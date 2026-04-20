@@ -3,8 +3,11 @@
 // Optimized for gemma4 and Autonomous Tool Calling
 // ============================================================
 
-const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
-const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'gemma4';
+import { env } from '@/lib/env';
+
+const OLLAMA_URL = env.OLLAMA_URL;
+const OLLAMA_MODEL = env.OLLAMA_MODEL;
+const EMBEDDING_MODEL = 'all-minilm';
 
 export interface OllamaMessage {
   role: 'system' | 'user' | 'assistant' | 'tool';
@@ -184,6 +187,30 @@ export async function callOllamaWithTools(
   }
 
   throw new Error('Ollama reached maximum tool call iterations');
+}
+
+/**
+ * CAPABILITY 4: fetchEmbedding()
+ * Generate vector embeddings for text using a local embedding model.
+ */
+export async function fetchEmbedding(prompt: string): Promise<number[] | null> {
+  try {
+    const res = await fetch(`${OLLAMA_URL}/api/embeddings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: EMBEDDING_MODEL,
+        prompt: prompt,
+      }),
+    });
+
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.embedding;
+  } catch (error) {
+    console.error('[OLLAMA/EMBEDDING] Failed to fetch embedding:', error);
+    return null;
+  }
 }
 
 /**

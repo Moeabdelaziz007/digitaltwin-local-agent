@@ -13,7 +13,7 @@ const POCKETBASE_URL = env.POCKETBASE_URL;
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization');
-  
+
   // 1. Validate Secret
   if (authHeader !== `Bearer ${env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -24,37 +24,42 @@ export async function GET(req: NextRequest) {
 
   // ── Step 2: Fetch facts with significant confidence ──
   let processed = 0;
-  let deleted = 0;
+  let archived = 0;
   let updated = 0;
 
   try {
-    // Note: We use authStore.save if a service token is required, 
-    // but typically cron jobs on Vercel use admin or public list rules.
     const facts = await pb.collection('facts').getFullList<Fact>({
-      filter: 'confidence > 0.1',
+      filter: 'confidence > 0.05 && status != "archived"',
     });
 
     for (const fact of facts) {
       processed++;
-      
+
       // ── Step 3: Compute decay ──
-      const daysSince = (Date.now() - new Date(fact.updated).getTime()) / 86400000;
-      const baseDecay = fact.category === 'biographical' ? 0.05 : 0.15;
-      
-      // R = e^(-k * t)
-      const newConfidence = fact.confidence * Math.exp(-baseDecay * daysSince);
-      
-      // Reinforcement bonus (slower decay for highly reinforced facts)
-      const reinforcementBonus = Math.min((fact.reinforced_count || 0) * 0.02, 0.1);
-      const finalConfidence = Math.min(newConfidence + reinforcementBonus, 1.0);
+      const lastActiveAt = new Date(fact.last_reinforced_at || fact.updated).getTime();
+      const daysSince = (Date.now() - lastActiveAt) / 86400000;
+      const baseDecay = fact.category === 'biographical' ? 0.04 : 0.11;
+
+      // Reinforcement slows decay significantly over time
+      const reinforcementShield = 1 / (1 + Math.log1p(Math.max(fact.reinforced_count || 0, 0)) * 0.85);
+      const effectiveDecay = baseDecay * reinforcementShield;
+
+      // Old and non-reinforced facts should fade faster to archive
+      const stalePenalty = daysSince > 30 && (fact.reinforced_count || 0) <= 1 ? 0.9 : 1;
+
+      const decayedConfidence = fact.confidence * Math.exp(-effectiveDecay * daysSince) * stalePenalty;
+      const finalConfidence = Math.min(parseFloat(decayedConfidence.toFixed(4)), 1.0);
 
       // ── Step 4 & 5: Persist ──
-      if (finalConfidence < 0.15) {
-        await pb.collection('facts').delete(fact.id);
-        deleted++;
+      if (finalConfidence < 0.08) {
+        await pb.collection('facts').update(fact.id, {
+          confidence: finalConfidence,
+          status: 'archived',
+        });
+        archived++;
       } else {
         await pb.collection('facts').update(fact.id, {
-          confidence: parseFloat(finalConfidence.toFixed(4)),
+          confidence: finalConfidence,
         });
         updated++;
       }
@@ -62,7 +67,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       processed,
-      deleted,
+      archived,
       updated,
       timestamp: new Date().toISOString(),
     });

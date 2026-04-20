@@ -184,40 +184,13 @@
         "options": {
           "min": 0
         }
-      },
-      {
-        "system": false,
-        "id": "cv_6",
-        "name": "turn_id",
-        "type": "relation",
-        "required": false,
-        "options": {
-          "collectionId": "conversation_turns",
-          "cascadeDelete": true,
-          "maxSelect": 1
-        }
-      },
-      {
-        "system": false,
-        "id": "cv_7",
-        "name": "message_id",
-        "type": "text",
-        "required": false,
-        "options": {
-          "min": 1,
-          "max": 100
-        }
       }
     ],
     "listRule": "user_id = @request.auth.id",
     "viewRule": "user_id = @request.auth.id",
     "createRule": "user_id = @request.auth.id",
     "updateRule": null,
-    "deleteRule": null,
-    "indexes": [
-      "CREATE UNIQUE INDEX IF NOT EXISTS idx_conversations_user_session_turn_role ON conversations (user_id, session_id, turn_index, role)",
-      "CREATE UNIQUE INDEX IF NOT EXISTS idx_conversations_message_id ON conversations (message_id)"
-    ]
+    "deleteRule": null
   },
   {
     "id": "facts",
@@ -331,6 +304,52 @@
         "type": "date",
         "required": false,
         "options": {}
+      },
+      {
+        "system": false,
+        "id": "fc_11",
+        "name": "fact_fingerprint",
+        "type": "text",
+        "required": false,
+        "options": {
+          "max": 128
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_12",
+        "name": "status",
+        "type": "select",
+        "required": false,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "active",
+            "reinforced",
+            "conflicted",
+            "archived"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_13",
+        "name": "source",
+        "type": "text",
+        "required": false,
+        "options": {
+          "max": 120
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_14",
+        "name": "conflict_group_id",
+        "type": "text",
+        "required": false,
+        "options": {
+          "max": 64
+        }
       }
     ],
     "listRule": "user_id = @request.auth.id",
@@ -444,14 +463,14 @@
     "deleteRule": "user_id = @request.auth.id"
   },
   {
-    "id": "conversation_turns",
-    "name": "conversation_turns",
+    "id": "fact_revisions",
+    "name": "fact_revisions",
     "type": "base",
     "system": false,
     "schema": [
       {
         "system": false,
-        "id": "ct_1",
+        "id": "fr_1",
         "name": "user_id",
         "type": "relation",
         "required": true,
@@ -463,151 +482,81 @@
       },
       {
         "system": false,
-        "id": "ct_2",
-        "name": "session_id",
+        "id": "fr_2",
+        "name": "conflict_group_id",
         "type": "text",
         "required": true,
         "options": {
-          "min": 1,
-          "max": 100
+          "max": 64
         }
       },
       {
         "system": false,
-        "id": "ct_3",
-        "name": "turn_index",
-        "type": "number",
-        "required": true,
-        "options": {
-          "min": 0
-        }
-      },
-      {
-        "system": false,
-        "id": "ct_4",
-        "name": "idempotency_key",
-        "type": "text",
-        "required": false,
-        "options": {
-          "max": 160
-        }
-      },
-      {
-        "system": false,
-        "id": "ct_5",
-        "name": "status",
-        "type": "select",
-        "required": true,
-        "options": {
-          "maxSelect": 1,
-          "values": [
-            "processing",
-            "completed",
-            "failed"
-          ]
-        }
-      },
-      {
-        "system": false,
-        "id": "ct_6",
-        "name": "request_message_id",
-        "type": "text",
-        "required": true,
-        "options": {
-          "min": 1,
-          "max": 100
-        }
-      },
-      {
-        "system": false,
-        "id": "ct_7",
-        "name": "response_content",
-        "type": "text",
-        "required": false,
-        "options": {
-          "max": 50000
-        }
-      },
-      {
-        "system": false,
-        "id": "ct_8",
-        "name": "user_message_id",
+        "id": "fr_3",
+        "name": "previous_fact_id",
         "type": "relation",
         "required": false,
         "options": {
-          "collectionId": "conversations",
+          "collectionId": "facts",
           "cascadeDelete": false,
           "maxSelect": 1
         }
       },
       {
         "system": false,
-        "id": "ct_9",
-        "name": "twin_message_id",
+        "id": "fr_4",
+        "name": "previous_fact",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 1000
+        }
+      },
+      {
+        "system": false,
+        "id": "fr_5",
+        "name": "revision_fact",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 1000
+        }
+      },
+      {
+        "system": false,
+        "id": "fr_6",
+        "name": "category",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 50
+        }
+      },
+      {
+        "system": false,
+        "id": "fr_7",
+        "name": "reason",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 120
+        }
+      },
+      {
+        "system": false,
+        "id": "fr_8",
+        "name": "source",
         "type": "text",
         "required": false,
         "options": {
-          "max": 100
+          "max": 120
         }
       }
-    ],
-    "indexes": [
-      "CREATE UNIQUE INDEX IF NOT EXISTS idx_turns_session_turn ON conversation_turns (session_id, turn_index)",
-      "CREATE UNIQUE INDEX IF NOT EXISTS idx_turns_session_idempotency ON conversation_turns (session_id, idempotency_key) WHERE idempotency_key IS NOT NULL"
     ],
     "listRule": "user_id = @request.auth.id",
     "viewRule": "user_id = @request.auth.id",
     "createRule": "user_id = @request.auth.id",
     "updateRule": "user_id = @request.auth.id",
-    "deleteRule": null
-  },
-  {
-    "id": "session_counters",
-    "name": "session_counters",
-    "type": "base",
-    "system": false,
-    "schema": [
-      {
-        "system": false,
-        "id": "sc_1",
-        "name": "user_id",
-        "type": "relation",
-        "required": true,
-        "options": {
-          "collectionId": "_pb_users_auth_",
-          "cascadeDelete": true,
-          "maxSelect": 1
-        }
-      },
-      {
-        "system": false,
-        "id": "sc_2",
-        "name": "session_id",
-        "type": "text",
-        "required": true,
-        "options": {
-          "min": 1,
-          "max": 100
-        }
-      },
-      {
-        "system": false,
-        "id": "sc_3",
-        "name": "next_turn_index",
-        "type": "number",
-        "required": true,
-        "options": {
-          "min": 0
-        }
-      }
-    ],
-    "indexes": [
-      "CREATE UNIQUE INDEX IF NOT EXISTS idx_session_counters_session ON session_counters (session_id)"
-    ],
-    "listRule": "user_id = @request.auth.id",
-    "viewRule": "user_id = @request.auth.id",
-    "createRule": "user_id = @request.auth.id",
-    "updateRule": "user_id = @request.auth.id",
-    "deleteRule": null
+    "deleteRule": "user_id = @request.auth.id"
   }
 ]

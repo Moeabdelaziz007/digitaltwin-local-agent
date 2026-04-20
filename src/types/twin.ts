@@ -78,12 +78,18 @@ export interface SessionCounter extends PBRecord {
 export interface Fact extends PBRecord {
   user_id: string;
   fact: string;
-  category: 'preference' | 'biographical' | 'habit';
+  fact_text?: string;
+  fact_fingerprint?: string;
+  category: 'preference' | 'biographical' | 'habit' | 'goal' | 'emotion';
   confidence: number;
   should_store: boolean;
   evidence_span?: string;
   reinforced_count: number;
   source_session?: string;
+  status?: 'active' | 'reinforced' | 'conflicted' | 'archived';
+  source?: string;
+  last_reinforced_at?: string;
+  conflict_group_id?: string;
 }
 
 // ----------------------------------------------------------
