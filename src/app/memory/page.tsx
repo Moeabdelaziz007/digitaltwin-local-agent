@@ -32,7 +32,7 @@ export default function MemoryPage() {
         setLoading(false);
       }
     }
-    load();
+    void load();
   }, [router]);
 
   async function deleteFact(factId: string) {

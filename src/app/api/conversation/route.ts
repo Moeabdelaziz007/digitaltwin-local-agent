@@ -98,7 +98,7 @@ export async function GET(request: NextRequest) {
         controller.close();
 
         // 🔥 Fire-and-Forget Persistence (async)
-        (async () => {
+        void (async () => {
           try {
             const nextIndex = await getNextTurnIndex(pb, sessionId);
 

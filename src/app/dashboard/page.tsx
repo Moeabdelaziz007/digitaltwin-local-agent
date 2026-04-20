@@ -70,7 +70,7 @@ export default function DashboardPage() {
         router.push("/onboard");
       }
     }
-    loadData();
+    void loadData();
   }, [user?.id, userLoaded, router]);
 
   // Scroll to bottom
