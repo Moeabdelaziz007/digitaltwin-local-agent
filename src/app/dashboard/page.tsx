@@ -8,50 +8,11 @@ import pb from "@/lib/pocketbase-client";
 import type { UserProfile } from "@/types/twin";
 import { Send, Mic, Brain, Shield, Info, Database } from "lucide-react";
 import { VoiceBridge } from "@/components/VoiceBridge";
+import { ParticleNetwork } from "@/components/ParticleNetwork";
+import { LearningProgress } from "@/components/LearningProgress";
+import { LearningToast } from "@/components/LearningToast";
 
 // ── UI Sub-components ──
-
-const LearningProgressRing = ({ progress }: { progress: number }) => {
-  const radius = 18;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (progress / 100) * circumference;
-
-  return (
-    <div className="relative flex items-center justify-center w-12 h-12">
-      <svg className="w-full h-full -rotate-90">
-        <circle cx="24" cy="24" r={radius} fill="none" stroke="currentColor" strokeWidth="2" className="text-white/5" />
-        <circle 
-          cx="24" cy="24" r={radius} fill="none" stroke="currentColor" strokeWidth="2" 
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          className="text-cyan transition-all duration-1000 ease-out"
-        />
-      </svg>
-      <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-[8px] font-display font-bold text-cyan">{progress}%</span>
-      </div>
-    </div>
-  );
-};
-
-const LearningToast = ({ fact, visible }: { fact: string; visible: boolean }) => (
-  <AnimatePresence>
-    {visible && (
-      <motion.div 
-        initial={{ opacity: 0, y: 50, x: 20 }}
-        animate={{ opacity: 1, y: 0, x: 0 }}
-        exit={{ opacity: 0, scale: 0.9 }}
-        className="fixed bottom-24 right-6 glass p-4 rounded-md border-l-4 border-l-cyan max-w-xs z-50"
-      >
-        <div className="flex items-center gap-3 mb-1">
-          <Brain size={14} className="text-cyan animate-pulse" />
-          <span className="text-[10px] font-display font-bold uppercase text-cyan tracking-widest">Cognitive Adaptation</span>
-        </div>
-        <p className="text-xs text-text-muted leading-tight">Noted: {fact}</p>
-      </motion.div>
-    )}
-  </AnimatePresence>
-);
 
 const HologramStage = ({ voiceState }: { voiceState: string }) => {
   const isSpeaking = voiceState === 'speaking';
@@ -175,10 +136,11 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex flex-col h-svh bg-bg-void text-text-primary font-body overflow-hidden">
-      <LearningToast fact={toastFact} visible={toastVisible} />
+    <div className="flex flex-col h-screen overflow-hidden text-text-primary bg-transparent font-body relative">
+      <ParticleNetwork count={80} />
+      <LearningToast fact={toastFact} />
       
-      {/* ── Header (48px) ── */}
+      {/* ── Header ── */}
       <header className="h-12 border-b border-white/5 px-6 flex items-center justify-between glass shrink-0 z-50">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
@@ -194,9 +156,9 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-4">
-          <button className="text-text-muted hover:text-cyan transition-all"><Database size={16} /></button>
-          <button className="text-text-muted hover:text-cyan transition-all"><Shield size={16} /></button>
-          <button onClick={() => router.push('/settings')} className="text-text-muted hover:text-cyan transition-all"><Info size={16} /></button>
+          <button className="text-text-muted magnetic-icon"><Database size={16} /></button>
+          <button className="text-text-muted magnetic-icon"><Shield size={16} /></button>
+          <button onClick={() => router.push('/settings')} className="text-text-muted magnetic-icon"><Info size={16} /></button>
           <div className="h-6 w-[1px] bg-white/10 mx-2" />
           <UserButton />
         </div>
@@ -245,8 +207,8 @@ export default function DashboardPage() {
                 <div className={`max-w-[85%] md:max-w-[70%] ${m.role === 'user' ? 'order-1' : 'order-2'}`}>
                   <div className={`p-4 rounded-xl text-sm leading-relaxed ${
                     m.role === 'user' 
-                      ? 'glass text-white border-white/5' 
-                      : 'bg-violet-dim/5 text-text-primary border-l-2 border-l-violet'
+                      ? 'chat-user text-white' 
+                      : 'chat-twin text-text-primary'
                   }`}>
                     {m.content}
                     {isLoading && i === messages.length - 1 && m.role === 'twin' && (
@@ -286,8 +248,8 @@ export default function DashboardPage() {
         </form>
 
         <div className="flex flex-col items-center shrink-0">
-          <LearningProgressRing progress={learningProgress} />
-          <span className="text-[8px] font-display text-text-muted uppercase tracking-tighter -mt-1 font-bold">Evolution</span>
+          <LearningProgress value={learningProgress} />
+          <span className="text-[8px] font-display text-text-muted uppercase tracking-tighter mt-1 font-bold">Evolution</span>
         </div>
       </footer>
     </div>
