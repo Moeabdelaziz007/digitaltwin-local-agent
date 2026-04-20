@@ -50,6 +50,26 @@ export interface ConversationMessage extends PBRecord {
   content: string;
   detected_emotion?: string;
   turn_index: number;
+  turn_id?: string;
+  message_id?: string;
+}
+
+export interface ConversationTurn extends PBRecord {
+  user_id: string;
+  session_id: string;
+  turn_index: number;
+  idempotency_key?: string;
+  status: 'processing' | 'completed' | 'failed';
+  request_message_id: string;
+  response_content?: string;
+  user_message_id?: string;
+  twin_message_id?: string;
+}
+
+export interface SessionCounter extends PBRecord {
+  user_id: string;
+  session_id: string;
+  next_turn_index: number;
 }
 
 // ----------------------------------------------------------
@@ -87,6 +107,7 @@ export interface ConversationRequest {
   userId: string;
   message: string;
   sessionId?: string;
+  idempotencyKey?: string;
 }
 
 /** POST /api/conversation — Response (minimal DTO) */
@@ -94,6 +115,9 @@ export interface ConversationResponse {
   reply: string;
   sessionId: string;
   turnIndex: number;
+  messageId?: string;
+  turnId?: string;
+  idempotentReplay?: boolean;
   etag?: string;
 }
 
