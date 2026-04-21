@@ -19,7 +19,7 @@ interface TraceSpan {
   end_time: string;
   duration_ms: number;
   status: string;
-  attributes_json: Record<string, any>;
+  attributes_json: Record<string, unknown>;
   request_type?: string;
   component: string;
 }

@@ -127,7 +127,7 @@ export interface ImprovementProposal extends PBRecord {
   hypothesis: string;
   proposed_change: {
     key: string;
-    value: any;
+    value: unknown;
     reason: string;
   };
   status: 'pending' | 'applied' | 'rejected';

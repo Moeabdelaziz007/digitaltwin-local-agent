@@ -57,6 +57,6 @@ const fallbackEnv = {
   OLLAMA_MODEL: process.env.OLLAMA_MODEL || 'gemma4',
   SIDECAR_URL: process.env.SIDECAR_URL || 'http://localhost:8081',
   SIDECAR_SHARED_SECRET: process.env.SIDECAR_SHARED_SECRET || 'dev_secret_only',
-} as any;
+} satisfies Record<string, string>;
 
-export const env: typeof fallbackEnv = parsed.success ? (parsed.data as any) : fallbackEnv;
+export const env: typeof fallbackEnv = parsed.success ? (parsed.data as unknown as typeof fallbackEnv) : fallbackEnv;

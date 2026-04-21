@@ -19,7 +19,7 @@ export default function ImprovementsPage() {
   const [isRunningEval, setIsRunningEval] = useState(false);
 
   useEffect(() => {
-    fetchProposals();
+    void fetchProposals();
   }, []);
 
   async function fetchProposals() {
@@ -68,7 +68,7 @@ export default function ImprovementsPage() {
 
       setReason('');
       setSelectedProposal(null);
-      fetchProposals();
+      void fetchProposals();
     } catch (err) {
       console.error('Action failed:', err);
     } finally {

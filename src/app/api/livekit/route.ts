@@ -4,7 +4,7 @@ import { auth } from "@clerk/nextjs/server";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(_req: NextRequest) {
+export async function GET() {
   try {
     // 1. Authenticate Request
     const { userId } = await auth();
