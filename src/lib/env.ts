@@ -21,7 +21,9 @@ const envSchema = z.object({
   LIVEKIT_API_KEY: z.string().optional(),
   LIVEKIT_API_SECRET: z.string().optional(),
   NEXT_PUBLIC_LIVEKIT_URL: z.string().optional(),
-  ADMIN_USER_ID: z.string().min(1).default('user_2m1c...'), // Default for dev safety
+  ADMIN_USER_ID: z.string().min(1).optional(),
+  PB_ADMIN_EMAIL: z.string().email().optional(),
+  PB_ADMIN_PASSWORD: z.string().min(1).optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

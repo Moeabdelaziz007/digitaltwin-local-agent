@@ -32,11 +32,9 @@ async function getTraceSummaries(filterType?: string) {
 
 export default async function ObservabilityAdmin({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
   const { userId } = await auth();
-  if (!userId) redirect('/sign-in');
-
-  // PHASE 4 FIX: Strict Admin Guard
-  const isAdmin = userId === env.ADMIN_USER_ID;
-  if (!isAdmin) redirect('/');
+  if (!userId || !env.ADMIN_USER_ID || userId !== env.ADMIN_USER_ID) {
+    redirect('/');
+  }
 
   // Basic admin check (could use publicMetadata in production)
   // For now we allow authenticated users to see trial observability

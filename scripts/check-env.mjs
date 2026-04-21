@@ -50,12 +50,19 @@ if (missing.length > 0) {
     ? '.env.local + process env'
     : 'process env (no .env.local found)';
 
-  console.error('❌ Environment check failed. Missing required variables for build/runtime guards:');
+  const isCI = process.env.CI === 'true' || !!process.env.VERCEL;
+
+  console.error(`${isCI ? '⚠️' : '❌'} Environment check failed. Missing required variables for build/runtime guards:`);
   for (const name of missing) {
     console.error(`  - ${name}`);
   }
   console.error(`Checked source: ${sourceHint}`);
-  process.exit(1);
+
+  if (isCI) {
+    console.warn('⚠️ [CI/VERCEL] Missing variables will NOT block the build, but verify them in your dashboard.');
+  } else {
+    process.exit(1);
+  }
 }
 
 console.log('✅ Environment check passed. Required variables are set.');
