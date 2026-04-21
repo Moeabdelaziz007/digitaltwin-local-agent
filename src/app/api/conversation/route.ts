@@ -7,6 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import PocketBase from 'pocketbase';
 import { auth } from '@clerk/nextjs/server';
+import { headers } from 'next/headers';
 import {
   buildMemoryContext,
   MEMORY_TOOLS,
@@ -199,8 +200,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest): Promise<Response> {
   try {
     const { userId: clerkUserId } = await auth();
-    const guardianAuth = request.headers.get('X-Guardian-Auth');
-    const isGuardian = guardianAuth === env.CRON_SECRET; // Use CRON_SECRET as shared guardian secret
+    const headersList = await headers();
+    const guardianAuth = headersList.get('X-Guardian-Auth');
+    const isGuardian = guardianAuth === env.CRON_SECRET; 
     
     const userId = clerkUserId || (isGuardian ? 'xfv321rhy53bmt3' : null);
 
