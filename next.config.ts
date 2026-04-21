@@ -26,6 +26,7 @@ const nextConfig: NextConfig = {
     "@opentelemetry/exporter-trace-otlp-grpc",
     "@opentelemetry/otlp-grpc-exporter-base"
   ],
+  optimizeFonts: false,
 };
 
 export default nextConfig;
