@@ -1,118 +1,112 @@
-# DigitalMiniTwin / التوأم الرقمي المصغر
-
-> [EN] A cinematic full-stack AI digital twin with memory, adaptive learning, local LLM support, and immersive Sci-Fi UI. Now hardened with the **Cognitive Meta Loop** for autonomous research and skill evolution.
-> 
-> [AR] توأم رقمي ذكاء اصطناعي سينمائي متكامل مع الذاكرة، التعلم التكيفي، دعم النماذج اللغوية المحلية، وواجهة خيال علمي غامرة. تم تعزيزه الآن بـ **الحلقة الإدراكية الكبرى** للبحث المستقل وتطوير المهارات.
-
-![Next.js](https://img.shields.io/badge/Next.js-15/16_Ready-black?style=for-the-badge&logo=next.js&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue?style=for-the-badge&logo=typescript&logoColor=white)
-![Build](https://img.shields.io/badge/Quality_Gate-Passed-green?style=for-the-badge)
+# 🧬 DigitalTwin: The Cognitive Meta-Loop
+> **A Sovereign, Self-Improving Digital Consciousness.**
+> **وعي رقمي سيادي، ذاتي التطوير والتحسين.**
 
 ---
 
-## 🚀 The Cognitive Meta Loop / 🚀 الحلقة الإدراكية الكبرى
-
-[EN] We've evolved the architecture into a self-improving, research-aware autonomous system:
-- **Project-Researcher**: Automatically ingests intelligence from arXiv and GitHub based on your current focus.
-- **Skill Evolution**: Analyzes successful interaction traces and generalizes them into reusable Skill Drafts.
-- **Ambient Companion**: A smart UI (PresenceOrb) that visualizes research and improvement cycles via the "Work Report".
-
-[AR] لقد قمنا بتطوير الهندسة المعمارية إلى نظام مستقلاً ذاتي التطور والبحث:
-- **الباحث الذاتي (Project-Researcher)**: يقوم تلقائياً بجلب المعلومات والذكاء من arXiv و GitHub بناءً على تركيزك الحالي.
-- **تطور المهارات (Skill Evolution)**: يحلل تفاعلاتك الناجحة ويحولها إلى مسودات مهارات قابلة لإعادة الاستخدام.
-- **المرافق المحيط (Ambient Companion)**: واجهة ذكية (PresenceOrb) تعرض دورات البحث والتحسين عبر "تقرير العمل".
+[ ![GitHub Stars](https://img.shields.io/github/stars/Moeabdelaziz007/digitaltwin-local-agent?style=for-the-badge&color=ffd700&logo=github) ](https://github.com/Moeabdelaziz007/digitaltwin-local-agent)
+[ ![Next.js](https://img.shields.io/badge/Next.js-15/16_Ready-black?style=for-the-badge&logo=next.js) ](https://nextjs.org)
+[ ![Ollama](https://img.shields.io/badge/Local_AI-Ollama-white?style=for-the-badge&logo=ollama) ](https://ollama.com)
+[ ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge) ](LICENSE.md)
 
 ---
 
-## 🧠 Neural Infrastructure / 🧠 البنية التحتية العصبية
+## 🌌 The Vision / الرؤية
 
-### Advanced Memory Engine / محرك الذاكرة المتقدم
-- **[EN] Semantic Deduplication**: Uses vector embeddings to prevent persona drift.
-- **[AR] إزالة التكرار الدلالي**: يستخدم التضمينات المتجهية لمنع انحراف الشخصية.
-- **[EN] Categorical Reinforcement**: Higher stability for frequently reinforced facts.
-- **[AR] التعزيز الفئوي**: استقرار أعلى للحقائق التي يتم تعزيزها تكراراً.
+**[EN]** DigitalTwin is more than a chatbot; it is a persistent cognitive layer designed to evolve with its user. By combining **local-first intelligence** (Ollama) with an **autonomous meta-loop**, it transforms every conversation turn into reinforced memory or reusable procedural skills.
 
-### Atomic Persistence / الاستمرارية الذرية
-- **[EN] Idempotent Turns**: Every chat cycle is tracked via a Turn Envelope to prevent race conditions.
-- **[AR] محادثات غير متكررة (Idempotent)**: يتم تتبع كل دورة دردشة عبر غلاف (Turn Envelope) لمنع التداخلات.
-- **[EN] Cryptographic Bridge**: Sidecar communication secured via HMAC-SHA256 signatures.
-- **[AR] الجسر المشفر**: تأمين الاتصال مع الـ Sidecar عبر توقيعات HMAC-SHA256.
+**[AR]** مشروع "التوأم الرقمي" هو أكثر من مجرد روبوت دردشة؛ إنه طبقة إدراكية مستمرة مصممة لتتطور مع مستخدمها. من خلال الجمع بين **الذكاء المحلي الأول** (Ollama) و**حلقة الميتا المستقلة**، فإنه يحول كل محادثة إلى ذاكرة معززة أو مهارات إجرائية قابلة لإعادة الاستخدام.
 
 ---
 
-## 📐 Architecture Flow / 📐 تدفق الهندسة المعمارية
+## 🚀 The Cognitive Meta-Loop / الحلقة الإدراكية الكبرى
+
+| Component / المكون | EN: Primary Function | AR: الوظيفة الأساسية |
+| :--- | :--- | :--- |
+| **Researcher Engine** | Automated ingestion of "Knowledge Gems" from arXiv & GitHub. | جلب "الجواهر المعرفية" تلقائياً من arXiv و GitHub. |
+| **Skill Evolution** | Generalizing successful interaction traces into code-based skills. | تحويل تفاعلاتك الناجحة إلى مهارات برمجية قابلة للتكرار. |
+| **Deep Reflection** | Periodic batch analysis to detect persona drift and demote stale facts. | تحليل دوري لاكتشاف انحراف الشخصية وإلغاء الحقائق القديمة. |
+| **Ambient Aura** | Immersive Sci-Fi UI that visualizes internal cognitive states. | واجهة خيال علمي غامرة تصور الحالات الإدراكية الداخلية. |
+
+---
+
+## 📐 Architecture / الهندسة المعمارية
 
 ```mermaid
 graph TD
-  U[User Voice/Text] --> W[Next.js 15 App Router]
-  W --> A[API Layer / Atomic Turns]
-  A <--> P[PocketBase / Reinforced Facts]
-  A <--> O[Ollama / all-minilm Embeddings]
-  A -- Signed Request --> S[Reflection & Research Sidecar]
-  S -- Self Improvement --> A
+  User((User Focus)) --> |Context| Loop[Cognitive Meta-Loop]
+  Loop --> |Query| Researcher[Project-Researcher Engine]
+  Researcher --> |Knowledge Gems| Memory[(Reinforced Memory Matrix)]
+  Loop --> |Analysis| Evolve[Skill Evolution Worker]
+  Evolve --> |Approved Skills| FS[/Local File System/]
+  Loop --> |Visual Feedback| Aura[Ambient Companion UI]
 ```
 
 ---
 
-## 💻 Tech Stack / 💻 التقنيات المستخدمة
+## 🧠 Core Engineering / الهندسة الجوهرية
 
-| Layer / الطبقة | Technology / التقنية |
-|---|---|
-| **Frontend / الواجهة** | Next.js 15, React 19, Tailwind CSS v4, Motion |
-| **Logic / المنطق** | TypeScript (Strict), Zod |
-| **Database / القاعدة** | PocketBase (Local-first) |
-| **Local AI / الذكاء المحلي** | Ollama (Gemma 4 / all-minilm) |
-| **Orchestrator / المنسق** | Go Sidecar (Goroutines Workers) |
+- **[EN] Hybrid Memory Engine**: Implements Ebbinghaus-inspired decay models and semantic deduplication using `all-minilm`.
+- **[AR] محرك الذاكرة الهجين**: يطبق نماذج تلاشي مستوحاة من منحنى "إبنجهاوس" وإزالة التكرار الدلالي باستخدام `all-minilm`.
+- **[EN] Trusted Sidecars**: A high-performance Go-based orchestration layer handles background processing, secured via HMAC-SHA256.
+- **[AR] الـ Sidecars الموثوقة**: طبقة تنسيق عالية الأداء مبنية بلغة Go تتعامل مع العمليات الخلفية، مؤمنة بتوقيعات HMAC-SHA256.
+- **[EN] Atomic Persistence**: Idempotent turn tracking ensures zero data loss and prevents race conditions.
+- **[AR] الاستمرارية الذرية**: تتبع المحادثات بشكل فريد (Idempotent) يضمن عدم فقدان البيانات ومنع تداخل العمليات.
 
 ---
 
-## ⚡ Getting Started / ⚡ ابدأ الآن
+## 🛠 Tech Stack / المكونات التقنية
 
-### 1. Clone & Install / التحميل والتثبيت
+- **Frontend**: Next.js 15 (App Router), Tailwind CSS v4, Motion (Framer).
+- **Backend Orchestrator**: Go 1.22 (Job Workers & Audio Streams).
+- **Intelligence**: Ollama (Llama 3 / Gemma 4), all-minilm vector embeddings.
+- **Database**: PocketBase (Local SQLite-based persistence).
+- **Auth**: Clerk (Identity Management & Session Security).
+
+---
+
+## ⚡ Quick Start / البدء السريع
+
+### 1. Initialize Neural Link / تهيئة الرابط العصبي
 ```bash
 git clone https://github.com/Moeabdelaziz007/digitaltwin-local-agent.git
 cd digitaltwin-local-agent
 pnpm install
 ```
 
-### 2. Configure Environment / إعداد البيئة
+### 2. Infrastructure Setup / إعداد البنية التحتية
 ```bash
+# Copy environment template
 cp .env.example .env.local
-```
-> [EN] Ensure you set `ENABLE_COREPACK=1` in your environment to support pnpm 10 correctly in CI/Vercel.
-> [AR] تأكد من تعيين `ENABLE_COREPACK=1` في إعداداتك لضمان دعم pnpm 10 بشكل صحيح في بيئات البناء (Vercel).
 
-### 3. Launch / التشغيل
-```bash
-pnpm dev
+# Run architectural verification
+pnpm verify
 ```
+
+> [!TIP]
+> **Vercel Build Fix / إصلاح بناء فيرسل**:
+> To resolve `cli with get core cause` errors, ensure `ENABLE_COREPACK=1` is set in your Vercel Dashboard env vars.
+> لإصلاح أخطاء بناء فيرسل، تأكد من تعيين `ENABLE_COREPACK=1` في المتغيرات البيئية للوحة التحكم.
 
 ---
 
-## 🔑 Key Environment Variables / 🔑 المتغيرات الأساسية
+## 🗺 Roadmap / خارطة الطريق
 
-| Variable / المتغير | Purpose / الغرض |
-|---|---|
-| `POCKETBASE_URL` | PB Data Layer Address / عنوان لطبقة بيانات PB |
-| `CLERK_SECRET_KEY` | Identity & Auth / الهوية والتحقق |
-| `SIDECAR_SHARED_SECRET` | HMAC Security Key / مفتاح أمان HMAC |
-| `OLLAMA_URL` | Local LLM Node / عقدة الذكاء اللغوي المحلية |
-
----
-
-## 🗺 Roadmap / 🗺 خارطة الطريق
-
-- [x] Contextual memory & Semantic extraction / الذاكرة السياقية والاستخراج الدلالي
-- [x] HMAC-signed Sidecar security bridge / جسر أمان Sidecar مشفر
+- [x] Contextual memory reinforcement / تعزيز الذاكرة السياقية
+- [x] HMAC-signed Sidecar security bridge / جسر أمان مشفر للعمليات الخلفية
 - [x] Cognitive Meta Loop (Research + Evolution) / الحلقة الإدراكية الكبرى (البحث + التطور)
-- [ ] Fully visual Memory Map interface / واجهة خريطة الذاكرة البصرية بالكامل
-- [ ] Admin Observability panel / لوحة مراقبة النظام للمسؤول
+- [ ] **Phase 4**: Fully visual Memory Map / Canvas interface / واجهة بصرية كاملة لخريطة الذاكرة
+- [ ] **Phase 5**: Hardware integration for Nano Banana Pro / تكامل العتاد لـ Nano Banana Pro
 
 ---
 
-## 🛠 Contributing / 🛠 المساهمة
-[EN] Ensure you run `pnpm verify` before proposing any architectural merges.
-[AR] تأكد من تشغيل `pnpm verify` قبل اقتراح أي دمج للهندسة المعمارية.
+## 🛠 Safety & Ethics / الأمان والأخلاقيات
 
-## 📄 License / 📄 الترخيص
-MIT License / ترخيص MIT.
+[EN] DigitalTwin is designed for **privacy and sovereignty**. All neural weights and memories reside on your local node. No data is sent to external parties without your explicit approval via the Work Report.
+
+[AR] تم تصميم التوأم الرقمي من أجل **الخصوصية والسيادة الرقمية**. جميع بيانات الذاكرة والذكاء مخزنة محلياً. لا يتم إرسال أي بيانات لجهات خارجية دون موافقتك الصريحة عبر تقرير العمل.
+
+---
+
+## 📄 License / الترخيص
+MIT License. Created by [Mohamed Hossameldin Abdelaziz](https://github.com/Moeabdelaziz007).
