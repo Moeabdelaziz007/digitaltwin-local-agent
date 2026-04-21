@@ -9,8 +9,9 @@ import { OllamaTool, callOllama, fetchEmbedding } from '@/lib/ollama-client';
 import { skillRegistry } from '@/lib/skills/registry';
 
 
-import { getServerPB } from '@/lib/pb-server';
-import { config } from '@/lib/observability/config-service';
+import { getServerPB } from './pb-server';
+import { config } from './observability/config-service';
+import { obs } from './observability/observability-service';
 
 // Fallback defaults if config service fails
 const DEFAULT_SIMILARITY_THRESHOLD = 0.88;

@@ -32,10 +32,16 @@ next-env.d.ts
 .qodo/
 CHANGELOG.md
 pb.log
+*.log
+audit-result.log
+scripts/*.sh
+scripts/*.mjs
+!scripts/env-fix.sh
 
 # Sidecar & Binaries (CRITICAL: Private/Internal only)
 /pocketbase
 /pb_data/
+/pb_migrations/
 /sidecar/bin/
 /sidecar/tmp/
 /sidecar/twin-worker

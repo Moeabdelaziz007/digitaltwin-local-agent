@@ -69,7 +69,7 @@ class ConfigService {
       return record.value as T;
     } catch (error) {
       console.warn(`[CONFIG_SERVICE] Failed to fetch "${key}", falling back to LKG or default.`, error);
-      return this.lkg.get(key) ?? defaultValue;
+      return (this.lkg.get(key) ?? defaultValue) as T;
     }
   }
 

@@ -13,9 +13,8 @@ import {
   executeRecallMemory,
   executeSaveMemory
 } from '@/lib/memory-engine';
-import { callOllamaWithTools, streamOllama } from '@/lib/ollama-client';
+import { OllamaTool, callOllamaWithTools, streamOllama, OllamaMessage } from '@/lib/ollama-client';
 import { obs } from '@/lib/observability/observability-service';
-import { safeFetch } from '@/lib/safe-fetch';
 import { getServerPB } from '@/lib/pb-server';
 import { v4 as uuidv4 } from 'uuid';
 import type { ConversationRequest } from '@/types/twin';
@@ -218,7 +217,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       attributes: {
         'request_type': 'chat_atomic',
         'session_id': sessionId,
-        'user_id_hash': clerkUserId,
+        'user_id_hash': clerkUserId || 'anonymous',
       }
     }, async (span) => {
       const messageId = uuidv4();
