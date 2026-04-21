@@ -64,6 +64,7 @@ export interface ConversationTurn extends PBRecord {
   response_content?: string;
   user_message_id?: string;
   twin_message_id?: string;
+  trace_id?: string;
 }
 
 export interface SessionCounter extends PBRecord {
@@ -93,63 +94,55 @@ export interface Fact extends PBRecord {
 }
 
 // ----------------------------------------------------------
-// PocketBase Collection: learning_logs
+// PocketBase Collection: research_gems
 // ----------------------------------------------------------
-export interface LearningLog extends PBRecord {
+export interface ResearchGem extends PBRecord {
   user_id: string;
-  session_id: string;
-  turn_range: string;
-  raw_analysis: ReflectionResult;
-  facts_stored: number;
-  progress_delta: number;
-}
-
-// ----------------------------------------------------------
-// API DTOs — Small payloads for mobile optimization
-// ----------------------------------------------------------
-
-/** POST /api/conversation — Request */
-export interface ConversationRequest {
-  userId: string;
-  message: string;
-  sessionId?: string;
-  idempotencyKey?: string;
-}
-
-/** POST /api/conversation — Response (minimal DTO) */
-export interface ConversationResponse {
-  reply: string;
-  sessionId: string;
-  turnIndex: number;
-  messageId?: string;
-  turnId?: string;
-  idempotentReplay?: boolean;
-  etag?: string;
-}
-
-/** GET /api/profile — Response (summary DTO, not full profile) */
-export interface ProfileSummaryDTO {
-  displayName: string;
-  learningProgress: number;
-  totalConversations: number;
-  onboardingComplete: boolean;
-  adaptations: ProfileSnapshot['adaptations'];
-}
-
-/** GET /api/facts — Response with cursor pagination */
-export interface FactsPageDTO {
-  items: FactSummaryDTO[];
-  nextCursor?: string;
-  total: number;
-}
-
-export interface FactSummaryDTO {
-  id: string;
-  fact: string;
+  title: string;
+  content: string;
   category: string;
-  confidence: number;
-  reinforcedCount: number;
-  evidenceSpan?: string;
+  relevance_score: number;
+  status: 'new' | 'saved' | 'archived';
+  implementation_notes?: string;
+}
+
+// ----------------------------------------------------------
+// PocketBase Collection: skill_drafts
+// ----------------------------------------------------------
+export interface SkillDraft extends PBRecord {
+  user_id: string;
+  proposed_name: string;
+  proposed_code?: string;
+  trace_id: string;
+  status: 'pending' | 'deployed' | 'rejected';
+}
+
+// ----------------------------------------------------------
+// PocketBase Collection: improvement_proposals
+// ----------------------------------------------------------
+export interface ImprovementProposal extends PBRecord {
+  user_id?: string;
+  subsystem: string;
+  proposal_type: string;
+  hypothesis: string;
+  proposed_change: {
+    key: string;
+    value: any;
+    reason: string;
+  };
+  status: 'pending' | 'applied' | 'rejected';
+}
+
+// ----------------------------------------------------------
+// UI & Dashboard DTOs
+// ----------------------------------------------------------
+
+/** Unified chat message for UI display */
+export interface UIMessage {
+  role: 'user' | 'twin';
+  content: string;
+  traceId?: string;
+  detectedEmotion?: string;
 }
 
 // ----------------------------------------------------------

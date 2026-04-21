@@ -297,31 +297,30 @@ export async function buildMemoryContext(userId: string): Promise<string> {
     const pb = getServerPB();
 
     // Parallel Data Fetching for optimized latency
-    let recentMessages: any[] = [];
+    let recentMessages: ConversationMessage[] = [];
     let decayFilteredFacts: string[] = [];
     let researchGems: string[] = [];
 
     const [profileRes, messagesRes, factsRes, gemsRes] = await Promise.allSettled([
       pb.collection('user_profiles').getFirstListItem<UserProfile>(`user_id = "${userId}"`),
-      pb.collection('conversations').getList<any>(1, 15, {
+      pb.collection('conversations').getList<ConversationMessage>(1, 15, {
         filter: `user_id = "${userId}"`,
         sort: '-created',
       }),
-      pb.collection('facts').getFullList<any>({
+      pb.collection('facts').getFullList<Fact>({
         filter: `user_id = "${userId}" && confidence > 0.1 && status != "archived"`,
         sort: '-confidence',
         requestKey: null
       }),
-      pb.collection('research_gems').getList(1, 4, {
+      pb.collection('research_gems').getList<ResearchGem>(1, 4, {
         filter: `user_id = "${userId}" && status = "saved"`,
         sort: '-relevance_score'
       })
     ]);
 
     // Stage 1: Profile handling
-    let profile: UserProfile;
     if (profileRes.status === 'rejected') return buildFallbackPrompt();
-    profile = profileRes.value;
+    const profile = profileRes.value;
 
     // Stage 2: Conversation history
     if (messagesRes.status === 'fulfilled') {

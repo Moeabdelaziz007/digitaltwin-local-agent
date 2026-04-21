@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import pb from "@/lib/pocketbase-client";
+import type { ResearchGem, SkillDraft, ImprovementProposal } from "@/types/twin";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Search, Zap, TrendingUp, CheckCircle2, Clock } from "lucide-react";
 
@@ -13,9 +14,9 @@ interface WorkReportProps {
 
 export function WorkReport({ isOpen, onClose, userId }: WorkReportProps) {
   const [activeTab, setActiveTab] = useState<"research" | "skills" | "improvements">("research");
-  const [research, setResearch] = useState<any[]>([]);
-  const [skills, setSkills] = useState<any[]>([]);
-  const [proposals, setProposals] = useState<any[]>([]);
+  const [research, setResearch] = useState<ResearchGem[]>([]);
+  const [skills, setSkills] = useState<SkillDraft[]>([]);
+  const [proposals, setProposals] = useState<ImprovementProposal[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -106,7 +107,7 @@ export function WorkReport({ isOpen, onClose, userId }: WorkReportProps) {
               ].map(tab => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id as "research" | "skills" | "improvements")}
                   className={`flex-1 py-4 flex flex-col items-center gap-1 transition-all relative ${
                     activeTab === tab.id ? "text-cyan" : "text-text-muted hover:text-white"
                   }`}
@@ -211,9 +212,9 @@ export function WorkReport({ isOpen, onClose, userId }: WorkReportProps) {
                               <CheckCircle2 size={12} className="text-violet/50" />
                             </div>
                             <h4 className="text-sm font-bold mb-1">{item.proposal_type}</h4>
-                            <p className="text-xs text-text-muted italic mb-3">"{item.hypothesis}"</p>
+                            <p className="text-xs text-text-muted italic mb-3">&quot;{item.hypothesis}&quot;</p>
                             <div className="text-[9px] font-display text-text-faint uppercase">
-                              Target Key: {item.proposed_change?.key} → {item.proposed_change?.value}
+                              Target Key: {item.proposed_change?.key} → {item.proposed_change?.value as string}
                             </div>
                           </div>
                         ))

@@ -42,11 +42,11 @@ export class ObservabilityService {
     const exporter = new PocketBaseSpanExporter(env.POCKETBASE_URL);
     
     this.sdk = new NodeSDK({
-      resource: new (resources as any).Resource({
+      resource: new resources.Resource({
         [SemanticResourceAttributes.SERVICE_NAME]: 'digital-twin-app',
         [SemanticResourceAttributes.SERVICE_VERSION]: '1.0.0',
       }),
-      spanProcessor: new BatchSpanProcessor(exporter) as any,
+      spanProcessor: new BatchSpanProcessor(exporter),
       instrumentations: [], // We'll do manual instrumentation for precision
     });
 

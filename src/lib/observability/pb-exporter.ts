@@ -1,5 +1,6 @@
 import { ExportResult, ExportResultCode } from '@opentelemetry/core';
 import { SpanExporter, ReadableSpan } from '@opentelemetry/sdk-trace-base';
+import { Attributes } from '@opentelemetry/api';
 import PocketBase from 'pocketbase';
 
 /**
@@ -84,7 +85,7 @@ export class PocketBaseSpanExporter implements SpanExporter {
    */
   private async saveSpan(span: ReadableSpan): Promise<void> {
     const { traceId, spanId } = span.spanContext();
-    const parentSpanId = (span as any).parentSpanId || '';
+    const parentSpanId = span.parentSpanId || '';
     const startTime = this.hrTimeToDate(span.startTime);
     const endTime = this.hrTimeToDate(span.endTime);
     const durationMs = span.duration[0] * 1000 + span.duration[1] / 1000000;
@@ -128,8 +129,8 @@ export class PocketBaseSpanExporter implements SpanExporter {
    * PII Redaction logic for span attributes.
    * Ensures raw text, keys, and tokens are never persisted in plain text.
    */
-  private redactAttributes(attributes: any): any {
-    const redacted = { ...attributes };
+  private redactAttributes(attributes: Attributes): Attributes {
+    const redacted: Attributes = { ...attributes };
     const piiKeys = ['prompt', 'content', 'fact', 'response', 'secret', 'key', 'token', 'authorization'];
     
     for (const key of Object.keys(redacted)) {
