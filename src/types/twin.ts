@@ -138,11 +138,16 @@ export interface Opportunity extends PBRecord {
   category: 'saas' | 'crypto' | 'arbitrage' | 'content' | 'other';
   score: number; // 0-100
   confidence: number; // 0-1.0
+  sentiment_score?: number; // 0-1.0 market mood
   estimated_roi: string;
   speed_to_market: 'fast' | 'med' | 'slow';
   source_signals: string[]; 
   status: 'scouted' | 'validated' | 'rejected' | 'in_backlog';
   causal_node_id?: string;
+  causal_graph?: {
+    nodes: Partial<CausalNode>[];
+    edges: Partial<CausalEdge>[];
+  };
 }
 
 export interface Venture extends PBRecord {

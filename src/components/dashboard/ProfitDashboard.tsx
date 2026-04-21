@@ -8,14 +8,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, Target, Cpu, Activity, Zap, DollarSign } from 'lucide-react';
-import { VentureLabView } from './VentureLabView';
-import { ConsensusVerdict } from '@/types/twin';
+import { CausalGraph } from './CausalGraph';
+import { ConsensusVerdict, Opportunity } from '@/types/twin';
 
 interface ProfitState {
   simulatedProfit: number;
   activeOpportunities: number;
   successRate: number;
   systemHealth: number;
+  globalInsights?: Opportunity['causal_graph'];
 }
 
 export const ProfitDashboard: React.FC = () => {
@@ -24,6 +25,17 @@ export const ProfitDashboard: React.FC = () => {
     activeOpportunities: 3,
     successRate: 92.4,
     systemHealth: 98,
+    globalInsights: {
+      nodes: [
+        { id: 'g1', label: 'Low Ops Cost', node_type: 'event' },
+        { id: 'g2', label: 'Local Execution', node_type: 'decision' },
+        { id: 'g3', label: 'Max Profit', node_type: 'profit' }
+      ],
+      edges: [
+        { source: 'g1', target: 'g2', relation_type: 'causes', weight: 1.0 },
+        { source: 'g2', target: 'g3', relation_type: 'amplifies', weight: 0.9 }
+      ]
+    }
   });
 
   const [selectedVenture, setSelectedVenture] = useState<ConsensusVerdict | null>(null);
@@ -127,25 +139,17 @@ export const ProfitDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Causal Graph Preview (Simplified) */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col justify-between">
-          <div>
-            <h3 className="text-sm font-mono text-white/40 uppercase mb-4">Causal Profit Graph</h3>
-            <div className="h-32 flex items-center justify-center border-b border-white/5 mb-4">
-              <div className="relative">
-                <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center">
-                  <TrendingUp size={24} className="text-emerald-500" />
-                </div>
-                <div className="absolute -top-4 -right-4 w-8 h-8 rounded-full bg-cyan-500/20 border border-cyan-500/50" />
-                <div className="absolute -bottom-2 -left-6 w-10 h-10 rounded-full bg-purple-500/20 border border-purple-500/50" />
-              </div>
-            </div>
-            <p className="text-xs text-white/60 leading-relaxed">
-              System identifying <span className="text-cyan-400">Low Operational Cost</span> as the primary causal factor for <span className="text-emerald-400">High ROI</span> ventures.
+        {/* Causal Graph Preview */}
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col">
+          <div className="mb-4">
+            <h3 className="text-sm font-mono text-white/40 uppercase mb-4">Causal Intelligence Map</h3>
+            <CausalGraph graph={state.globalInsights} className="h-48 border-none bg-transparent p-0" />
+            <p className="text-[10px] text-white/60 leading-relaxed mt-4 p-3 bg-white/5 rounded-lg border border-white/10">
+              Agent identified <span className="text-cyan-400 font-bold">Zero Operational Overhead</span> as the core causal catalyst for the current <span className="text-emerald-400 font-bold">Alpha Regime</span>.
             </p>
           </div>
-          <button className="mt-6 w-full py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-xs transition-all">
-            Expand Intelligence Map
+          <button className="mt-auto w-full py-2 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/20 rounded-xl text-[10px] font-mono uppercase tracking-widest transition-all">
+            Enter Reasoning Deep-Dive
           </button>
         </div>
       </div>

@@ -9,6 +9,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle, ShieldAlert, Cpu, Layers, CheckCircle, Zap, TrendingUp } from 'lucide-react';
 import { ConsensusVerdict } from '@/types/twin';
+import { CausalGraph } from './CausalGraph';
 
 interface VentureLabViewProps {
   verdict: ConsensusVerdict;
@@ -123,8 +124,30 @@ export const VentureLabView: React.FC<VentureLabViewProps> = ({ verdict, onClose
                 </div>
               </div>
 
+              {/* Causal Intelligence Section */}
+              <div className="mt-8 space-y-4">
+                <h4 className="text-[10px] font-mono text-white/30 uppercase tracking-widest flex items-center gap-2">
+                  <TrendingUp size={12} className="text-cyan-400" />
+                  Reasoning Chain (Causal Graph)
+                </h4>
+                <CausalGraph 
+                  graph={verdict.scout?.metadata?.causal_graph || {
+                    nodes: [
+                      { id: '1', label: 'Market Disruption', node_type: 'event' },
+                      { id: '2', label: 'Agentic Solve', node_type: 'decision' },
+                      { id: '3', label: 'Revenue', node_type: 'profit' }
+                    ],
+                    edges: [
+                      { source: '1', target: '2', relation_type: 'causes', weight: 1.0 },
+                      { source: '2', target: '3', relation_type: 'amplifies', weight: 0.8 }
+                    ]
+                  }} 
+                  className="h-48 border-white/5 bg-white/5" 
+                />
+              </div>
+
               {/* Build Trace / Execution Path */}
-              <div className="space-y-3">
+              <div className="space-y-3 pt-4">
                 <h4 className="text-[10px] font-mono text-white/30 uppercase">Self-Play Build Trace</h4>
                 <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                   {verdict.ceo?.metadata?.build_trace?.map((step: string, i: number) => (

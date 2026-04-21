@@ -35,14 +35,29 @@ export class OpportunityScout {
 
       const scoutPrompt = `
         You are an Autonomous Venture Scout. 
+        Current Market Regime: April 2026.
         Using these Meta-Criteria: ${JSON.stringify(metaConfig.criteria)}
         And these Keywords: ${JSON.stringify(metaConfig.keywords)}
         
-        Analyze the current market landscape for April 2026.
-        Return a JSON array of 3 "Hidden Gem" opportunities.
-        Include 'causal_trigger' field explaining WHY this is a gem now.
+        Task: Identify 3 "Hidden Gem" opportunities.
+        Analyze:
+        1. Market Sentiment (0.0 to 1.0) - How is the mood regarding this niche?
+        2. Causal Logic - What trigger (event) leads to this opportunity, and what is the specific outcome?
         
-        Format: [{"title": string, "description": string, "score": number, "estimated_roi": string, "speed_to_market": "fast"|"med"|"slow", "causal_trigger": string}]
+        Return a JSON array of 3 opportunities.
+        Format: [{
+          "title": string, 
+          "description": string, 
+          "score": number, 
+          "sentiment_score": number,
+          "estimated_roi": string, 
+          "speed_to_market": "fast"|"med"|"slow", 
+          "causal_logic": {
+            "trigger": string,
+            "bridge": string,
+            "outcome": string
+          }
+        }]
       `;
 
       const response = await callOllama(scoutPrompt);
@@ -56,20 +71,21 @@ export class OpportunityScout {
           description: raw.description,
           category: category,
           score: raw.score,
-          confidence: 0.85, // Higher confidence for MAS-ZERO designs
+          sentiment_score: raw.sentiment_score || 0.5,
+          confidence: 0.85, 
           estimated_roi: raw.estimated_roi,
           speed_to_market: raw.speed_to_market,
           status: 'scouted',
-          source_signals: ['mas_zero_architect', 'causal_trigger_analysis'],
+          source_signals: ['mas_zero_architect', 'sentiment_weighted_scout'],
           causal_graph: {
              nodes: [
-               { id: '1', label: raw.causal_trigger, type: 'trigger' },
-               { id: '2', label: raw.title, type: 'opportunity' },
-               { id: '3', label: 'Profit', type: 'outcome' }
+               { id: 't1', label: raw.causal_logic?.trigger || 'Market Shift', node_type: 'event' },
+               { id: 'd1', label: raw.causal_logic?.bridge || 'Strategic Pivot', node_type: 'decision' },
+               { id: 'o1', label: raw.causal_logic?.outcome || 'Profit Realization', node_type: 'profit' }
              ],
              edges: [
-               { from: '1', to: '2', relationship: 'enables' },
-               { from: '2', to: '3', relationship: 'leads_to' }
+               { source: 't1', target: 'd1', relation_type: 'causes', weight: 1.0 },
+               { source: 'd1', target: 'o1', relation_type: 'amplifies', weight: 0.8 }
              ]
           }
         }) as Opportunity;

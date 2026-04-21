@@ -3,14 +3,17 @@
 </p>
 
 <p align="center">
+  <img src="public/assets/docs/meta-icon.png" width="120" alt="Venture Lab Meta Icon" />
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Architect-Moeabdelaziz007-emerald?style=for-the-badge&logo=github" alt="Architect" />
   <img src="https://img.shields.io/badge/Language-Bilingual-emerald?style=for-the-badge" alt="Bilingual" />
   <img src="https://img.shields.io/badge/Status-Active-cyan?style=for-the-badge" alt="Status" />
   <img src="https://img.shields.io/badge/Architecture-MAS--ZERO-6366f1?style=for-the-badge" alt="Architecture" />
-  <img src="https://img.shields.io/badge/2026-Ready-000000?style=for-the-badge" alt="2026 Ready" />
 </p>
 
 <h1 align="center">
-  <img src="public/assets/docs/logo.svg" width="60" style="vertical-align: middle; margin-right: 10px;" />
   Digital Twin Venture Lab
 </h1>
 
@@ -19,6 +22,24 @@
   <br/>
   محرك السيادة لتنظيم الأرباح الذاتية
 </p>
+
+***
+
+## 👤 Credits | المساهمون
+
+<table width="100%">
+  <tr>
+    <td align="center" width="100%">
+      <a href="https://github.com/Moeabdelaziz007">
+        <img src="https://github.com/Moeabdelaziz007.png" width="100" style="border-radius: 50%;" alt="Moe Abdelaziz" />
+        <br />
+        <sub><b>Moe Abdelaziz (@Moeabdelaziz007)</b></sub>
+      </a>
+      <br />
+      Principal AI Engineer & System Architect
+    </td>
+  </tr>
+</table>
 
 ***
 
