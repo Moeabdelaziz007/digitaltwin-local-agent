@@ -20,7 +20,11 @@ const nextConfig: NextConfig = {
     "@opentelemetry/sdk-node",
     "@opentelemetry/api-logs",
     "@opentelemetry/instrumentation",
-    "@opentelemetry/sdk-logs"
+    "@opentelemetry/sdk-logs",
+    "@grpc/grpc-js",
+    "@opentelemetry/exporter-logs-otlp-grpc",
+    "@opentelemetry/exporter-trace-otlp-grpc",
+    "@opentelemetry/otlp-grpc-exporter-base"
   ],
 };
 

@@ -9,17 +9,16 @@
 - [x] **المرحلة 4**: الأتمتة الإدراكية (Cron decay + Weekly snapshots).
 - [x] **خاص**: إزالة Sentry بالكامل وإصلاح أخطاء بناء Webpack.
 
-## 🔄 المهام الجارية (In Progress)
-- [/] **المرحلة 5**: دمج Clerk Auth وتأمين المسارات.
-    - [/] **استقرار البناء (Build Stabilization)**:
-        - [ ] توحيد إصدارات OpenTelemetry في `package.json`.
-        - [ ] إصلاح تعارض الأنواع في `observability-service.ts`.
-        - [ ] تحديث `next.config.ts` لتجاهل موديولات Node-only.
+- [x] **المرحلة 5**: دمج Clerk Auth وتأمين المسارات.
+    - [x] **استقرار البناء (Build Stabilization)**:
+        - [x] توحيد إصدارات OpenTelemetry في `package.json`.
+        - [x] إصلاح تعارض الأنواع في `observability-service.ts`.
+        - [x] تحديث `next.config.ts` لتجاهل موديولات Node-only.
     - [x] إعداد ClerkProvider والـ Webhooks.
     - [x] بناء صفحات الدخول (Sign-in / Sign-up) بتنسيق Cyberpunk.
-    - [ ] إنشاء `src/middleware.ts` لتأمين المسارات.
-    - [ ] تأمين API Routes باستخدام `auth()`.
-    - [ ] ربط الـ Memory Engine بـ `userId` الفعلي.
+    - [x] إنشاء `src/middleware.ts` لتأمين المسارات.
+    - [x] تأمين API Routes باستخدام `auth()`.
+    - [ ] ربط الـ Memory Engine بـ `userId` الفعلي (سيتم استكمال التحقق منه في المرحلة التالية).
 
 ## ⏳ المهام القادمة (Pending)
 - [ ] **المرحلة 6**: طبقة الصوت LiveKit (Voice Layer).
