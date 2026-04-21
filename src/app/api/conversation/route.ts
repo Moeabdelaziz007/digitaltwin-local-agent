@@ -22,6 +22,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type { ConversationRequest } from '@/types/twin';
 import crypto from 'crypto';
 import { env } from '@/lib/env';
+import { asPbUserId } from '@/lib/user-id';
 
 const TURN_COLLECTION = 'conversation_turns';
 const COUNTER_COLLECTION = 'session_counters';
@@ -96,10 +97,11 @@ async function findTurnByIdempotency(
  * Usage: /api/conversation?userId=...&message=...&sessionId=...
  */
 export async function GET(request: NextRequest) {
-  const { userId } = await auth();
-  if (!userId) {
+  const { userId: clerkUserId } = await auth();
+  if (!clerkUserId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+  const userId = asPbUserId(clerkUserId);
 
   const { searchParams } = new URL(request.url);
   const message = searchParams.get('message');
@@ -113,7 +115,7 @@ export async function GET(request: NextRequest) {
     attributes: {
       'request_type': 'chat_stream',
       'session_id': sessionId,
-      'user_id_hash': userId,
+      'user_id_hash': clerkUserId,
     }
   }, async (span) => {
     const pb = getServerPB();
@@ -205,7 +207,8 @@ export async function POST(request: NextRequest): Promise<Response> {
     const guardianAuth = headersList.get('X-Guardian-Auth');
     const isGuardian = guardianAuth === env.CRON_SECRET; 
     
-    const userId = clerkUserId || (isGuardian ? 'xfv321rhy53bmt3' : null);
+    const resolvedUserId = clerkUserId || (isGuardian ? 'xfv321rhy53bmt3' : null);
+    const userId = resolvedUserId ? asPbUserId(resolvedUserId) : null;
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

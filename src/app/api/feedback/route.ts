@@ -2,12 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import PocketBase from 'pocketbase';
 import { env } from '@/lib/env';
 import { auth } from '@clerk/nextjs/server';
+import { asPbUserId } from '@/lib/user-id';
 
 export async function POST(req: NextRequest) {
-  const { userId } = await auth();
-  if (!userId) {
+  const { userId: clerkUserId } = await auth();
+  if (!clerkUserId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+  const userId = asPbUserId(clerkUserId);
 
   try {
     const body = await req.json();
