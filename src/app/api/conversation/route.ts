@@ -34,8 +34,12 @@ async function getOrCreateSessionCounter(pb: PocketBase, userId: string, session
   const filter = `user_id = "${userId}" && session_id = "${sessionId}"`;
   try {
     return await pb.collection(COUNTER_COLLECTION).getFirstListItem(filter);
-  } catch (error: any) {
-    console.log(`[CONV_API] Session counter not found, attempting creation for ${sessionId}`);
+  } catch (error: unknown) {
+    const err = error as { data?: unknown; message?: string };
+    console.log(
+      `[CONV_API] Session counter not found, attempting creation for ${sessionId}:`,
+      err.data || err.message,
+    );
     try {
       return await pb.collection(COUNTER_COLLECTION).create({
         user_id: userId,
@@ -335,8 +339,6 @@ export async function POST(request: NextRequest): Promise<Response> {
 
       let iterations = 0;
       const MAX_ITERATIONS = 3;
-      let _finalToolResponse: unknown = null;
-
       while (iterations < MAX_ITERATIONS) {
         const res = await fetch(`${env.OLLAMA_URL}/api/chat`, {
           method: 'POST',
@@ -354,7 +356,6 @@ export async function POST(request: NextRequest): Promise<Response> {
         const responseMessage = data.message as OllamaMessage;
 
         if (!responseMessage.tool_calls || responseMessage.tool_calls.length === 0) {
-          _finalToolResponse = responseMessage;
           break;
         }
 
@@ -376,8 +377,7 @@ export async function POST(request: NextRequest): Promise<Response> {
         async start(controller) {
           let fullReply = "";
           try {
-            // Check if we have any tool thoughts before the stream (usually finalToolResponse has the content)
-            // But we want to stream the ACTUAL generation of the final message
+            // Stream the final reply generation after completing tool-call iterations.
             for await (const token of streamOllama(message.trim(), messages)) {
               fullReply += token;
               controller.enqueue(encoder.encode(token));
