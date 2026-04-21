@@ -134,6 +134,66 @@ export interface ImprovementProposal extends PBRecord {
 }
 
 // ----------------------------------------------------------
+// PocketBase Collection: learning_logs
+// ----------------------------------------------------------
+export interface LearningLog extends PBRecord {
+  user_id: string;
+  session_id: string;
+  turn_range: string;
+  raw_analysis: ReflectionResult;
+  facts_stored: number;
+  progress_delta: number;
+}
+
+// ----------------------------------------------------------
+// API DTOs — Small payloads for mobile optimization
+// ----------------------------------------------------------
+
+/** POST /api/conversation — Request */
+export interface ConversationRequest {
+  userId: string;
+  message: string;
+  sessionId?: string;
+  idempotencyKey?: string;
+}
+
+/** POST /api/conversation — Response (minimal DTO) */
+export interface ConversationResponse {
+  reply: string;
+  sessionId: string;
+  turnIndex: number;
+  messageId?: string;
+  turnId?: string;
+  idempotentReplay?: boolean;
+  etag?: string;
+}
+
+/** GET /api/profile — Response (summary DTO, not full profile) */
+export interface ProfileSummaryDTO {
+  displayName: string;
+  learningProgress: number;
+  totalConversations: number;
+  onboardingComplete: boolean;
+  adaptations: ProfileSnapshot['adaptations'];
+}
+
+/** GET /api/facts — Response with cursor pagination */
+export interface FactsPageDTO {
+  items: FactSummaryDTO[];
+  nextCursor?: string;
+  total: number;
+}
+
+export interface FactSummaryDTO {
+  id: string;
+  fact: string;
+  category: string;
+  confidence: number;
+  reinforcedCount: number;
+  evidenceSpan?: string;
+}
+
+// ----------------------------------------------------------
 // UI & Dashboard DTOs
 // ----------------------------------------------------------
 
