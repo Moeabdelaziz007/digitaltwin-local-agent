@@ -19,12 +19,6 @@ export function WorkReport({ isOpen, onClose, userId }: WorkReportProps) {
   const [proposals, setProposals] = useState<ImprovementProposal[]>([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (isOpen && userId) {
-      void loadData();
-    }
-  }, [isOpen, userId, loadData]);
-
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
@@ -43,6 +37,12 @@ export function WorkReport({ isOpen, onClose, userId }: WorkReportProps) {
       setLoading(false);
     }
   }, [userId]);
+
+  useEffect(() => {
+    if (isOpen && userId) {
+      void loadData();
+    }
+  }, [isOpen, userId, loadData]);
 
   const handleSaveGem = async (gemId: string) => {
     try {

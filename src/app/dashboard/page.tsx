@@ -48,8 +48,11 @@ export default function DashboardPage({ searchParams }: { searchParams: Promise<
   useEffect(() => {
     if (!userLoaded || !user?.id) return;
     async function loadData() {
+      const currentUserId = user?.id;
+      if (!currentUserId) return;
+
       try {
-        const record = await pb.collection("user_profiles").getFirstListItem(`user_id="${user.id}"`);
+        const record = await pb.collection("user_profiles").getFirstListItem(`user_id="${currentUserId}"`);
         setProfile(record as unknown as UserProfile);
       } catch {
         router.push("/onboard");
