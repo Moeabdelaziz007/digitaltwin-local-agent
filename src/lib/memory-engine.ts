@@ -7,6 +7,7 @@ import { createHash, randomUUID } from 'crypto';
 import PocketBase from 'pocketbase';
 import type { UserProfile, ConversationMessage, ProfileSnapshot, Fact } from '@/types/twin';
 import { OllamaTool, callOllama, fetchEmbedding } from '@/lib/ollama-client';
+import { skillRegistry } from '@/lib/skills/registry';
 
 
 import { env } from '@/lib/env';
@@ -351,6 +352,16 @@ export async function buildMemoryContext(userId: string): Promise<string> {
       decayFilteredFacts = profile.profile_snapshot?.top_facts || [];
     }
 
+    // 🔥 ADDITION 2: Research Gems
+    let researchGems: string[] = [];
+    try {
+      const gems = await pb.collection('research_gems').getList(1, 4, {
+        filter: `user_id = "${userId}" && status = "saved"`,
+        sort: '-relevance_score'
+      });
+      researchGems = gems.items.map(g => `[GEM]: ${g.title} - ${g.implementation_notes}`);
+    } catch { }
+
     const snapshot: ProfileSnapshot = typeof profile.profile_snapshot === 'string'
       ? JSON.parse(profile.profile_snapshot)
       : profile.profile_snapshot || { adaptations: {}, top_facts: [], last_updated: '' };
@@ -391,6 +402,14 @@ Note: Facts sorted by memory strength (0=forgotten, 1=vivid).
 ${decayFilteredFacts.length > 0
     ? decayFilteredFacts.map((f, i) => `${i + 1}. ${f}`).join('\n')
     : 'No vivid facts available in active memory.'}
+
+[RESEARCH_MEMORY]
+## Intelligence Gems (Curated Research)
+${researchGems.length > 0
+    ? researchGems.join('\n')
+    : 'No recent research findings relevant to current focus.'}
+
+${skillRegistry.getActiveSkillsContext()}
 
 [WORKING_MEMORY]
 ## Last 15 Interactions

@@ -11,35 +11,12 @@ import { VoiceBridge } from "@/components/VoiceBridge";
 import { ParticleNetwork } from "@/components/ParticleNetwork";
 import { LearningProgress } from "@/components/LearningProgress";
 import { LearningToast } from "@/components/LearningToast";
+import { PresenceOrb } from "@/components/PresenceOrb";
+import { WorkReport } from "@/components/dashboard/WorkReport";
 
 // ── UI Sub-components ──
 
-const HologramStage = ({ voiceState }: { voiceState: string }) => {
-  const isSpeaking = voiceState === 'speaking';
-  const isListening = voiceState === 'listening';
-  
-  return (
-    <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan/5 to-bg-void pointer-events-none" />
-      <div className="relative w-64 h-64 perspective-1000">
-         <div className={`absolute inset-0 border rounded-full animate-[hologram-spin_10s_linear_infinite] ${isSpeaking ? 'border-amber/40 shadow-[0_0_20px_rgba(245,158,11,0.2)]' : 'border-cyan/20'}`} 
-              style={{ transform: 'rotateX(75deg)' }} />
-         <div className={`absolute inset-4 border rounded-full animate-[hologram-spin_15s_linear_infinite_reverse] ${isSpeaking ? 'border-amber/60' : isListening ? 'border-cyan/60 shadow-[0_0_30px_rgba(0,240,255,0.2)]' : 'border-violet/30'}`} 
-              style={{ transform: 'rotateX(75deg)' }} />
-         <div className="z-10 absolute inset-0 flex items-center justify-center">
-            <div className={`w-32 h-32 rounded-full glass border p-1 ${isSpeaking ? 'border-amber/40 animate-pulse' : 'border-cyan/40 animate-pulse'}`}>
-              <div className={`w-full h-full rounded-full flex items-center justify-center ${isSpeaking ? 'bg-amber/10' : 'bg-cyan/10'}`}>
-                <svg width="40" height="40" viewBox="0 0 100 100" className={isSpeaking ? 'text-amber' : 'text-cyan'}>
-                  <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" fill="none" stroke="currentColor" strokeWidth="4" />
-                  <circle cx="50" cy="50" r="10" fill="currentColor" className={isSpeaking ? 'animate-ping' : isListening ? 'animate-bounce' : 'animate-ping'} />
-                </svg>
-              </div>
-            </div>
-         </div>
-      </div>
-    </div>
-  );
-};
+// HologramStage removed in favor of PresenceOrb integration
 
 // ── Main Dashboard Page ──
 
@@ -58,6 +35,8 @@ export default function DashboardPage() {
   const [voiceState, setVoiceState] = useState('disconnected');
   const [feedbackMessage, setFeedbackMessage] = useState<{ index: number; traceId: string } | null>(null);
   const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
+  const [isWorkReportOpen, setIsWorkReportOpen] = useState(false);
+  const [orbState, setOrbState] = useState<'idle' | 'listening' | 'thinking' | 'speaking' | 'learning' | 'researching'>('idle');
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -92,6 +71,7 @@ export default function DashboardPage() {
     setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
     setFeedbackMessage(null); // Clear any open feedback
     setIsLoading(true);
+    setOrbState('thinking');
 
     try {
       const response = await fetch('/api/conversation', {
@@ -120,6 +100,7 @@ export default function DashboardPage() {
         if (currentIdx >= twinReply.length) {
           clearInterval(interval);
           setIsLoading(false);
+          setOrbState('idle');
           
           // Trigger Learning Toast randomly for demo
           if (messages.length % 4 === 0) {
@@ -134,6 +115,7 @@ export default function DashboardPage() {
     } catch (_err) {
       setMessages(prev => [...prev, { role: 'twin', content: "SYSTEM ERROR: DATA STREAM INTERRUPTED." }]);
       setIsLoading(false);
+      setOrbState('idle');
     }
   };
 
@@ -163,10 +145,39 @@ export default function DashboardPage() {
     }
   };
 
+  // Sync Voice State to Orb
+  useEffect(() => {
+    if (voiceState === 'listening') setOrbState('listening');
+    else if (voiceState === 'speaking') setOrbState('speaking');
+    else if (voiceState === 'disconnected' && orbState !== 'thinking' && orbState !== 'researching') setOrbState('idle');
+  }, [voiceState]);
+
+  const triggerResearch = async () => {
+    if (!user?.id) return;
+    setOrbState('researching');
+    try {
+      await fetch('/api/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'RESEARCH_TASK', user_id: user.id })
+      });
+      // For demo, keep it researching for 3 seconds
+      setTimeout(() => setOrbState('idle'), 3000);
+    } catch (err) {
+      console.error('Research trigger failed:', err);
+      setOrbState('idle');
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen overflow-hidden text-text-primary bg-transparent font-body relative">
       <ParticleNetwork count={80} />
       <LearningToast fact={toastFact} />
+      <WorkReport 
+        isOpen={isWorkReportOpen} 
+        onClose={() => setIsWorkReportOpen(false)} 
+        userId={user?.id || ''} 
+      />
       
       {/* ── Header ── */}
       <header className="h-12 border-b border-white/5 px-6 flex items-center justify-between glass shrink-0 z-50">
@@ -196,18 +207,18 @@ export default function DashboardPage() {
       <main className="flex flex-1 overflow-hidden">
         {/* Avatar Stage (50%) */}
         <section className="hidden md:flex flex-[0.5] border-r border-white/5 bg-bg-surface/30 relative items-center justify-center">
-          <HologramStage voiceState={voiceState} />
+          <div onClick={() => setIsWorkReportOpen(true)}>
+            <PresenceOrb state={orbState} />
+          </div>
           <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-center">
             <p className="font-display text-[10px] text-cyan/40 uppercase tracking-[0.4em] mb-2">Cognitive Link Status</p>
-            <div className="flex items-center gap-1 justify-center">
-               {[...Array(5)].map((_, i) => (
-                 <motion.div 
-                   key={i}
-                   animate={{ scaleY: [1, 2, 1], opacity: [0.3, 0.6, 0.3] }}
-                   transition={{ duration: 1, repeat: Infinity, delay: i * 0.1 }}
-                   className="w-[2px] h-3 bg-cyan"
-                 />
-               ))}
+            <div className="flex items-center gap-2 justify-center">
+               <button 
+                 onClick={(e) => { e.stopPropagation(); triggerResearch(); }}
+                 className="text-[9px] font-display text-cyan hover:text-white transition-all uppercase tracking-widest border border-cyan/20 px-2 py-1 rounded bg-cyan/5"
+               >
+                 Pulse Research
+               </button>
             </div>
           </div>
         </section>

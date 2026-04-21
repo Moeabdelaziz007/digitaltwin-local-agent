@@ -47,6 +47,8 @@ const (
 	JobTTS        JobType = "TTS_RENDER"
 	JobReviewJSON JobType = "REVIEW_JSON"
 	JobImprove    JobType = "IMPROVE_SELF"
+	JobResearch   JobType = "RESEARCH_TASK"
+	JobEvolve     JobType = "EVOLVE_SKILLS"
 )
 
 type Job struct {
@@ -295,6 +297,14 @@ func patternAgentWorker(id int, jobs <-chan Job) {
 		case JobImprove:
 			// Analyze feedback and generate proposals
 			runImprovementJob(job.UserID)
+
+		case JobResearch:
+			// Run the project-researcher loop
+			runResearchJob(job.UserID)
+
+		case JobEvolve:
+			// Analyze successes and generate skill drafts
+			runSkillEvolutionJob(job.UserID)
 
 		default:
 			log.Printf("[Worker %d] Unknown Pattern: %s", id, job.Type)
