@@ -5,7 +5,7 @@
 
 import { createHash, randomUUID } from 'crypto';
 import PocketBase from 'pocketbase';
-import type { UserProfile, ConversationMessage, ProfileSnapshot, Fact } from '@/types/twin';
+import type { UserProfile, ConversationMessage, ProfileSnapshot, Fact, ResearchGem } from '@/types/twin';
 import { OllamaTool, callOllama, fetchEmbedding } from '@/lib/ollama-client';
 import { skillRegistry } from '@/lib/skills/registry';
 
