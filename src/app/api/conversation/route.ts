@@ -13,8 +13,9 @@ import {
   executeRecallMemory,
   executeSaveMemory
 } from '@/lib/memory-engine';
-import { OllamaTool, callOllamaWithTools, streamOllama, OllamaMessage } from '@/lib/ollama-client';
+import { callOllamaWithTools, streamOllama, OllamaMessage } from '@/lib/ollama-client';
 import { obs } from '@/lib/observability/observability-service';
+import { safeFetch } from '@/lib/safe-fetch';
 import { getServerPB } from '@/lib/pb-server';
 import { v4 as uuidv4 } from 'uuid';
 import type { ConversationRequest } from '@/types/twin';
@@ -32,14 +33,17 @@ async function getOrCreateSessionCounter(pb: PocketBase, userId: string, session
   const filter = `user_id = "${userId}" && session_id = "${sessionId}"`;
   try {
     return await pb.collection(COUNTER_COLLECTION).getFirstListItem(filter);
-  } catch {
+  } catch (error: any) {
+    console.log(`[CONV_API] Session counter not found, attempting creation for ${sessionId}`);
     try {
       return await pb.collection(COUNTER_COLLECTION).create({
         user_id: userId,
         session_id: sessionId,
         next_turn_index: 0,
       });
-    } catch {
+    } catch (createErr: any) {
+      console.error(`[CONV_API] FAILED to create session counter:`, createErr.data || createErr.message);
+      // Final attempt to fetch (to handle race condition)
       return await pb.collection(COUNTER_COLLECTION).getFirstListItem(filter);
     }
   }

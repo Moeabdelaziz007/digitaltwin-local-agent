@@ -8,7 +8,7 @@ import time
 # REAL WORLD E2E TEST (URLLIB VERSION - ZERO DEPENDENCIES)
 # Using standard libraries only to ensure it works on any system
 
-BASE_URL = "http://localhost:3000"
+BASE_URL = "http://localhost:3001"
 TEST_MESSAGE = "Guardian Test: Verify neural link and memory recall via urllib."
 CRON_SECRET = os.getenv("CRON_SECRET", "test")
 
