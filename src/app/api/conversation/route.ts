@@ -25,6 +25,8 @@ import { env } from '@/lib/env';
 
 const TURN_COLLECTION = 'conversation_turns';
 const COUNTER_COLLECTION = 'session_counters';
+const GUARDIAN_USER_ID = 'system_guardian';
+const asPbUserId = (identity: string) => identity.trim();
 
 // SIDECAR_URL is resolved inside triggerReflection() to avoid stale module-level state
 
@@ -34,7 +36,7 @@ async function getOrCreateSessionCounter(pb: PocketBase, userId: string, session
   const filter = `user_id = "${userId}" && session_id = "${sessionId}"`;
   try {
     return await pb.collection(COUNTER_COLLECTION).getFirstListItem(filter);
-  } catch (error: any) {
+  } catch {
     console.log(`[CONV_API] Session counter not found, attempting creation for ${sessionId}`);
     try {
       return await pb.collection(COUNTER_COLLECTION).create({
@@ -96,10 +98,11 @@ async function findTurnByIdempotency(
  * Usage: /api/conversation?userId=...&message=...&sessionId=...
  */
 export async function GET(request: NextRequest) {
-  const { userId } = await auth();
-  if (!userId) {
+  const { userId: clerkUserId } = await auth();
+  if (!clerkUserId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+  const userId = asPbUserId(clerkUserId);
 
   const { searchParams } = new URL(request.url);
   const message = searchParams.get('message');
@@ -205,7 +208,9 @@ export async function POST(request: NextRequest): Promise<Response> {
     const guardianAuth = headersList.get('X-Guardian-Auth');
     const isGuardian = guardianAuth === env.CRON_SECRET; 
     
-    const userId = clerkUserId || (isGuardian ? 'xfv321rhy53bmt3' : null);
+    const userId = clerkUserId
+      ? asPbUserId(clerkUserId)
+      : (isGuardian ? GUARDIAN_USER_ID : null);
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

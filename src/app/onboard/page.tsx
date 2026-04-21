@@ -66,15 +66,15 @@ export default function OnboardPage() {
   const handleComplete = async () => {
     setLoading(true);
     try {
-      const userId = user?.id;
-      if (!userId) throw new Error("AUTH CRITICAL: SESSION LOST");
+      const clerkUserId = user?.id?.trim();
+      if (!clerkUserId) throw new Error("AUTH CRITICAL: SESSION LOST");
 
       const mainMd = `# MyDigitalTwin Core\nUser: ${displayName}\nRole: ${goal}`;
       const soulMd = `# Identity & Tone\nStyles: ${selectedStyles.join(", ")}\nPrefs: ${extraPrefs}`;
       const guardsMd = `# Boundaries\n- No generic AI talk\n- Maintain sovereign persona`;
 
       try {
-        const existing = await pb.collection("user_profiles").getFirstListItem(`user_id = "${userId}"`);
+        const existing = await pb.collection("user_profiles").getFirstListItem(`user_id = "${clerkUserId}"`);
         await pb.collection("user_profiles").update(existing.id, {
           display_name: displayName.trim(),
           personality_desc: goal.trim(),
@@ -86,7 +86,7 @@ export default function OnboardPage() {
         });
       } catch {
         await pb.collection("user_profiles").create({
-          user_id: userId,
+          user_id: clerkUserId,
           display_name: displayName.trim(),
           personality_desc: goal.trim(),
           tone: selectedStyles[0] || "friendly",
