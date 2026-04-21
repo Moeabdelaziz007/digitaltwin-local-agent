@@ -1,37 +1,35 @@
 <div align="center">
-  <img src="https://github.com/Moeabdelaziz007/digitaltwin-local-agent/blob/main/public/logo.png?raw=true" width="400" alt="Digital Mini Twin Logo" />
+  <img src="https://github.com/Moeabdelaziz007/digitaltwin-local-agent/blob/main/public/logo.png?raw=true" width="400" alt="Venture Lab Logo" />
   
-  # 🧬 DIGITAL MINI TWIN
-  ### [EN] The Sovereign AI Consciousness | [AR] الوعي الرقمي السيادي
+  # 🚀 DIGITAL TWIN: AUTONOMOUS VENTURE LAB
+  ### [EN] Profit-First Agentic Intelligence | [AR] مختبر المشاريع المستقل: ذكاء وكيل موجه للربحية
 </div>
-
----
 
 ---
 
 [ ![GitHub Stars](https://img.shields.io/github/stars/Moeabdelaziz007/digitaltwin-local-agent?style=for-the-badge&color=ffd700&logo=github) ](https://github.com/Moeabdelaziz007/digitaltwin-local-agent)
 [ ![Next.js](https://img.shields.io/badge/Next.js-15/16_Ready-black?style=for-the-badge&logo=next.js) ](https://nextjs.org)
 [ ![Ollama](https://img.shields.io/badge/Local_AI-Ollama-white?style=for-the-badge&logo=ollama) ](https://ollama.com)
-[ ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge) ](LICENSE.md)
+[ ![Profitability](https://img.shields.io/badge/Strategy-Profit--First-green?style=for-the-badge) ](docs/roadmap.md)
 
 ---
 
 ## 🌌 The Vision / الرؤية
 
-**[EN]** DigitalTwin is more than a chatbot; it is a persistent cognitive layer designed to evolve with its user. By combining **local-first intelligence** (Ollama) with an **autonomous meta-loop**, it transforms every conversation turn into reinforced memory or reusable procedural skills.
+**[EN]** DigitalTwin has evolved into an **Autonomous Venture Lab**. It is no longer just a cognitive reflection; it is a self-operating financial engine. Using local LLMs and **Causal Reasoning**, it identifies market opportunities, validates them via SOPs, and executes profit-generating ventures (SaaS, Crypto Arbitrage, Content Engines) at **Zero Operational Cost**.
 
-**[AR]** مشروع "التوأم الرقمي" هو أكثر من مجرد روبوت دردشة؛ إنه طبقة إدراكية مستمرة مصممة لتتطور مع مستخدمها. من خلال الجمع بين **الذكاء المحلي الأول** (Ollama) و**حلقة الميتا المستقلة**، فإنه يحول كل محادثة إلى ذاكرة معززة أو مهارات إجرائية قابلة لإعادة الاستخدام.
+**[AR]** تطور "التوأم الرقمي" ليصبح **مختبر مشاريع مستقل (Autonomous Venture Lab)**. لم يعد مجرد انعكاس إدراكي؛ بل أصبح محركاً مالياً ذاتي التشغيل. باستخدام النماذج المحلية و**الاستدلال السببي**، يقوم النظام باكتشاف فرص السوق، والتحقق منها عبر إجراءات تشغيل قياسية (SOPs)، وتنفيذ مشاريع مدرة للربح (SaaS، أتمتة الكريبتو، محركات المحتوى) بـ **صفر تكلفة تشغيلية**.
 
 ---
 
-## 🚀 The Cognitive Meta-Loop / الحلقة الإدراكية الكبرى
+## 🏗️ Venture Components / مكونات المختبر
 
-| Component / المكون | EN: Primary Function | AR: الوظيفة الأساسية |
+| Agent / الوكيل | EN: Mission | AR: المهمة |
 | :--- | :--- | :--- |
-| **Researcher Engine** | Automated ingestion of "Knowledge Gems" from arXiv & GitHub. | جلب "الجواهر المعرفية" تلقائياً من arXiv و GitHub. |
-| **Skill Evolution** | Generalizing successful interaction traces into code-based skills. | تحويل تفاعلاتك الناجحة إلى مهارات برمجية قابلة للتكرار. |
-| **Deep Reflection** | Periodic batch analysis to detect persona drift and demote stale facts. | تحليل دوري لاكتشاف انحراف الشخصية وإلغاء الحقائق القديمة. |
-| **Ambient Aura** | Immersive Sci-Fi UI that visualizes internal cognitive states. | واجهة خيال علمي غامرة تصور الحالات الإدراكية الداخلية. |
+| **Opportunity Scout** | Real-time market sensing on GitHub, X, and DeFi protocols. | مسح حي للسوق على GitHub و X وبروتوكولات DeFi. |
+| **Causal Strategist** | Analyzing "Why" a venture succeeds using Knowledge Graphs. | تحليل "لماذا" ينجح المشروع باستخدام الرسوم البيانية المعرفية. |
+| **SOP Orchestrator** | Executing complex tasks via structured, error-proof state machines. | تنفيذ المهام المعقدة عبر آلات حالة هيكلية ومقاومة للأخطاء. |
+| **Profit Dashboard** | Visualizing real-time revenue, burn rate (0$), and venture health. | تصور حي للأرباح، معدل الحرق (0$)، وصحة المشاريع. |
 
 ---
 
@@ -39,79 +37,60 @@
 
 ```mermaid
 graph TD
-  User((User Focus)) --> |Context| Loop[Cognitive Meta-Loop]
-  Loop --> |Query| Researcher[Project-Researcher Engine]
-  Researcher --> |Knowledge Gems| Memory[(Reinforced Memory Matrix)]
-  Loop --> |Analysis| Evolve[Skill Evolution Worker]
-  Evolve --> |Approved Skills| FS[/Local File System/]
-  Loop --> |Visual Feedback| Aura[Ambient Companion UI]
+  User((User Vision)) --> |Goal| SOP[SOP Orchestrator]
+  SOP --> |Scan| Scout[Opportunity Scout]
+  Scout --> |Signals| Causal[Causal Reasoning Engine]
+  Causal --> |Verdict| Builder[Autonomous Venture Builder]
+  Builder --> |Execution| Profit[($$$) Profit Realization]
+  Profit --> |Feedback| Memory[(Cognitive Memory Matrix)]
 ```
 
 ---
 
 ## 🧠 Core Engineering / الهندسة الجوهرية
 
-- **[EN] Hybrid Memory Engine**: Implements Ebbinghaus-inspired decay models and semantic deduplication using `all-minilm`.
-- **[AR] محرك الذاكرة الهجين**: يطبق نماذج تلاشي مستوحاة من منحنى "إبنجهاوس" وإزالة التكرار الدلالي باستخدام `all-minilm`.
-- **[EN] Trusted Sidecars**: A high-performance Go-based orchestration layer handles background processing, secured via HMAC-SHA256.
-- **[AR] الـ Sidecars الموثوقة**: طبقة تنسيق عالية الأداء مبنية بلغة Go تتعامل مع العمليات الخلفية، مؤمنة بتوقيعات HMAC-SHA256.
-- **[EN] Atomic Persistence**: Idempotent turn tracking ensures zero data loss and prevents race conditions.
-- **[AR] الاستمرارية الذرية**: تتبع المحادثات بشكل فريد (Idempotent) يضمن عدم فقدان البيانات ومنع تداخل العمليات.
+- **[EN] Zero-Cost Infrastructure**: Fully powered by local Ollama instances and SQLite (PocketBase), ensuring privacy and $0 cloud bills.
+- **[AR] بنية تحتية صفرية التكلفة**: مدعوم بالكامل بواسطة Ollama و SQLite (PocketBase) محلياً، مما يضمن الخصوصية وفواتير سحابية بقيمة 0 دولار.
+- **[EN] Causal Knowledge Graph**: Every decision is backed by a "Source-Relation-Target" triple, stored for long-term strategic learning.
+- **[AR] الرسم البياني المعرفي السببي**: كل قرار مدعوم بـ "مصدر-علاقة-هدف"، مخزنة للتعلم الاستراتيجي طويل الأمد.
+- **[EN] Flash-Loan Arbitrage**: Built-in logic for risk-free crypto arbitrage using atomic blockchain transactions.
+- **[AR] مراجحة القروض السريعة**: منطق مدمج لمراجحة العملات الرقمية الخالية من المخاطر باستخدام معاملات البلوكشين الذرية.
 
 ---
 
 ## 🛠 Tech Stack / المكونات التقنية
 
-- **Frontend**: Next.js 15 (App Router), Tailwind CSS v4, Motion (Framer).
-- **Backend Orchestrator**: Go 1.22 (Job Workers & Audio Streams).
-- **Intelligence**: Ollama (Llama 3 / Gemma 4), all-minilm vector embeddings.
-- **Database**: PocketBase (Local SQLite-based persistence).
-- **Auth**: Clerk (Identity Management & Session Security).
+- **Frontend**: Next.js 15, Tailwind CSS v4, Framer Motion.
+- **Core Intelligence**: Ollama (Llama 3.2 3B / Gemma 2 9B).
+- **Persistence**: PocketBase (Local-First).
+- **Orchestration**: Custom SOP Engine (TypeScript-based State Machines).
+- **Security**: Clerk + HMAC-SHA256 Signed API Bridges.
 
 ---
 
 ## ⚡ Quick Start / البدء السريع
 
-### 1. Initialize Neural Link / تهيئة الرابط العصبي
+### 1. Link the Lab / ربط المختبر
 ```bash
 git clone https://github.com/Moeabdelaziz007/digitaltwin-local-agent.git
 cd digitaltwin-local-agent
 pnpm install
 ```
 
-### 2. Infrastructure Setup / إعداد البنية التحتية
+### 2. Launch Autonomous Mode / تشغيل الوضع المستقل
 ```bash
-# Copy environment template
 cp .env.example .env.local
-
-# Run architectural verification
-pnpm verify
+pnpm dev
 ```
 
-> [!TIP]
-> **Vercel Build Fix / إصلاح بناء فيرسل**:
-> To resolve `cli with get core cause` errors, ensure `ENABLE_COREPACK=1` is set in your Vercel Dashboard env vars.
-> لإصلاح أخطاء بناء فيرسل، تأكد من تعيين `ENABLE_COREPACK=1` في المتغيرات البيئية للوحة التحكم.
-
 ---
 
-## 🗺 Roadmap / خارطة الطريق
+## 🛠 Safety & Sovereignty / الأمان والسيادة
+[EN] Your ventures, your data, your profit. DigitalTwin operates entirely on your local hardware. No strategy or financial signal leaves your machine without encryption and explicit consent.
 
-- [x] Contextual memory reinforcement / تعزيز الذاكرة السياقية
-- [x] HMAC-signed Sidecar security bridge / جسر أمان مشفر للعمليات الخلفية
-- [x] Cognitive Meta Loop (Research + Evolution) / الحلقة الإدراكية الكبرى (البحث + التطور)
-- [ ] **Phase 4**: Fully visual Memory Map / Canvas interface / واجهة بصرية كاملة لخريطة الذاكرة
-- [ ] **Phase 5**: Advanced Collaborative Mode / وضع التعاون المتقدم
-
----
-
-## 🛠 Safety & Ethics / الأمان والأخلاقيات
-
-[EN] DigitalTwin is designed for **privacy and sovereignty**. All neural weights and memories reside on your local node. No data is sent to external parties without your explicit approval via the Work Report.
-
-[AR] تم تصميم التوأم الرقمي من أجل **الخصوصية والسيادة الرقمية**. جميع بيانات الذاكرة والذكاء مخزنة محلياً. لا يتم إرسال أي بيانات لجهات خارجية دون موافقتك الصريحة عبر تقرير العمل.
+[AR] مشاريعك، بياناتك، أرباحك. يعمل التوأم الرقمي بالكامل على جهازك المحلي. لا توجد استراتيجية أو إشارة مالية تغادر جهازك دون تشفير وموافقة صريحة.
 
 ---
 
 ## 📄 License / الترخيص
-MIT License. Created by [Mohamed Hossameldin Abdelaziz](https://github.com/Moeabdelaziz007).
+MIT License. Part of the Autonomous Venture Lab Initiative.

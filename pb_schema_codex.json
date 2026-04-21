@@ -1,0 +1,880 @@
+[
+  {
+    "id": "user_profiles",
+    "name": "user_profiles",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "up_1",
+        "name": "user_id",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": true,
+          "maxSelect": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "up_2",
+        "name": "display_name",
+        "type": "text",
+        "required": true,
+        "options": {
+          "min": 2,
+          "max": 50
+        }
+      },
+      {
+        "system": false,
+        "id": "up_3",
+        "name": "personality_desc",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 1000
+        }
+      },
+      {
+        "system": false,
+        "id": "up_4",
+        "name": "tone",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 50
+        }
+      },
+      {
+        "system": false,
+        "id": "up_5",
+        "name": "context_main",
+        "type": "text",
+        "required": false,
+        "options": {
+          "max": 5000
+        }
+      },
+      {
+        "system": false,
+        "id": "up_6",
+        "name": "context_soul",
+        "type": "text",
+        "required": false,
+        "options": {
+          "max": 5000
+        }
+      },
+      {
+        "system": false,
+        "id": "up_7",
+        "name": "context_guards",
+        "type": "text",
+        "required": false,
+        "options": {
+          "max": 5000
+        }
+      },
+      {
+        "system": false,
+        "id": "up_8",
+        "name": "profile_snapshot",
+        "type": "json",
+        "required": false,
+        "options": {}
+      },
+      {
+        "system": false,
+        "id": "up_9",
+        "name": "learning_progress",
+        "type": "number",
+        "required": false,
+        "options": {
+          "min": 0,
+          "max": 100
+        }
+      },
+      {
+        "system": false,
+        "id": "up_10",
+        "name": "total_conversations",
+        "type": "number",
+        "required": false,
+        "options": {
+          "min": 0
+        }
+      },
+      {
+        "system": false,
+        "id": "up_11",
+        "name": "onboarding_complete",
+        "type": "bool",
+        "required": false,
+        "options": {}
+      }
+    ],
+    "listRule": "user_id = @request.auth.id",
+    "viewRule": "user_id = @request.auth.id",
+    "createRule": "user_id = @request.auth.id",
+    "updateRule": "user_id = @request.auth.id",
+    "deleteRule": null
+  },
+  {
+    "id": "conversations",
+    "name": "conversations",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "cv_1",
+        "name": "user_id",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": true,
+          "maxSelect": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "cv_2",
+        "name": "session_id",
+        "type": "text",
+        "required": true,
+        "options": {
+          "min": 1,
+          "max": 100
+        }
+      },
+      {
+        "system": false,
+        "id": "cv_3",
+        "name": "role",
+        "type": "select",
+        "required": true,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "user",
+            "twin"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "cv_4",
+        "name": "content",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 50000
+        }
+      },
+      {
+        "system": false,
+        "id": "cv_5",
+        "name": "turn_index",
+        "type": "number",
+        "required": true,
+        "options": {
+          "min": 0
+        }
+      }
+    ],
+    "listRule": "user_id = @request.auth.id",
+    "viewRule": "user_id = @request.auth.id",
+    "createRule": "user_id = @request.auth.id",
+    "updateRule": null,
+    "deleteRule": null
+  },
+  {
+    "id": "facts",
+    "name": "facts",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "fc_1",
+        "name": "user_id",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": true,
+          "maxSelect": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_2",
+        "name": "fact_text",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 1000
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_3",
+        "name": "category",
+        "type": "select",
+        "required": true,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "preference",
+            "biographical",
+            "habit",
+            "goal",
+            "emotion"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_4",
+        "name": "tags",
+        "type": "json",
+        "required": false,
+        "options": {}
+      },
+      {
+        "system": false,
+        "id": "fc_5",
+        "name": "confidence",
+        "type": "number",
+        "required": true,
+        "options": {
+          "min": 0,
+          "max": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_6",
+        "name": "reinforced_count",
+        "type": "number",
+        "required": false,
+        "options": {
+          "min": 0
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_7",
+        "name": "is_active",
+        "type": "bool",
+        "required": false,
+        "options": {}
+      },
+      {
+        "system": false,
+        "id": "fc_8",
+        "name": "importance",
+        "type": "number",
+        "required": false,
+        "options": {
+          "min": 0,
+          "max": 10
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_9",
+        "name": "source_conversation",
+        "type": "relation",
+        "required": false,
+        "options": {
+          "collectionId": "conversations",
+          "cascadeDelete": false,
+          "maxSelect": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_10",
+        "name": "last_reinforced_at",
+        "type": "date",
+        "required": false,
+        "options": {}
+      },
+      {
+        "system": false,
+        "id": "fc_11",
+        "name": "fact_fingerprint",
+        "type": "text",
+        "required": false,
+        "options": {
+          "max": 128
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_12",
+        "name": "status",
+        "type": "select",
+        "required": false,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "active",
+            "reinforced",
+            "conflicted",
+            "archived"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_13",
+        "name": "source",
+        "type": "text",
+        "required": false,
+        "options": {
+          "max": 120
+        }
+      },
+      {
+        "system": false,
+        "id": "fc_14",
+        "name": "conflict_group_id",
+        "type": "text",
+        "required": false,
+        "options": {
+          "max": 64
+        }
+      }
+    ],
+    "listRule": "user_id = @request.auth.id",
+    "viewRule": "user_id = @request.auth.id",
+    "createRule": "user_id = @request.auth.id",
+    "updateRule": "user_id = @request.auth.id",
+    "deleteRule": "user_id = @request.auth.id"
+  },
+  {
+    "id": "memory_edges",
+    "name": "memory_edges",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "me_1",
+        "name": "user_id",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": true,
+          "maxSelect": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "me_2",
+        "name": "source_fact",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "facts",
+          "cascadeDelete": true,
+          "maxSelect": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "me_3",
+        "name": "target_fact",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "facts",
+          "cascadeDelete": true,
+          "maxSelect": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "me_4",
+        "name": "relationship_type",
+        "type": "select",
+        "required": true,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "supports",
+            "contradicts",
+            "related_to",
+            "caused_by",
+            "goal_of",
+            "mentioned_with"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "me_5",
+        "name": "weight",
+        "type": "number",
+        "required": false,
+        "options": {
+          "min": 0,
+          "max": 10
+        }
+      },
+      {
+        "system": false,
+        "id": "me_6",
+        "name": "created_by",
+        "type": "select",
+        "required": true,
+        "options": {
+          "maxSelect": 1,
+          "values": [
+            "reflection",
+            "graph_agent",
+            "user"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "me_7",
+        "name": "confidence",
+        "type": "number",
+        "required": false,
+        "options": {
+          "min": 0,
+          "max": 1
+        }
+      }
+    ],
+    "listRule": "user_id = @request.auth.id",
+    "viewRule": "user_id = @request.auth.id",
+    "createRule": "user_id = @request.auth.id",
+    "updateRule": "user_id = @request.auth.id",
+    "deleteRule": "user_id = @request.auth.id"
+  },
+  {
+    "id": "fact_revisions",
+    "name": "fact_revisions",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "fr_1",
+        "name": "user_id",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "_pb_users_auth_",
+          "cascadeDelete": true,
+          "maxSelect": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "fr_2",
+        "name": "conflict_group_id",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 64
+        }
+      },
+      {
+        "system": false,
+        "id": "fr_3",
+        "name": "previous_fact_id",
+        "type": "relation",
+        "required": false,
+        "options": {
+          "collectionId": "facts",
+          "cascadeDelete": false,
+          "maxSelect": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "fr_4",
+        "name": "previous_fact",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 1000
+        }
+      },
+      {
+        "system": false,
+        "id": "fr_5",
+        "name": "revision_fact",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 1000
+        }
+      },
+      {
+        "system": false,
+        "id": "fr_6",
+        "name": "category",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 50
+        }
+      },
+      {
+        "system": false,
+        "id": "fr_7",
+        "name": "reason",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 120
+        }
+      },
+      {
+        "system": false,
+        "id": "fr_8",
+        "name": "source",
+        "type": "text",
+        "required": false,
+        "options": {
+          "max": 120
+        }
+      }
+    ],
+    "listRule": "user_id = @request.auth.id",
+    "viewRule": "user_id = @request.auth.id",
+    "createRule": "user_id = @request.auth.id",
+    "updateRule": "user_id = @request.auth.id",
+    "deleteRule": "user_id = @request.auth.id"
+  },
+  {
+    "id": "traces",
+    "name": "traces",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "tr_1",
+        "name": "trace_id",
+        "type": "text",
+        "required": true,
+        "options": { "min": 1, "max": 100 }
+      },
+      {
+        "system": false,
+        "id": "tr_2",
+        "name": "span_id",
+        "type": "text",
+        "required": true,
+        "options": { "min": 1, "max": 100 }
+      },
+      {
+        "system": false,
+        "id": "tr_3",
+        "name": "parent_span_id",
+        "type": "text",
+        "required": false,
+        "options": { "min": 1, "max": 100 }
+      },
+      {
+        "system": false,
+        "id": "tr_4",
+        "name": "name",
+        "type": "text",
+        "required": true,
+        "options": { "min": 1, "max": 200 }
+      },
+      {
+        "system": false,
+        "id": "tr_5",
+        "name": "kind",
+        "type": "text",
+        "required": true,
+        "options": { "min": 1, "max": 50 }
+      },
+      {
+        "system": false,
+        "id": "tr_6",
+        "name": "status",
+        "type": "text",
+        "required": true,
+        "options": { "min": 1, "max": 50 }
+      },
+      {
+        "system": false,
+        "id": "tr_7",
+        "name": "start_time",
+        "type": "date",
+        "required": true,
+        "options": {}
+      },
+      {
+        "system": false,
+        "id": "tr_8",
+        "name": "end_time",
+        "type": "date",
+        "required": true,
+        "options": {}
+      },
+      {
+        "system": false,
+        "id": "tr_9",
+        "name": "duration_ms",
+        "type": "number",
+        "required": true,
+        "options": {}
+      },
+      {
+        "system": false,
+        "id": "tr_10",
+        "name": "session_id",
+        "type": "text",
+        "required": false,
+        "options": { "min": 1, "max": 100 }
+      },
+      {
+        "system": false,
+        "id": "tr_11",
+        "name": "user_id_hash",
+        "type": "text",
+        "required": false,
+        "options": { "min": 1, "max": 100 }
+      },
+      {
+        "system": false,
+        "id": "tr_12",
+        "name": "request_type",
+        "type": "text",
+        "required": false,
+        "options": { "min": 1, "max": 100 }
+      },
+      {
+        "system": false,
+        "id": "tr_13",
+        "name": "component",
+        "type": "text",
+        "required": false,
+        "options": { "min": 1, "max": 100 }
+      },
+      {
+        "system": false,
+        "id": "tr_14",
+        "name": "attributes_json",
+        "type": "json",
+        "required": false,
+        "options": {}
+      },
+      {
+        "system": false,
+        "id": "tr_15",
+        "name": "events_json",
+        "type": "json",
+        "required": false,
+        "options": {}
+      },
+      {
+        "system": false,
+        "id": "tr_16",
+        "name": "links_json",
+        "type": "json",
+        "required": false,
+        "options": {}
+      },
+      {
+        "system": false,
+        "id": "tr_17",
+        "name": "redaction_level",
+        "type": "number",
+        "required": false,
+        "options": {}
+      }
+    ],
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "",
+    "updateRule": null,
+    "deleteRule": null
+  },
+  {
+    "id": "app_config",
+    "name": "app_config",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "ac_1", "name": "key", "type": "text", "required": true, "options": { "min": 1, "max": 100 } },
+      { "id": "ac_2", "name": "value", "type": "json", "required": true, "options": {} },
+      { "id": "ac_3", "name": "version", "type": "number", "required": true, "options": { "min": 1 } },
+      { "id": "ac_4", "name": "is_active", "type": "bool", "required": false, "options": {} },
+      { "id": "ac_5", "name": "category", "type": "select", "required": true, "options": { "values": ["retrieval", "prompt", "routing", "general"] } }
+    ],
+    "listRule": "", "viewRule": "", "createRule": null, "updateRule": null, "deleteRule": null
+  },
+  {
+    "id": "feedback",
+    "name": "feedback",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "fb_1", "name": "user_id", "type": "text", "required": true, "options": {} },
+      { "id": "fb_2", "name": "trace_id", "type": "text", "required": true, "options": {} },
+      { "id": "fb_3", "name": "response_id", "type": "text", "required": false, "options": {} },
+      { "id": "fb_4", "name": "rating", "type": "number", "required": true, "options": { "min": -1, "max": 1 } },
+      { "id": "fb_5", "name": "tags", "type": "json", "required": false, "options": {} },
+      { "id": "fb_6", "name": "comment", "type": "text", "required": false, "options": { "max": 2000 } },
+      { "id": "fb_7", "name": "metadata", "type": "json", "required": false, "options": {} }
+    ],
+    "listRule": "user_id = @request.auth.id", "viewRule": "user_id = @request.auth.id", "createRule": "user_id = @request.auth.id", "updateRule": null, "deleteRule": null
+  },
+  {
+    "id": "improvement_proposals",
+    "name": "improvement_proposals",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "ip_1", "name": "subsystem", "type": "text", "required": true, "options": {} },
+      { "id": "ip_2", "name": "proposal_type", "type": "text", "required": true, "options": {} },
+      { "id": "ip_3", "name": "hypothesis", "type": "text", "required": true, "options": {} },
+      { "id": "ip_4", "name": "proposed_change", "type": "json", "required": true, "options": {} },
+      { "id": "ip_5", "name": "status", "type": "select", "required": true, "options": { "values": ["draft", "evaluating", "pending_approval", "approved", "rejected", "applied", "rolled_back"] } },
+      { "id": "ip_6", "name": "eval_metrics_before", "type": "json", "required": false, "options": {} },
+      { "id": "ip_7", "name": "eval_metrics_after", "type": "json", "required": false, "options": {} },
+      { "id": "ip_8", "name": "rollback_id", "type": "text", "required": false, "options": {} }
+    ],
+    "listRule": "", "viewRule": "", "createRule": null, "updateRule": null, "deleteRule": null
+  },
+  {
+    "id": "audit_log",
+    "name": "audit_log",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "al_1", "name": "proposal_id", "type": "relation", "required": true, "options": { "collectionId": "improvement_proposals", "maxSelect": 1 } },
+      { "id": "al_2", "name": "actor", "type": "text", "required": true, "options": {} },
+      { "id": "al_3", "name": "action", "type": "select", "required": true, "options": { "values": ["approve", "reject", "rollback"] } },
+      { "id": "al_4", "name": "reason", "type": "text", "required": true, "options": {} },
+      { "id": "al_5", "name": "before_config", "type": "json", "required": false, "options": {} },
+      { "id": "al_6", "name": "after_config", "type": "json", "required": false, "options": {} }
+    ],
+    "listRule": "", "viewRule": "", "createRule": null, "updateRule": null, "deleteRule": null
+  },
+  {
+    "id": "eval_runs",
+    "name": "eval_runs",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "er_1", "name": "proposal_id", "type": "relation", "required": false, "options": { "collectionId": "improvement_proposals", "maxSelect": 1 } },
+      { "id": "er_2", "name": "run_date", "type": "date", "required": true, "options": {} },
+      { "id": "er_3", "name": "dataset_version", "type": "text", "required": true, "options": {} },
+      { "id": "er_4", "name": "results", "type": "json", "required": true, "options": {} },
+      { "id": "er_5", "name": "metrics_summary", "type": "json", "required": true, "options": {} },
+      { "id": "er_6", "name": "status", "type": "select", "required": true, "options": { "values": ["success", "regression", "failure"] } }
+    ],
+    "listRule": "", "viewRule": "", "createRule": null, "updateRule": null, "deleteRule": null
+  },
+  {
+    "id": "research_gems",
+    "name": "research_gems",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "rg_1", "name": "user_id", "type": "relation", "required": true, "options": { "collectionId": "_pb_users_auth_", "maxSelect": 1 } },
+      { "id": "rg_2", "name": "title", "type": "text", "required": true, "options": { "max": 500 } },
+      { "id": "rg_3", "name": "url", "type": "url", "required": false, "options": {} },
+      { "id": "rg_4", "name": "content", "type": "text", "required": true, "options": { "max": 10000 } },
+      { "id": "rg_5", "name": "relevance_score", "type": "number", "required": true, "options": { "min": 0, "max": 1 } },
+      { "id": "rg_6", "name": "category", "type": "select", "required": true, "options": { "values": ["arxiv", "github", "hn", "reddit"] } },
+      { "id": "rg_7", "name": "status", "type": "select", "required": true, "options": { "values": ["new", "saved", "actioned", "archived"] } },
+      { "id": "rg_8", "name": "implementation_notes", "type": "text", "required": false, "options": { "max": 5000 } }
+    ],
+    "listRule": "user_id = @request.auth.id", "viewRule": "user_id = @request.auth.id", "createRule": "user_id = @request.auth.id", "updateRule": "user_id = @request.auth.id", "deleteRule": "user_id = @request.auth.id"
+  },
+  {
+    "id": "research_config",
+    "name": "research_config",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "rc_1", "name": "user_id", "type": "relation", "required": true, "options": { "collectionId": "_pb_users_auth_", "maxSelect": 1 } },
+      { "id": "rc_2", "name": "current_focus", "type": "text", "required": true, "options": { "max": 2000 } },
+      { "id": "rc_3", "name": "excluded_topics", "type": "json", "required": false, "options": {} },
+      { "id": "rc_4", "name": "last_run", "type": "date", "required": false, "options": {} },
+      { "id": "rc_5", "name": "is_active", "type": "bool", "required": false, "options": {} }
+    ],
+    "listRule": "user_id = @request.auth.id", "viewRule": "user_id = @request.auth.id", "createRule": "user_id = @request.auth.id", "updateRule": "user_id = @request.auth.id", "deleteRule": "user_id = @request.auth.id"
+  },
+  {
+    "id": "skill_drafts",
+    "name": "skill_drafts",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "sd_1", "name": "user_id", "type": "relation", "required": true, "options": { "collectionId": "_pb_users_auth_", "maxSelect": 1 } },
+      { "id": "sd_2", "name": "trace_id", "type": "text", "required": true, "options": { "max": 100 } },
+      { "id": "sd_3", "name": "proposed_name", "type": "text", "required": true, "options": { "max": 100 } },
+      { "id": "sd_4", "name": "proposed_metadata", "type": "json", "required": true, "options": {} },
+      { "id": "sd_5", "name": "proposed_instructions", "type": "text", "required": true, "options": { "max": 10000 } },
+      { "id": "sd_6", "name": "status", "type": "select", "required": true, "options": { "values": ["pending", "approved", "rejected", "deployed"] } },
+      { "id": "sd_7", "name": "backtest_result", "type": "json", "required": false, "options": {} }
+    ],
+    "listRule": "user_id = @request.auth.id", "viewRule": "user_id = @request.auth.id", "createRule": "user_id = @request.auth.id", "updateRule": "user_id = @request.auth.id", "deleteRule": "user_id = @request.auth.id"
+  },
+  {
+    "id": "causal_nodes",
+    "name": "causal_nodes",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "cn_1", "name": "user_id", "type": "relation", "required": true, "options": { "collectionId": "_pb_users_auth_", "maxSelect": 1, "cascadeDelete": true } },
+      { "id": "cn_2", "name": "label", "type": "text", "required": true, "options": { "max": 300 } },
+      { "id": "cn_3", "name": "normalized_label", "type": "text", "required": true, "options": { "max": 300 } },
+      { "id": "cn_4", "name": "node_type", "type": "select", "required": true, "options": { "values": ["event", "decision", "outcome", "context"] } }
+    ],
+    "listRule": "user_id = @request.auth.id", "viewRule": "user_id = @request.auth.id", "createRule": "user_id = @request.auth.id", "updateRule": "user_id = @request.auth.id", "deleteRule": "user_id = @request.auth.id"
+  },
+  {
+    "id": "causal_edges",
+    "name": "causal_edges",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "ce_1", "name": "user_id", "type": "relation", "required": true, "options": { "collectionId": "_pb_users_auth_", "maxSelect": 1, "cascadeDelete": true } },
+      { "id": "ce_2", "name": "source", "type": "relation", "required": true, "options": { "collectionId": "causal_nodes", "maxSelect": 1, "cascadeDelete": true } },
+      { "id": "ce_3", "name": "target", "type": "relation", "required": true, "options": { "collectionId": "causal_nodes", "maxSelect": 1, "cascadeDelete": true } },
+      { "id": "ce_4", "name": "relation_type", "type": "select", "required": true, "options": { "values": ["causes", "amplifies", "reduces", "blocks", "depends_on"] } },
+      { "id": "ce_5", "name": "weight", "type": "number", "required": false, "options": { "min": 0, "max": 1 } },
+      { "id": "ce_6", "name": "evidence", "type": "text", "required": false, "options": { "max": 2000 } },
+      { "id": "ce_7", "name": "fingerprint", "type": "text", "required": true, "options": { "max": 128 } },
+      { "id": "ce_8", "name": "evidence_count", "type": "number", "required": false, "options": { "min": 0 } },
+      { "id": "ce_9", "name": "contradiction_count", "type": "number", "required": false, "options": { "min": 0 } },
+      { "id": "ce_10", "name": "last_observed_at", "type": "date", "required": false, "options": {} }
+    ],
+    "listRule": "user_id = @request.auth.id", "viewRule": "user_id = @request.auth.id", "createRule": "user_id = @request.auth.id", "updateRule": "user_id = @request.auth.id", "deleteRule": "user_id = @request.auth.id"
+  },
+  {
+    "id": "sim_runs",
+    "name": "sim_runs",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "sr_1", "name": "scenario", "type": "text", "required": true, "options": { "max": 1000 } },
+      { "id": "sr_2", "name": "assumptions", "type": "json", "required": true, "options": {} },
+      { "id": "sr_3", "name": "predicted_outcomes", "type": "json", "required": true, "options": {} },
+      { "id": "sr_4", "name": "confidence", "type": "number", "required": true, "options": { "min": 0, "max": 1 } }
+    ],
+    "listRule": "", "viewRule": "", "createRule": null, "updateRule": null, "deleteRule": null
+  }
+]

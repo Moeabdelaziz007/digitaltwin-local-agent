@@ -108,6 +108,56 @@ export interface ResearchGem extends PBRecord {
 }
 
 // ----------------------------------------------------------
+// Causal Knowledge Graph (The Reasoning Spine)
+// ----------------------------------------------------------
+export interface CausalNode extends PBRecord {
+  user_id: string;
+  label: string;
+  normalized_label: string;
+  node_type: 'event' | 'decision' | 'outcome' | 'context' | 'profit';
+  importance: number;
+}
+
+export interface CausalEdge extends PBRecord {
+  user_id: string;
+  source: string; // CausalNode ID
+  target: string; // CausalNode ID
+  relation_type: 'causes' | 'amplifies' | 'reduces' | 'blocks' | 'depends_on';
+  weight: number; // -1.0 to 1.0
+  evidence?: string;
+  fingerprint: string;
+}
+
+// ----------------------------------------------------------
+// Profit Lab: Opportunities & Ventures
+// ----------------------------------------------------------
+export interface Opportunity extends PBRecord {
+  user_id: string;
+  title: string;
+  description: string;
+  category: 'saas' | 'crypto' | 'arbitrage' | 'content' | 'other';
+  score: number; // 0-100
+  confidence: number; // 0-1.0
+  estimated_roi: string;
+  speed_to_market: 'fast' | 'med' | 'slow';
+  source_signals: string[]; 
+  status: 'scouted' | 'validated' | 'rejected' | 'in_backlog';
+  causal_node_id?: string;
+}
+
+export interface Venture extends PBRecord {
+  opportunity_id: string;
+  user_id: string;
+  name: string;
+  prd_content?: string;
+  architecture_notes?: string;
+  repo_path?: string;
+  revenue_model: Record<string, any>;
+  status: 'planning' | 'building' | 'testing' | 'scaling';
+  current_phase: string;
+}
+
+// ----------------------------------------------------------
 // PocketBase Collection: skill_drafts
 // ----------------------------------------------------------
 export interface SkillDraft extends PBRecord {

@@ -15,6 +15,9 @@ function clamp(value: number, min = 0, max = 1): number {
   return Math.max(min, Math.min(max, value));
 }
 
+/**
+ * Calculates ROI_score based on weighted metrics and penalties.
+ */
 export function rankOpportunity(opportunity: OpportunityCard): OpportunityCard {
   const urgency = clamp(opportunity.urgency_score);
   const feasibility = clamp(1 - opportunity.implementation_effort / 10);
@@ -39,6 +42,9 @@ export function rankOpportunity(opportunity: OpportunityCard): OpportunityCard {
   };
 }
 
+/**
+ * Ranks and returns top 3 opportunities.
+ */
 export function rankAndSort(opportunities: OpportunityCard[]): OpportunityCard[] {
   return opportunities
     .map(rankOpportunity)
@@ -46,6 +52,9 @@ export function rankAndSort(opportunities: OpportunityCard[]): OpportunityCard[]
     .slice(0, 3);
 }
 
+/**
+ * Dynamic calibration of weights based on outcome feedback.
+ */
 export function calibrateRankerWeights(actualEffort: number, actualValue: number, predictedROI: number): RankerWeights {
   const targetROI = (actualValue * 100) / Math.max(actualEffort, 1);
   const error = targetROI - predictedROI;

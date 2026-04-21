@@ -9,7 +9,12 @@ function scoreKeyword(keyword: string): number {
   return 0.68;
 }
 
+/**
+ * Mocks or fetches market signals based on keywords.
+ */
 export async function fetchMarketSignals(keywords: string[] = DEFAULT_KEYWORDS): Promise<MarketSignal[]> {
+  // In a real implementation, this would call a news API or market intelligence service.
+  // For now, we use a scoring heuristic based on the provided keywords.
   return keywords.slice(0, 6).map((keyword, index) => ({
     keyword,
     momentum: Math.max(0.45, scoreKeyword(keyword) - index * 0.06),
