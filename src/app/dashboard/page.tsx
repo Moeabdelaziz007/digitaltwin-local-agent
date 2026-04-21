@@ -15,6 +15,7 @@ import { LearningProgress } from "@/components/LearningProgress";
 import { LearningToast } from "@/components/LearningToast";
 import { PresenceOrb } from "@/components/PresenceOrb";
 import { WorkReport } from "@/components/dashboard/WorkReport";
+import OpportunityDeck from "@/components/dashboard/OpportunityDeck";
 
 // ── UI Sub-components ──
 
@@ -314,6 +315,14 @@ export default function DashboardPage({ searchParams }: { searchParams: Promise<
             ))}
           </div>
         </section>
+
+        <aside className="hidden xl:block w-[360px] border-l border-white/5 p-4 overflow-y-auto">
+          <OpportunityDeck
+            repo="vercel/next.js"
+            focus={["automation", "workflow", "feedback"]}
+            trends={["agent automation", "ai workflow", "ops assistant"]}
+          />
+        </aside>
       </main>
 
       {/* ── Controls (80px) ── */}
