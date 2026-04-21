@@ -11,6 +11,7 @@
     "build": "pnpm run check:env && next build",
     "start": "next start",
     "check:env": "node scripts/check-env.mjs",
+    "pb:bootstrap": "node scripts/pb-bootstrap-schema.js",
     "check:smoke": "node scripts/check-smoke.mjs",
     "verify": "chmod +x scripts/quality-gate.sh && ./scripts/quality-gate.sh",
     "scan-bugs": "grep -rinE 'console\\.log|TODO|FIXME|localhost|sk_test|pk_test|body\\.userId' src/ || echo 'Zero critical debugging artifacts found!'",

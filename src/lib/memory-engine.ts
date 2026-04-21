@@ -65,7 +65,7 @@ function cosineSimilarity(a: number[], b: number[]): number {
 }
 
 function getFactText(record: Fact): string {
-  return record.fact || record.fact_text || '';
+  return record.fact_text || '';
 }
 
 async function detectContradiction(newFact: string, existingFact: string, category: string): Promise<boolean> {
@@ -131,7 +131,7 @@ export async function executeRecallMemory(userId: string, topic: string): Promis
     const pb = getServerPB();
     try {
       const result = await pb.collection('facts').getList<Fact>(1, 5, {
-        filter: `user_id = "${userId}" && (fact ~ "${topic}" || tags ~ "${topic}")`,
+        filter: `user_id = "${userId}" && (fact_text ~ "${topic}" || tags ~ "${topic}")`,
         sort: '-confidence'
       });
 
@@ -231,7 +231,7 @@ export async function executeSaveMemory(userId: string, fact: string, category: 
 
           await pb.collection('facts').create({
             user_id: userId,
-            fact,
+            fact_text: fact,
             category,
             confidence: 0.65,
             reinforced_count: 1,
@@ -260,7 +260,7 @@ export async function executeSaveMemory(userId: string, fact: string, category: 
 
       const newRecord = await pb.collection('facts').create({
         user_id: userId,
-        fact,
+        fact_text: fact,
         category,
         confidence: 0.8,
         reinforced_count: 1,

@@ -48,10 +48,10 @@ export interface ConversationMessage extends PBRecord {
   session_id: string;
   role: 'user' | 'twin';
   content: string;
-  detected_emotion?: string;
   turn_index: number;
   turn_id?: string;
   message_id?: string;
+  detected_emotion?: string;
 }
 
 export interface ConversationTurn extends PBRecord {
@@ -78,18 +78,18 @@ export interface SessionCounter extends PBRecord {
 // ----------------------------------------------------------
 export interface Fact extends PBRecord {
   user_id: string;
-  fact: string;
-  fact_text?: string;
-  fact_fingerprint?: string;
+  fact_text: string;
   category: 'preference' | 'biographical' | 'habit' | 'goal' | 'emotion';
   confidence: number;
-  should_store: boolean;
-  evidence_span?: string;
-  reinforced_count: number;
-  source_session?: string;
+  tags?: unknown;
+  reinforced_count?: number;
+  is_active?: boolean;
+  importance?: number;
+  source_conversation?: string;
+  last_reinforced_at?: string;
+  fact_fingerprint?: string;
   status?: 'active' | 'reinforced' | 'conflicted' | 'archived';
   source?: string;
-  last_reinforced_at?: string;
   conflict_group_id?: string;
 }
 
@@ -186,11 +186,10 @@ export interface FactsPageDTO {
 
 export interface FactSummaryDTO {
   id: string;
-  fact: string;
+  fact_text: string;
   category: string;
   confidence: number;
-  reinforcedCount: number;
-  evidenceSpan?: string;
+  reinforcedCount?: number;
 }
 
 // ----------------------------------------------------------

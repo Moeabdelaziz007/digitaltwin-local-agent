@@ -121,11 +121,11 @@ export default function MemoryPage() {
                         style={{ background: 'hsl(var(--primary)/0.1)', color: 'hsl(var(--primary))' }}>
                     {fact.category}
                   </span>
-                  <p className="text-sm leading-relaxed font-medium">{fact.fact}</p>
+                  <p className="text-sm leading-relaxed font-medium">{fact.fact_text}</p>
                   
                   <div className="flex items-center gap-3 mt-3 text-[10px]" style={{ color: 'hsl(var(--muted-foreground))' }}>
                     <span>Conf: {Math.round(fact.confidence * 100)}%</span>
-                    {fact.reinforced_count > 0 && (
+                    {(fact.reinforced_count ?? 0) > 0 && (
                       <span className="flex items-center gap-1"><span>🔁</span> x{fact.reinforced_count}</span>
                     )}
                   </div>

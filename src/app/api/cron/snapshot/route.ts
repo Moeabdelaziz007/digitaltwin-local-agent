@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
           detail_level: 'balanced',
           humor: 'moderate',
         },
-        top_facts: factsResult.items.map(f => f.fact),
+        top_facts: factsResult.items.map(f => f.fact_text),
         last_updated: new Date().toISOString(),
       };
 
