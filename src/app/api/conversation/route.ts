@@ -14,7 +14,7 @@ import {
   executeRecallMemory,
   executeSaveMemory
 } from '@/lib/memory-engine';
-import { callOllamaWithTools, streamOllama, OllamaMessage } from '@/lib/ollama-client';
+import { streamOllama, OllamaMessage } from '@/lib/ollama-client';
 import { obs } from '@/lib/observability/observability-service';
 import { safeFetch } from '@/lib/safe-fetch';
 import { getServerPB } from '@/lib/pb-server';
@@ -42,8 +42,9 @@ async function getOrCreateSessionCounter(pb: PocketBase, userId: string, session
         session_id: sessionId,
         next_turn_index: 0,
       });
-    } catch (createErr: any) {
-      console.error(`[CONV_API] FAILED to create session counter:`, createErr.data || createErr.message);
+    } catch (createErr: unknown) {
+      const err = createErr as { data?: unknown; message?: string };
+      console.error(`[CONV_API] FAILED to create session counter:`, err.data || err.message);
       // Final attempt to fetch (to handle race condition)
       return await pb.collection(COUNTER_COLLECTION).getFirstListItem(filter);
     }
@@ -276,8 +277,9 @@ export async function POST(request: NextRequest): Promise<Response> {
           status: 'processing',
           request_message_id: messageId,
         });
-      } catch (err: any) {
-        console.error('[CONVERSATION_POST] Failed to create turn record:', err.data || err.message || err);
+      } catch (err: unknown) {
+        const e = err as { data?: unknown; message?: string };
+        console.error('[CONVERSATION_POST] Failed to create turn record:', e.data || e.message || e);
         throw err;
       }
 
@@ -333,7 +335,7 @@ export async function POST(request: NextRequest): Promise<Response> {
 
       let iterations = 0;
       const MAX_ITERATIONS = 3;
-      let finalToolResponse: any = null;
+      let _finalToolResponse: unknown = null;
 
       while (iterations < MAX_ITERATIONS) {
         const res = await fetch(`${env.OLLAMA_URL}/api/chat`, {
@@ -352,7 +354,7 @@ export async function POST(request: NextRequest): Promise<Response> {
         const responseMessage = data.message as OllamaMessage;
 
         if (!responseMessage.tool_calls || responseMessage.tool_calls.length === 0) {
-          finalToolResponse = responseMessage;
+          _finalToolResponse = responseMessage;
           break;
         }
 
@@ -428,11 +430,12 @@ export async function POST(request: NextRequest): Promise<Response> {
       });
     });
 
-  } catch (error: any) {
-    console.error('[API_CONVERSATION_POST] Root failure:', error);
+  } catch (error: unknown) {
+    const err = error as { data?: unknown; message?: string };
+    console.error('[API_CONVERSATION_POST] Root failure:', err);
     return NextResponse.json({ 
       error: 'Guardian audit failed', 
-      details: error.data || error.message || String(error)
+      details: err.data || err.message || String(err)
     }, { status: 500 });
   }
 }

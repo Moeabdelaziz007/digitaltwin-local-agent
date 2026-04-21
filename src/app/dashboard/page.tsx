@@ -24,9 +24,7 @@ import { WorkReport } from "@/components/dashboard/WorkReport";
 
 export default function DashboardPage({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
   const router = useRouter();
-  const { filter } = use(searchParams);
   const { user, isLoaded: userLoaded } = useUser();
-  const { userId } = useAuth();
   const [, setProfile] = useState<UserProfile | null>(null);
   
   // State

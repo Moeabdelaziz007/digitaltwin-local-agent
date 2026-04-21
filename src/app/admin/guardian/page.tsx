@@ -25,7 +25,7 @@ export default function GuardianDashboard() {
   };
 
   useEffect(() => {
-    fetchReport();
+    void fetchReport();
   }, []);
 
   return (

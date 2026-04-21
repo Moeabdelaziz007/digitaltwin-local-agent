@@ -7,7 +7,7 @@ export interface GuardianIssue {
   source: string;
   timestamp: string;
   trace_id?: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
 }
 
 export interface GuardianReport {
