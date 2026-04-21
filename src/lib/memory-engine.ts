@@ -296,35 +296,36 @@ export async function buildMemoryContext(userId: string): Promise<string> {
   }, async (span) => {
     const pb = getServerPB();
 
-    // READ 1: Profile
-    let profile: UserProfile;
-    try {
-      profile = await pb.collection('user_profiles').getFirstListItem<UserProfile>(
-        `user_id = "${userId}"`
-      );
-    } catch {
-      return buildFallbackPrompt();
-    }
-
-    // READ 2: Last 15 conversation turns
-    let recentMessages: ConversationMessage[] = [];
-    try {
-      const result = await pb.collection('conversations').getList<ConversationMessage>(1, 15, {
+    // Parallel Data Fetching for optimized latency
+    const [profileRes, messagesRes, factsRes, gemsRes] = await Promise.allSettled([
+      pb.collection('user_profiles').getFirstListItem<UserProfile>(`user_id = "${userId}"`),
+      pb.collection('conversations').getList<ConversationMessage>(1, 15, {
         filter: `user_id = "${userId}"`,
         sort: '-created',
-      });
-      recentMessages = result.items.reverse();
-    } catch {}
-
-    // 🔥 ADDITION 1: Decay-aware fact filtering
-    let decayFilteredFacts: string[] = [];
-    try {
-      const facts = await pb.collection('facts').getFullList<Fact>({
+      }),
+      pb.collection('facts').getFullList<Fact>({
         filter: `user_id = "${userId}" && confidence > 0.1 && status != "archived"`,
         sort: '-confidence',
-        requestKey: null // Disable auto-cancel
-      });
+        requestKey: null
+      }),
+      pb.collection('research_gems').getList(1, 4, {
+        filter: `user_id = "${userId}" && status = "saved"`,
+        sort: '-relevance_score'
+      })
+    ]);
 
+    // Stage 1: Profile handling
+    if (profileRes.status === 'rejected') return buildFallbackPrompt();
+    profile = profileRes.value;
+
+    // Stage 2: Conversation history
+    if (messagesRes.status === 'fulfilled') {
+      recentMessages = messagesRes.value.items.reverse();
+    }
+
+    // 🔥 STAGE 3: Decay-aware fact filtering
+    if (factsRes.status === 'fulfilled') {
+      const facts = factsRes.value;
       const nowTs = Date.now();
       const factScores = facts.map(f => {
         const factText = getFactText(f);
@@ -347,20 +348,14 @@ export async function buildMemoryContext(userId: string): Promise<string> {
         .map(fs => fs.fact);
       
       obs.recordMemoryStats(span, { operation_type: 'scoring', candidates_count: facts.length, selected_ids: decayFilteredFacts.length.toString() });
-    } catch (_e) {
-      // If facts fetch fails, fallback to snapshot
+    } else {
       decayFilteredFacts = profile.profile_snapshot?.top_facts || [];
     }
 
-    // 🔥 ADDITION 2: Research Gems
-    let researchGems: string[] = [];
-    try {
-      const gems = await pb.collection('research_gems').getList(1, 4, {
-        filter: `user_id = "${userId}" && status = "saved"`,
-        sort: '-relevance_score'
-      });
-      researchGems = gems.items.map(g => `[GEM]: ${g.title} - ${g.implementation_notes}`);
-    } catch { }
+    // 🔥 STAGE 4: Research Gems
+    if (gemsRes.status === 'fulfilled') {
+      researchGems = gemsRes.value.items.map(g => `[GEM]: ${g.title} - ${g.implementation_notes}`);
+    }
 
     const snapshot: ProfileSnapshot = typeof profile.profile_snapshot === 'string'
       ? JSON.parse(profile.profile_snapshot)

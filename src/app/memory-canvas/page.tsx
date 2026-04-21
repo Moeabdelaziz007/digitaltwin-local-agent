@@ -17,6 +17,7 @@ import pb from "@/lib/pocketbase-client";
 import FactNodeComponent from "@/components/memory-canvas/FactNode";
 import NodeDetailPanel from "@/components/memory-canvas/NodeDetailPanel";
 import CanvasToolbar from "@/components/memory-canvas/CanvasToolbar";
+import { useUser } from "@clerk/nextjs";
 
 /* ── Custom node type registration ── */
 const NODE_TYPES = { factNode: FactNodeComponent };
@@ -29,6 +30,7 @@ interface FactNodeData {
 }
 
 export default function MemoryCanvasPage() {
+  const { user, isLoaded: userLoaded } = useUser();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [loading, setLoading] = useState(true);
@@ -38,8 +40,10 @@ export default function MemoryCanvasPage() {
   /* ── Load facts + edges from PocketBase ── */
   useEffect(() => {
     async function loadCanvasMap() {
+      if (!userLoaded) return;
+      
       try {
-        const userId = pb.authStore.record?.id;
+        const userId = user?.id;
         if (!userId) {
           setLoading(false);
           return;
