@@ -70,6 +70,11 @@ graph TD
 
 ---
 
+## ✅ Runtime Requirements / متطلبات التشغيل
+
+- **Node.js**: `22.11.0` (recommended via `.nvmrc`, `engines.node` is `22.x`)
+- **pnpm**: `10.23.0` (via Corepack / field `packageManager`)
+
 ## ⚡ Quick Start / البدء السريع
 
 ### 1. Initialize Neural Link / تهيئة الرابط العصبي
