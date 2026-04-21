@@ -1,24 +1,24 @@
 <div align="center">
   <img src="https://github.com/Moeabdelaziz007/digitaltwin-local-agent/blob/main/public/logo.png?raw=true" width="400" alt="Venture Lab Logo" />
   
-  # 🚀 DIGITAL TWIN: AUTONOMOUS VENTURE LAB
-  ### [EN] Profit-First Agentic Intelligence | [AR] مختبر المشاريع المستقل: ذكاء وكيل موجه للربحية
+  # 🚀 DIGITAL TWIN: AUTONOMOUS VENTURE LAB (MAS-ZERO)
+  ### [EN] Self-Evolving Profit Engine | [AR] محرك الربح ذاتي التطور (MAS-ZERO)
 </div>
 
 ---
 
 [ ![GitHub Stars](https://img.shields.io/github/stars/Moeabdelaziz007/digitaltwin-local-agent?style=for-the-badge&color=ffd700&logo=github) ](https://github.com/Moeabdelaziz007/digitaltwin-local-agent)
 [ ![Next.js](https://img.shields.io/badge/Next.js-15/16_Ready-black?style=for-the-badge&logo=next.js) ](https://nextjs.org)
-[ ![Ollama](https://img.shields.io/badge/Local_AI-Ollama-white?style=for-the-badge&logo=ollama) ](https://ollama.com)
+[ ![MAS-ZERO](https://img.shields.io/badge/Research-MAS--ZERO_arXiv:2505.14996-blue?style=for-the-badge) ](https://arxiv.org/abs/2505.14996)
 [ ![Profitability](https://img.shields.io/badge/Strategy-Profit--First-green?style=for-the-badge) ](docs/roadmap.md)
 
 ---
 
 ## 🌌 The Vision / الرؤية
 
-**[EN]** DigitalTwin has evolved into an **Autonomous Venture Lab**. It is no longer just a cognitive reflection; it is a self-operating financial engine. Using local LLMs and **Causal Reasoning**, it identifies market opportunities, validates them via SOPs, and executes profit-generating ventures (SaaS, Crypto Arbitrage, Content Engines) at **Zero Operational Cost**.
+**[EN]** DigitalTwin has evolved into an **Autonomous Venture Lab** based on the **MAS-ZERO** research framework. It is a self-designing, profit-focused engine that dynamically generates multi-agent configurations at inference time to solve complex revenue tasks. It identifies arbitrage opportunities, designs its own execution workflows (SOPs), and optimizes for maximum ROI with **Zero Operational Cost**.
 
-**[AR]** تطور "التوأم الرقمي" ليصبح **مختبر مشاريع مستقل (Autonomous Venture Lab)**. لم يعد مجرد انعكاس إدراكي؛ بل أصبح محركاً مالياً ذاتي التشغيل. باستخدام النماذج المحلية و**الاستدلال السببي**، يقوم النظام باكتشاف فرص السوق، والتحقق منها عبر إجراءات تشغيل قياسية (SOPs)، وتنفيذ مشاريع مدرة للربح (SaaS، أتمتة الكريبتو، محركات المحتوى) بـ **صفر تكلفة تشغيلية**.
+**[AR]** تطور "التوأم الرقمي" ليصبح **مختبر مشاريع مستقل (Autonomous Venture Lab)** يعتمد على إطار عمل **MAS-ZERO** البحثي. هو محرك ذاتي التصميم يركز على الربحية، يقوم بتوليد تكوينات متعددة الوكلاء ديناميكياً عند وقت الاستدلال لحل المهام المالية المعقدة. يكتشف فرص المراجحة، ويصمم مسارات عمله الخاصة (SOPs)، ويحسن العائد على الاستثمار بـ **صفر تكلفة تشغيلية**.
 
 ---
 
@@ -26,45 +26,39 @@
 
 | Agent / الوكيل | EN: Mission | AR: المهمة |
 | :--- | :--- | :--- |
-| **Opportunity Scout** | Real-time market sensing on GitHub, X, and DeFi protocols. | مسح حي للسوق على GitHub و X وبروتوكولات DeFi. |
-| **Causal Strategist** | Analyzing "Why" a venture succeeds using Knowledge Graphs. | تحليل "لماذا" ينجح المشروع باستخدام الرسوم البيانية المعرفية. |
-| **SOP Orchestrator** | Executing complex tasks via structured, error-proof state machines. | تنفيذ المهام المعقدة عبر آلات حالة هيكلية ومقاومة للأخطاء. |
-| **Profit Dashboard** | Visualizing real-time revenue, burn rate (0$), and venture health. | تصور حي للأرباح، معدل الحرق (0$)، وصحة المشاريع. |
+| **Meta Architect** | Self-designs MAS configurations based on MAS-ZERO principles. | يصمم تكوينات الوكلاء ذاتياً بناءً على مبادئ MAS-ZERO. |
+| **Opportunity Scout** | Deep-market sensing for "Hidden Gems" in L2/Micro-SaaS. | بحث عميق عن "الجواهر الخفية" في الـ L2 والـ Micro-SaaS. |
+| **Arbitrage Agent** | Simulation & execution of atomic cross-chain profit loops. | محاكاة وتنفيذ حلقات ربح ذرية عبر السلاسل (Cross-chain). |
+| **Consensus CEO** | Final decision making and risk management for proposed ventures. | اتخاذ القرار النهائي وإدارة المخاطر للمشاريع المقترحة. |
 
 ---
 
-## 📐 Architecture / الهندسة المعمارية
+## 📐 Architecture / الهندسة المعمارية (MAS-ZERO Flow)
 
 ```mermaid
 graph TD
-  User((User Vision)) --> |Goal| SOP[SOP Orchestrator]
-  SOP --> |Scan| Scout[Opportunity Scout]
-  Scout --> |Signals| Causal[Causal Reasoning Engine]
-  Causal --> |Verdict| Builder[Autonomous Venture Builder]
-  Builder --> |Execution| Profit[($$$) Profit Realization]
-  Profit --> |Feedback| Memory[(Cognitive Memory Matrix)]
+  Goal((Revenue Goal)) --> |Meta-Agent| Architect[Meta Architect]
+  Architect --> |Self-Design| Config[Instance-Specific MAS Config]
+  Config --> |Orchestrate| SOP[Dynamic SOP Engine]
+  SOP --> |Execute| Scout[Opportunity Scout]
+  SOP --> |Execute| Arbitrage[Arbitrage Agent]
+  Scout --> |Alpha Signals| Profit[($$$) Profit Realization]
+  Arbitrage --> |Execution| Profit
+  Profit --> |Recursive Feedback| Architect
 ```
 
 ---
 
 ## 🧠 Core Engineering / الهندسة الجوهرية
 
-- **[EN] Zero-Cost Infrastructure**: Fully powered by local Ollama instances and SQLite (PocketBase), ensuring privacy and $0 cloud bills.
-- **[AR] بنية تحتية صفرية التكلفة**: مدعوم بالكامل بواسطة Ollama و SQLite (PocketBase) محلياً، مما يضمن الخصوصية وفواتير سحابية بقيمة 0 دولار.
-- **[EN] Causal Knowledge Graph**: Every decision is backed by a "Source-Relation-Target" triple, stored for long-term strategic learning.
-- **[AR] الرسم البياني المعرفي السببي**: كل قرار مدعوم بـ "مصدر-علاقة-هدف"، مخزنة للتعلم الاستراتيجي طويل الأمد.
-- **[EN] Flash-Loan Arbitrage**: Built-in logic for risk-free crypto arbitrage using atomic blockchain transactions.
-- **[AR] مراجحة القروض السريعة**: منطق مدمج لمراجحة العملات الرقمية الخالية من المخاطر باستخدام معاملات البلوكشين الذرية.
-
----
-
-## 🛠 Tech Stack / المكونات التقنية
-
-- **Frontend**: Next.js 15, Tailwind CSS v4, Framer Motion.
-- **Core Intelligence**: Ollama (Llama 3.2 3B / Gemma 2 9B).
-- **Persistence**: PocketBase (Local-First).
-- **Orchestration**: Custom SOP Engine (TypeScript-based State Machines).
-- **Security**: Clerk + HMAC-SHA256 Signed API Bridges.
+- **[EN] MAS-ZERO Self-Design**: Based on the NeurIPS 2025 research, our system automatically creates, critiques, and refines agent workflows at runtime. It outshines manual MAS by **+16.69% in reasoning** and **+16.66% in zero-shot coding**.
+- **[AR] التصميم الذاتي MAS-ZERO**: بناءً على أبحاث NeurIPS 2025، يقوم نظامنا تلقائياً بإنشاء ونقد وتحسين مسارات عمل الوكلاء أثناء التشغيل. يتفوق على الأنظمة اليدوية بنسبة **+16.69% في الاستدلال** و **+16.66% في البرمجة الذاتية**.
+- **[EN] 2025 Venture Desk**: Moving beyond legacy bots to a **5-agent consensus model** (The Sweet Spot). Includes specialized Risk Management and Execution agents to combat 2025 market volatility.
+- **[AR] مكتب مشاريع 2025**: الانتقال من البوتات التقليدية إلى **نموذج إجماع مكون من 5 وكلاء** (نقطة التوازن المثالية). يتضمن وكلاء متخصصين لإدارة المخاطر والتنفيذ لمواجهة تقلبات سوق 2025.
+- **[EN] Causal Profit Mapping**: We map "Alpha Signals" to "Profit Outcomes" using causal links (Signal -> Action -> ROI), ensuring the lab learns *why* a venture succeeded.
+- **[AR] خرائط الربح السببية**: نقوم بربط "إشارات ألفا" بـ "نتائج الربح" باستخدام روابط سببية (الإشارة -> الإجراء -> العائد)، مما يضمن أن المختبر يتعلم *لماذا* نجح المشروع.
+- **[EN] Hidden Gem Engine**: Integrated search for low-competition crypto yields and micro-SaaS niches.
+- **[AR] محرك الجواهر الخفية**: بحث متكامل عن عوائد الكريبتو منخفضة المنافسة ونيتشات الـ Micro-SaaS.
 
 ---
 
@@ -86,11 +80,12 @@ pnpm dev
 ---
 
 ## 🛠 Safety & Sovereignty / الأمان والسيادة
-[EN] Your ventures, your data, your profit. DigitalTwin operates entirely on your local hardware. No strategy or financial signal leaves your machine without encryption and explicit consent.
+[EN] DigitalTwin operates entirely on your local hardware. No financial data leaves your machine. The lab is built for individual sovereignty in the AI age.
 
-[AR] مشاريعك، بياناتك، أرباحك. يعمل التوأم الرقمي بالكامل على جهازك المحلي. لا توجد استراتيجية أو إشارة مالية تغادر جهازك دون تشفير وموافقة صريحة.
+[AR] يعمل التوأم الرقمي بالكامل على جهازك المحلي. لا توجد بيانات مالية تغادر جهازك. تم بناء المختبر من أجل السيادة الفردية في عصر الذكاء الاصطناعي.
 
 ---
 
 ## 📄 License / الترخيص
 MIT License. Part of the Autonomous Venture Lab Initiative.
+

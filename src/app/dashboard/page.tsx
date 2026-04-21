@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useUser, UserButton } from "@clerk/nextjs";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { use } from "react";
@@ -15,6 +15,8 @@ import { LearningProgress } from "@/components/LearningProgress";
 import { LearningToast } from "@/components/LearningToast";
 import { PresenceOrb } from "@/components/PresenceOrb";
 import { WorkReport } from "@/components/dashboard/WorkReport";
+import { ProfitDashboard } from "@/components/dashboard/ProfitDashboard";
+import { TrendingUp, LayoutDashboard } from "lucide-react";
 
 // ── UI Sub-components ──
 
@@ -39,6 +41,7 @@ export default function DashboardPage({ searchParams }: { searchParams: Promise<
   const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
   const [isWorkReportOpen, setIsWorkReportOpen] = useState(false);
   const [orbState, setOrbState] = useState<'idle' | 'listening' | 'thinking' | 'speaking' | 'learning' | 'researching'>('idle');
+  const [leftPanelView, setLeftPanelView] = useState<'avatar' | 'profit'>('avatar');
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -215,22 +218,61 @@ export default function DashboardPage({ searchParams }: { searchParams: Promise<
 
       {/* ── Main Layout (Flex) ── */}
       <main className="flex flex-1 overflow-hidden">
-        {/* Avatar Stage (50%) */}
-        <section className="hidden md:flex flex-[0.5] border-r border-white/5 bg-bg-surface/30 relative items-center justify-center">
-          <div onClick={() => setIsWorkReportOpen(true)}>
-            <PresenceOrb state={orbState} />
+        {/* Left Panel (50%) - Toggle between Avatar and Profit */}
+        <section className="hidden md:flex flex-[0.5] border-r border-white/5 bg-bg-surface/30 relative flex-col items-center justify-center overflow-hidden">
+          {/* View Toggle */}
+          <div className="absolute top-6 left-6 flex items-center gap-2 z-50">
+            <button 
+              onClick={() => setLeftPanelView('avatar')}
+              className={`p-2 rounded-lg transition-all ${leftPanelView === 'avatar' ? 'bg-cyan/20 text-cyan border border-cyan/30' : 'text-white/40 hover:text-white'}`}
+              title="Avatar Mode"
+            >
+              <PresenceOrb state="idle" size={16} />
+            </button>
+            <button 
+              onClick={() => setLeftPanelView('profit')}
+              className={`p-2 rounded-lg transition-all ${leftPanelView === 'profit' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'text-white/40 hover:text-white'}`}
+              title="Venture Lab Mode"
+            >
+              <TrendingUp size={16} />
+            </button>
           </div>
-          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-center">
-            <p className="font-display text-[10px] text-cyan/40 uppercase tracking-[0.4em] mb-2">Cognitive Link Status</p>
-            <div className="flex items-center gap-2 justify-center">
-               <button 
-                 onClick={(e) => { e.stopPropagation(); void triggerResearch(); }}
-                 className="text-[9px] font-display text-cyan hover:text-white transition-all uppercase tracking-widest border border-cyan/20 px-2 py-1 rounded bg-cyan/5"
-               >
-                 Pulse Research
-               </button>
-            </div>
-          </div>
+
+          <AnimatePresence mode="wait">
+            {leftPanelView === 'avatar' ? (
+              <motion.div 
+                key="avatar"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="w-full flex flex-col items-center justify-center"
+                onClick={() => setIsWorkReportOpen(true)}
+              >
+                <PresenceOrb state={orbState} />
+                <div className="mt-12 text-center">
+                  <p className="font-display text-[10px] text-cyan/40 uppercase tracking-[0.4em] mb-2">Cognitive Link Status</p>
+                  <div className="flex items-center gap-2 justify-center">
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); void triggerResearch(); }}
+                      className="text-[9px] font-display text-cyan hover:text-white transition-all uppercase tracking-widest border border-cyan/20 px-2 py-1 rounded bg-cyan/5"
+                    >
+                      Pulse Research
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div 
+                key="profit"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="w-full h-full p-4 overflow-y-auto scrollbar-hide"
+              >
+                <ProfitDashboard />
+              </motion.div>
+            )}
+          </AnimatePresence>
         </section>
 
         {/* Transcript Panel */}
