@@ -1,0 +1,106 @@
+name: PR Guardrails
+
+on:
+  pull_request_target:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  reject-hardened-main-regressions:
+    if: ${{ github.event.pull_request.head.ref == 'codex/implement-safefetch-with-timeout-and-retries' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close out-of-scope PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue_number = context.payload.pull_request.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number,
+              body: 'Out-of-scope, regresses hardened main'
+            });
+
+            await github.rest.pulls.update({
+              owner,
+              repo,
+              pull_number: issue_number,
+              state: 'closed'
+            });
+
+  enforce-guardrails:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce PR scope and deletion safety rules
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner,
+              repo,
+              pull_number: pr.number,
+              per_page: 100
+            });
+
+            const changedCount = files.length;
+            const labels = (pr.labels || []).map((l) => l.name);
+            const body = pr.body || '';
+
+            const hasArchitecturalApproval =
+              labels.includes('architectural-approved') ||
+              /architectural\s+approval\s*:\s*(approved|yes)/i.test(body);
+
+            const requiredTemplateChecks = [
+              { name: 'Scope', regex: /##\s*Scope[\s\S]*?\S+/i },
+              { name: 'Expected files', regex: /##\s*Expected files[\s\S]*?\S+/i },
+              { name: 'Why each file changed', regex: /##\s*Why each file changed[\s\S]*?\S+/i },
+              { name: 'Regression risk statement', regex: /##\s*Regression risk statement[\s\S]*?\S+/i }
+            ];
+
+            const missingSections = requiredTemplateChecks
+              .filter((check) => !check.regex.test(body))
+              .map((check) => check.name);
+
+            if (missingSections.length > 0) {
+              core.setFailed(
+                `PR template is incomplete. Missing required section(s): ${missingSections.join(', ')}.`
+              );
+              return;
+            }
+
+            if (changedCount > 10 && !hasArchitecturalApproval) {
+              core.setFailed(
+                `PR changes ${changedCount} files (>10). Add label \"architectural-approved\" or include \"Architectural Approval: approved\" in PR body.`
+              );
+              return;
+            }
+
+            const protectedFiles = ['task.md'];
+            const deletedProtectedFiles = files
+              .filter((f) => f.status === 'removed')
+              .map((f) => f.filename)
+              .filter((f) => protectedFiles.includes(f));
+
+            const hasExplicitDeletionAuthorization =
+              labels.includes('operational-file-deletion-approved') ||
+              /explicit\s+deletion\s+authorization\s*:\s*(approved|yes)/i.test(body);
+
+            if (deletedProtectedFiles.length > 0 && !hasExplicitDeletionAuthorization) {
+              core.setFailed(
+                `Deletion of protected operational/context files is blocked without explicit authorization. Deleted: ${deletedProtectedFiles.join(', ')}.`
+              );
+              return;
+            }
+
+            core.info('PR guardrails passed.');
