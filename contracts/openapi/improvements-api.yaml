@@ -1,0 +1,60 @@
+openapi: 3.1.0
+info:
+  title: Adaptive Improvements API
+  version: 1.0.0
+  description: Governance API for reviewing and applying agentic improvement proposals.
+
+paths:
+  /api/admin/proposals:
+    get:
+      summary: List pending improvement proposals
+      operationId: listProposals
+      responses:
+        '200':
+          description: List of proposals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Proposal'
+  /api/admin/proposals/{id}/action:
+    post:
+      summary: Approve or reject a proposal
+      operationId: takeActionOnProposal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - action
+                - reason
+              properties:
+                action:
+                  type: string
+                  enum: [approve, reject]
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Action recorded
+        '400':
+          description: Invalid input
+
+components:
+  schemas:
+    Proposal:
+      type: object
+      properties:
+        id: { type: string }
+        subsystem: { type: string }
+        hypothesis: { type: string }
+        proposed_change: { type: object }
+        status: { type: string }

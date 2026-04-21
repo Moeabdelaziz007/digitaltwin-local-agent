@@ -7,11 +7,12 @@ import { createHash, randomUUID } from 'crypto';
 import PocketBase from 'pocketbase';
 import type { UserProfile, ConversationMessage, ProfileSnapshot, Fact } from '@/types/twin';
 import { OllamaTool, callOllama, fetchEmbedding } from '@/lib/ollama-client';
+
+
 import { env } from '@/lib/env';
 import { obs } from '@/lib/observability/observability-service';
 import { getServerPB } from '@/lib/pb-server';
 import { config } from '@/lib/observability/config-service';
-import { fetchEmbedding, cosineSimilarity } from './ollama-client';
 
 // Fallback defaults if config service fails
 const DEFAULT_SIMILARITY_THRESHOLD = 0.88;
@@ -19,12 +20,7 @@ const DEFAULT_LEXICAL_OVERLAP = 0.6;
 const DEFAULT_REINFORCEMENT_DELTA = 0.08;
 const DEFAULT_CONFLICT_THRESHOLD = 0.7;
 
-// Server-side PocketBase client
-function getServerPB(): PocketBase {
-  const pb = new PocketBase(POCKETBASE_URL);
-  pb.autoCancellation(false);
-  return pb;
-}
+// Redundant helper removed, using import instead.
 
 function normalizeFactText(input: string): string {
   return input

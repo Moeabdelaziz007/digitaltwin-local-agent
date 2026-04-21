@@ -1,0 +1,36 @@
+openapi: 3.1.0
+info:
+  title: Evaluation API
+  version: 1.0.0
+  description: API for running and analyzing agentic evaluation suites.
+
+paths:
+  /api/admin/eval/run:
+    post:
+      summary: Trigger an evaluation suite run
+      operationId: runEvalSuite
+      responses:
+        '200':
+          description: Evaluation summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvalSummary'
+  /api/admin/eval/history:
+    get:
+      summary: Fetch historical evaluation results
+      operationId: listEvalHistory
+      responses:
+        '200':
+          description: List of historical eval runs
+
+components:
+  schemas:
+    EvalSummary:
+      type: object
+      properties:
+        accuracy: { type: number, format: float }
+        latency_p50: { type: number }
+        total_tests: { type: integer }
+        passed_tests: { type: integer }
+        failed_tests: { type: integer }

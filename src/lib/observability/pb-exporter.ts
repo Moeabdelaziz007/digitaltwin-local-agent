@@ -1,4 +1,5 @@
-import { SpanExporter, ReadableSpan, ExportResult, ExportResultCode } from '@opentelemetry/sdk-trace-base';
+import { ExportResult, ExportResultCode } from '@opentelemetry/core';
+import { SpanExporter, ReadableSpan } from '@opentelemetry/sdk-trace-base';
 import PocketBase from 'pocketbase';
 
 /**
@@ -82,7 +83,8 @@ export class PocketBaseSpanExporter implements SpanExporter {
    * Maps an OTel span to the PocketBase schema and saves it
    */
   private async saveSpan(span: ReadableSpan): Promise<void> {
-    const { traceId, spanId, parentSpanId } = span.spanContext();
+    const { traceId, spanId } = span.spanContext();
+    const parentSpanId = (span as any).parentSpanId || '';
     const startTime = this.hrTimeToDate(span.startTime);
     const endTime = this.hrTimeToDate(span.endTime);
     const durationMs = span.duration[0] * 1000 + span.duration[1] / 1000000;

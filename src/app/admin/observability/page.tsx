@@ -41,6 +41,7 @@ export default async function ObservabilityAdmin({ searchParams }: { searchParam
   // Basic admin check (could use publicMetadata in production)
   // For now we allow authenticated users to see trial observability
   
+  const { filter: filterType } = await searchParams;
   const traces = await getTraceSummaries(filterType);
 
   // Dynamic Stats Calculation

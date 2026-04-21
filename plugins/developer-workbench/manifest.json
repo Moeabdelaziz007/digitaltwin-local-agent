@@ -1,0 +1,8 @@
+{
+  "name": "developer-workbench",
+  "version": "1.0.0",
+  "description": "A comprehensive suite for repository analysis, changelog summarization, and task planning.",
+  "skills": ["project-researcher"],
+  "permissions": ["filesystem", "network"],
+  "status": "enabled"
+}

@@ -1,0 +1,22 @@
+{
+  "name": "voice-session-manager",
+  "version": "1.0.0",
+  "description": "Manages real-time audio context, buffer clearing, and session continuity for voice interaction.",
+  "when_to_use": "When the user starts a voice session, speaks over a response (interrupt), or when audio latency exceeds thresholds.",
+  "permissions": ["network"],
+  "required_tools": ["interrupt_voice", "clear_buffers", "get_voice_metrics"],
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "action": { "enum": ["reset", "pause", "resume"] }
+    }
+  },
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "session_id": { "type": "string" },
+      "latency_ms": { "type": "integer" }
+    }
+  },
+  "safety_notes": "Do not reset the context during an active high-importance broadcast."
+}

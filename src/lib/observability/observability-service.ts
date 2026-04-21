@@ -6,7 +6,7 @@ import {
   SpanKind,
   Attributes
 } from '@opentelemetry/api';
-import { Resource } from '@opentelemetry/resources';
+import * as resources from '@opentelemetry/resources';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
@@ -42,7 +42,7 @@ export class ObservabilityService {
     const exporter = new PocketBaseSpanExporter(env.POCKETBASE_URL);
     
     this.sdk = new NodeSDK({
-      resource: new Resource({
+      resource: new (resources as any).Resource({
         [SemanticResourceAttributes.SERVICE_NAME]: 'digital-twin-app',
         [SemanticResourceAttributes.SERVICE_VERSION]: '1.0.0',
       }),

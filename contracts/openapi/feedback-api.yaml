@@ -1,0 +1,52 @@
+openapi: 3.1.0
+info:
+  title: Feedback API
+  version: 1.0.0
+  description: API for collecting user feedback on agent execution and memory.
+
+paths:
+  /api/feedback:
+    post:
+      summary: Submit trace feedback
+      operationId: submitFeedback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - traceId
+                - rating
+              properties:
+                traceId:
+                  type: string
+                  format: uuid
+                rating:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                tags:
+                  type: array
+                  items:
+                    type: string
+                comment:
+                  type: string
+                metadata:
+                  type: object
+      responses:
+        '200':
+          description: Feedback received
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  id:
+                    type: string
+        '401':
+          description: Unauthorized
+        '400':
+          description: Invalid request

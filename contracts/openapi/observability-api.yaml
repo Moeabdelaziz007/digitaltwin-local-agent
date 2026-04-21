@@ -1,0 +1,51 @@
+openapi: 3.1.0
+info:
+  title: Observability API
+  version: 1.0.0
+  description: Internal telemetry API for trace discovery and detailed distributed tracing analysis.
+
+paths:
+  /api/admin/observability/traces:
+    get:
+      summary: List root spans (traces)
+      operationId: listTraces
+      parameters:
+        - name: filter
+          in: query
+          schema:
+            type: string
+            enum: [failed, slow]
+      responses:
+        '200':
+          description: List of traces
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TraceSummary'
+  /api/admin/observability/traces/{traceId}:
+    get:
+      summary: Fetch detailed spans for a trace
+      operationId: getTraceDetails
+      parameters:
+        - name: traceId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Full trace span tree
+
+components:
+  schemas:
+    TraceSummary:
+      type: object
+      properties:
+        trace_id: { type: string }
+        name: { type: string }
+        duration_ms: { type: number }
+        status: { type: string }
+        start_time: { type: string, format: date-time }
