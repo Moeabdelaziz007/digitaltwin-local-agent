@@ -7,10 +7,13 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Architect-Moeabdelaziz007-emerald?style=for-the-badge&logo=github" alt="Architect" />
-  <img src="https://img.shields.io/badge/Language-Bilingual-emerald?style=for-the-badge" alt="Bilingual" />
-  <img src="https://img.shields.io/badge/Status-Active-cyan?style=for-the-badge" alt="Status" />
-  <img src="https://img.shields.io/badge/Architecture-MAS--ZERO-6366f1?style=for-the-badge" alt="Architecture" />
+  <a href="https://github.com/Moeabdelaziz007/digitaltwin-local-agent/actions/workflows/ci.yml">
+    <img src="https://github.com/Moeabdelaziz007/digitaltwin-local-agent/actions/workflows/ci.yml/badge.svg" alt="CI Status" />
+  </a>
+  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License" />
+  <img src="https://img.shields.io/badge/Version-0.01--alpha-orange" alt="Version" />
+  <img src="https://img.shields.io/badge/Next.js-15-black?logo=next.js" alt="Next.js" />
+  <img src="https://img.shields.io/badge/Node-20.x-brightgreen?logo=node.js" alt="Node" />
 </p>
 
 <h1 align="center">
@@ -25,21 +28,13 @@
 
 ***
 
-## 👤 Credits | المساهمون
-
-<table width="100%">
-  <tr>
-    <td align="center" width="100%">
-      <a href="https://github.com/Moeabdelaziz007">
-        <img src="https://github.com/Moeabdelaziz007.png" width="100" style="border-radius: 50%;" alt="Moe Abdelaziz" />
-        <br />
-        <sub><b>Moe Abdelaziz (@Moeabdelaziz007)</b></sub>
-      </a>
-      <br />
-      Principal AI Engineer & System Architect
-    </td>
-  </tr>
-</table>
+## 📑 Table of Contents | الفهرس
+- [Vision](#-vision--الرؤية)
+- [Quick Start](#-quick-start--ابدأ-هنا)
+- [Requirements](#-requirements--المتطلبات)
+- [Architecture](#-architecture--البناء-التقني)
+- [MAS-ZERO Engine](#-core-engine-mas-zero--المحرك-الجوهري)
+- [Credits](#-credits--المساهمون)
 
 ***
 
@@ -60,13 +55,62 @@
 
 ***
 
+## ⚡ Quick Start | ابدأ هنا
+
+```bash
+# 1. Clone the Sovereign Engine
+git clone https://github.com/Moeabdelaziz007/digitaltwin-local-agent.git
+cd digitaltwin-local-agent
+
+# 2. Install Dependencies
+npm install
+
+# 3. Setup Environment
+cp .env.example .env.local
+
+# 4. Pull Local Intelligence (Ollama required)
+ollama pull qwen2.5:3b
+
+# 5. Launch the Lab
+npm run dev
+```
+
+***
+
+## 📋 Requirements | المتطلبات
+- **Node.js**: >= 20.11.1
+- **Package Manager**: npm or pnpm
+- **Local LLM Runtime**: [Ollama](https://ollama.ai/)
+- **Database**: PocketBase (embedded)
+- **Auth**: Clerk (configured in .env)
+
+***
+
+## 📐 Architecture | البناء التقني
+
+```text
+  [ User Interface ] <---> [ Next.js 15 (App Router) ]
+                                 |
+                                 v
+  [ Go Sidecars ] <------> [ MAS-ZERO Engine ] <------> [ Local LLM (Ollama) ]
+                                 | (Causal Reasoning)
+                                 v
+                         [ PocketBase (DB) ]
+```
+
+- **Frontend**: React 19, Framer Motion, Tailwind 4.
+- **Sidecar**: High-performance Go services for atomic actions.
+- **Observability**: OpenTelemetry + Arize Phoenix for tracing.
+
+***
+
 ## 🚀 Core Engine: MAS-ZERO | المحرك الجوهري
 
 <details open>
 <summary><b>Dialectic Multi-Agent Architecture | هندسة الوكلاء المتعددة</b></summary>
 
-The system employs a 14-agent consensus loop to pressure-test every opportunity:
-يعتمد النظام على حلقة إجماع مكونة من 14 وكيلاً لاختبار كل فرصة:
+The system employs a consensus loop to pressure-test every opportunity:
+يعتمد النظام على حلقة إجماع لاختبار كل فرصة:
 
 | Agent | Role | الدور |
 | :--- | :--- | :--- |
@@ -80,46 +124,21 @@ The system employs a 14-agent consensus loop to pressure-test every opportunity:
 
 ***
 
-## 🛠 Tech Stack | المكونات التقنية
+## 👤 Credits | المساهمون
 
-```mermaid
-graph LR
-  A[Local LLM / Ollama] --> B{MAS-ZERO Engine}
-  B --> C[Venture Blueprint]
-  B --> D[Fragility Map]
-  C --> E[Sidecar Execution]
-  D --> E
-```
-
-- **Frontend**: Next.js 15 (Turbopack), Framer Motion, Tailwind 4.
-- **Intelligence**: Local-first MAS via Ollama (Llama 3 / Mistral).
-- **Storage**: PocketBase (Encrypted Local-First).
-- **Execution**: Go-powered Sidecars for atomic tasks.
-
-***
-
-## 🚦 System Status | حالة النظام
-
-| Component | Status | Speed |
-| :--- | :--- | :--- |
-| **Cognitive Meta-Loop** | <img src="https://img.shields.io/badge/-Operational-emerald" /> | 250ms |
-| **Memory Graph** | <img src="https://img.shields.io/badge/-Synced-cyan" /> | 12ms |
-| **Venture Simulation** | <img src="https://img.shields.io/badge/-Calibrating-yellow" /> | 1.2s |
-
-***
-
-## 📖 Quick Start | ابدأ هنا
-
-```bash
-# Clone the Sovereign Engine
-git clone https://github.com/Moeabdelaziz007/digitaltwin-local-agent.git
-
-# Install Dependencies (Zero overhead)
-npm install
-
-# Launch the Lab
-npm run dev
-```
+<table width="100%">
+  <tr>
+    <td align="center" width="100%">
+      <a href="https://github.com/Moeabdelaziz007">
+        <img src="https://github.com/Moeabdelaziz007.png" width="100" style="border-radius: 50%;" alt="Moe Abdelaziz" />
+        <br />
+        <sub><b>Moe Abdelaziz (@Moeabdelaziz007)</b></sub>
+      </a>
+      <br />
+      Principal AI Engineer & System Architect
+    </td>
+  </tr>
+</table>
 
 ***
 
