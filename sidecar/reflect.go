@@ -11,6 +11,7 @@ type ReflectionResult struct {
 	StaleFactsToDemote []string `json:"stale_facts_to_demote"`
 	RecommendedSoulShift string `json:"recommended_soul_shift"`
 	LearningProgressDelta int `json:"learning_progress_delta"`
+	InferredResearchFocus string `json:"inferred_research_focus"`
 }
 
 func runReflectionJob(userID, sessionID string) {
@@ -47,7 +48,8 @@ EXPECTED JSON FORMAT:
   "inferred_dislikes": ["User hates long explanations"],
   "stale_facts_to_demote": ["user_loves_coffee"],
   "recommended_soul_shift": "Increase directness. Reduce fluff.",
-  "learning_progress_delta": 2
+  "learning_progress_delta": 2,
+  "inferred_research_focus": "Local-first RAG optimization using WebGPU"
 }`
 
 	rawJSON, err := callOllama(prompt)
@@ -80,6 +82,45 @@ EXPECTED JSON FORMAT:
 		log.Printf("[Reflect Decay] Marked for decay: %s", sf)
 	}
 
-	log.Printf("[Reflect] Shift recommended: %s", result.RecommendedSoulShift)
+	// 4. Update Research Config Focus
+	if result.InferredResearchFocus != "" {
+		updateResearchFocus(userID, token, result.InferredResearchFocus)
+	}
+
 	log.Printf("[Reflect] Completed for %s. Facts Added: %d", userID, factsStored)
+}
+
+func updateResearchFocus(userID, token, focus string) {
+	// First fetch existing config
+	reqURL := fmt.Sprintf("%s/api/collections/research_config/records?filter=user_id='%s'", pbURL, userID)
+	req, _ := http.NewRequest("GET", reqURL, nil)
+	req.Header.Set("Authorization", "Admin "+token)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil || resp.StatusCode >= 400 {
+		return
+	}
+	defer resp.Body.Close()
+
+	var result struct {
+		Items []struct {
+			ID string `json:"id"`
+		} `json:"items"`
+	}
+	json.NewDecoder(resp.Body).Decode(&result)
+
+	if len(result.Items) > 0 {
+		configID := result.Items[0].ID
+		body := map[string]interface{}{
+			"current_focus": focus,
+			"last_run":      time.Now().Format(time.RFC3339),
+		}
+		data, _ := json.Marshal(body)
+		patchURL := fmt.Sprintf("%s/api/collections/research_config/records/%s", pbURL, configID)
+		preq, _ := http.NewRequest("PATCH", patchURL, bytes.NewReader(data))
+		preq.Header.Set("Content-Type", "application/json")
+		preq.Header.Set("Authorization", "Admin "+token)
+		http.DefaultClient.Do(preq)
+		log.Printf("[Reflect] Research focus updated: %s", focus)
+	}
 }

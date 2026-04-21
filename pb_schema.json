@@ -784,5 +784,52 @@
       { "id": "er_6", "name": "status", "type": "select", "required": true, "options": { "values": ["success", "regression", "failure"] } }
     ],
     "listRule": "", "viewRule": "", "createRule": null, "updateRule": null, "deleteRule": null
+  },
+  {
+    "id": "research_gems",
+    "name": "research_gems",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "rg_1", "name": "user_id", "type": "relation", "required": true, "options": { "collectionId": "_pb_users_auth_", "maxSelect": 1 } },
+      { "id": "rg_2", "name": "title", "type": "text", "required": true, "options": { "max": 500 } },
+      { "id": "rg_3", "name": "url", "type": "url", "required": false, "options": {} },
+      { "id": "rg_4", "name": "content", "type": "text", "required": true, "options": { "max": 10000 } },
+      { "id": "rg_5", "name": "relevance_score", "type": "number", "required": true, "options": { "min": 0, "max": 1 } },
+      { "id": "rg_6", "name": "category", "type": "select", "required": true, "options": { "values": ["arxiv", "github", "hn", "reddit"] } },
+      { "id": "rg_7", "name": "status", "type": "select", "required": true, "options": { "values": ["new", "saved", "actioned", "archived"] } },
+      { "id": "rg_8", "name": "implementation_notes", "type": "text", "required": false, "options": { "max": 5000 } }
+    ],
+    "listRule": "user_id = @request.auth.id", "viewRule": "user_id = @request.auth.id", "createRule": "user_id = @request.auth.id", "updateRule": "user_id = @request.auth.id", "deleteRule": "user_id = @request.auth.id"
+  },
+  {
+    "id": "research_config",
+    "name": "research_config",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "rc_1", "name": "user_id", "type": "relation", "required": true, "options": { "collectionId": "_pb_users_auth_", "maxSelect": 1 } },
+      { "id": "rc_2", "name": "current_focus", "type": "text", "required": true, "options": { "max": 2000 } },
+      { "id": "rc_3", "name": "excluded_topics", "type": "json", "required": false, "options": {} },
+      { "id": "rc_4", "name": "last_run", "type": "date", "required": false, "options": {} },
+      { "id": "rc_5", "name": "is_active", "type": "bool", "required": false, "options": {} }
+    ],
+    "listRule": "user_id = @request.auth.id", "viewRule": "user_id = @request.auth.id", "createRule": "user_id = @request.auth.id", "updateRule": "user_id = @request.auth.id", "deleteRule": "user_id = @request.auth.id"
+  },
+  {
+    "id": "skill_drafts",
+    "name": "skill_drafts",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "sd_1", "name": "user_id", "type": "relation", "required": true, "options": { "collectionId": "_pb_users_auth_", "maxSelect": 1 } },
+      { "id": "sd_2", "name": "trace_id", "type": "text", "required": true, "options": { "max": 100 } },
+      { "id": "sd_3", "name": "proposed_name", "type": "text", "required": true, "options": { "max": 100 } },
+      { "id": "sd_4", "name": "proposed_metadata", "type": "json", "required": true, "options": {} },
+      { "id": "sd_5", "name": "proposed_instructions", "type": "text", "required": true, "options": { "max": 10000 } },
+      { "id": "sd_6", "name": "status", "type": "select", "required": true, "options": { "values": ["pending", "approved", "rejected", "deployed"] } },
+      { "id": "sd_7", "name": "backtest_result", "type": "json", "required": false, "options": {} }
+    ],
+    "listRule": "user_id = @request.auth.id", "viewRule": "user_id = @request.auth.id", "createRule": "user_id = @request.auth.id", "updateRule": "user_id = @request.auth.id", "deleteRule": "user_id = @request.auth.id"
   }
 ]
