@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import pb from '@/lib/pocketbase-client';
 import { Check, X, ShieldAlert, History, Diff, Play } from 'lucide-react';
-import { runEvaluationSuite } from '@/lib/eval/runner';
+import { runEvalAction } from './actions';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Proposal {
@@ -87,7 +87,7 @@ export default function ImprovementsPage() {
   async function handleRunEval() {
     setIsRunningEval(true);
     try {
-      const summary = await runEvaluationSuite();
+      const summary = await runEvalAction();
       setEvalResult(summary);
     } catch (err) {
       console.error('Eval failed:', err);

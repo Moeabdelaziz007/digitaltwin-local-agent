@@ -1,5 +1,3 @@
-import * as Sentry from '@sentry/nextjs';
-
 type SafeFetchErrorType = 'timeout' | 'network' | 'http_error' | 'unknown';
 
 type SafeFetchError = {
@@ -42,15 +40,6 @@ function logSafeFetchFailure(url: string, error: SafeFetchError, opts: SafeFetch
   };
 
   console.error('[safeFetch]', payload);
-
-  Sentry.captureMessage('safeFetch failure', {
-    level: 'error',
-    tags: {
-      module: 'safeFetch',
-      error_type: error.type,
-    },
-    extra: payload,
-  });
 }
 
 export async function safeFetch(

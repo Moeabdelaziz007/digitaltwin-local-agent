@@ -1,23 +1,27 @@
 import type { NextConfig } from "next";
-import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  webpack: (config, { isServer }) => {
+    // Exclude Node.js native modules from client bundle
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        child_process: false,
+        dns: false,
+        http2: false,
+      };
+    }
+    return config;
+  },
+  serverExternalPackages: [
+    "@opentelemetry/sdk-node",
+    "@opentelemetry/api-logs",
+    "@opentelemetry/instrumentation",
+    "@opentelemetry/sdk-logs"
+  ],
 };
 
-export default withSentryConfig(nextConfig, {
-  org: "aaas-6y",
-  project: "digital-mini-twin",
-
-  // Source map upload auth token
-  authToken: process.env.SENTRY_AUTH_TOKEN,
-
-  // Better stack trace resolution
-  widenClientFileUpload: true,
-
-  // Ad-blocker bypass
-  tunnelRoute: "/monitoring",
-
-  // Suppress non-CI output
-  silent: !process.env.CI,
-});
+export default nextConfig;
