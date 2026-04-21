@@ -13,6 +13,10 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 func getEnv(key, fallback string) string {
@@ -49,6 +53,8 @@ type Job struct {
 	UserID    string                 `json:"user_id"`
 	SessionID string                 `json:"session_id"`
 	Payload   map[string]interface{} `json:"payload"`
+	TraceID   string                 `json:"trace_id,omitempty"`
+	SpanID    string                 `json:"span_id,omitempty"`
 }
 
 // Orchestra Agent: The Internal Queue
@@ -65,6 +71,14 @@ func main() {
 	if md := os.Getenv("OLLAMA_MODEL"); md != "" {
 		ollamaModel = md
 	}
+
+	// 0. Initialize Tracing
+	tp := initTracer()
+	defer func() {
+		if err := tp.Shutdown(context.Background()); err != nil {
+			log.Printf("Error shutting down tracer: %v", err)
+		}
+	}()
 
 	// 1. Boot up the Orchestra Agent (Worker Pool)
 	log.Println("[Orchestra Agent] Booting up internal task swarm (3 workers)...")
@@ -181,8 +195,20 @@ func main() {
 			return
 		}
 
+		// Extract Tracing Context from Next.js request
+		ctx := extractTraceContext(r)
+		span := trace.SpanFromContext(ctx)
+		traceID := span.SpanContext().TraceID().String()
+		spanID := span.SpanContext().SpanID().String()
+
 		select {
-		case JobQueue <- Job{Type: JobReflect, UserID: payload.UserID, SessionID: payload.SessionID}:
+		case JobQueue <- Job{
+			Type:      JobReflect,
+			UserID:    payload.UserID,
+			SessionID: payload.SessionID,
+			TraceID:   traceID,
+			SpanID:    spanID,
+		}:
 			w.WriteHeader(http.StatusAccepted)
 			fmt.Fprintf(w, `{"status":"accepted","job_type":"%s","session_id":"%s"}`, JobReflect, payload.SessionID)
 		default:
@@ -218,8 +244,28 @@ func absInt64(v int64) int64 {
 
 // Pattern Agent: Decides the execution workflow for each job
 func patternAgentWorker(id int, jobs <-chan Job) {
+	tracer := otel.Tracer("sidecar-orchestra")
 	for job := range jobs {
 		log.Printf("[Pattern Agent Worker %d] Routing Job: %s for User: %s", id, job.Type, job.UserID)
+
+		// Continue Trace from the job payload
+		ctx := context.Background()
+		if job.TraceID != "" {
+			tid, _ := trace.TraceIDFromHex(job.TraceID)
+			sid, _ := trace.SpanIDFromHex(job.SpanID)
+			sCtx := trace.NewSpanContext(trace.SpanContextConfig{
+				TraceID: tid,
+				SpanID:  sid,
+				Remote:  true,
+			})
+			ctx = trace.ContextWithRemoteSpanContext(ctx, sCtx)
+		}
+
+		_, span := tracer.Start(ctx, string(job.Type), trace.WithAttributes(
+			attribute.String("user_id_hash", job.UserID),
+			attribute.String("session_id", job.SessionID),
+			attribute.String("job.type", string(job.Type)),
+		))
 
 		switch job.Type {
 		case JobReflect:
@@ -227,7 +273,13 @@ func patternAgentWorker(id int, jobs <-chan Job) {
 			runReflectionJob(job.UserID, job.SessionID)
 
 			// Chain Reaction: Reflection is done, trigger Graph Build async
-			JobQueue <- Job{Type: JobBuildGraph, UserID: job.UserID} // Graph Handoff
+			JobQueue <- Job{
+				Type:      JobBuildGraph,
+				UserID:    job.UserID,
+				SessionID: job.SessionID,
+				TraceID:   job.TraceID,
+				SpanID:    job.SpanID,
+			}
 
 		case JobBuildGraph:
 			// Rule-based Graph Agent
@@ -242,5 +294,6 @@ func patternAgentWorker(id int, jobs <-chan Job) {
 		default:
 			log.Printf("[Worker %d] Unknown Pattern: %s", id, job.Type)
 		}
+		span.End()
 	}
 }

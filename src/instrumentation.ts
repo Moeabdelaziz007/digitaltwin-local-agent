@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/nextjs";
+import { obs } from "./lib/observability/observability-service";
 
 export async function register() {
   const commonConfig = {
@@ -13,6 +14,9 @@ export async function register() {
       ...commonConfig,
       includeLocalVariables: true,
     });
+    
+    // Initialize OpenTelemetry Tracing
+    obs.init();
   }
 
   if (process.env.NEXT_RUNTIME === "edge") {

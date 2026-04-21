@@ -1,41 +1,71 @@
 # DigitalMiniTwin
 
-> A cinematic full-stack AI digital twin with memory, adaptive learning, local LLM support, and immersive Sci-Fi UI.
+> A cinematic full-stack AI digital twin with memory, adaptive learning, local LLM support, and immersive Sci-Fi UI. Now hardened with atomic persistence and semantic deduplication.
 
-![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue?style=for-the-badge&logo=typescript&logoColor=white)
-![Vercel](https://img.shields.io/badge/Deploy-Vercel-black?style=for-the-badge&logo=vercel&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+![Build](https://img.shields.io/badge/Quality_Gate-Passed-green?style=for-the-badge)
 
 ---
 
-## 🚀 Demo
+## 🚀 Neural Infrastructure Hardening
 
-- **Live App:** [https://digital-mini-twin.vercel.app](https://digital-mini-twin.vercel.app)
-- **Preview Builds:** Vercel auto-deployments configured.
+We've recently upgraded the core architecture to move beyond a simple prototype into a **Production-Ready Sovereign Agent**:
 
-<!-- TO CAPTURE: Please capture a short dashboard demo GIF and place it in docs/demo/dashboard-demo.gif -->
-![Dashboard Demo](docs/demo/dashboard-demo.gif)
+### 🧠 Advanced Cognitive Memory Engine
+- **Semantic Deduplication**: Uses vector embeddings (`all-minilm`) to detect identical or refined facts, preventing persona drift.
+- **Categorical Reinforcement**: Implements an Ebbinghaus-inspired decay model where reinforced facts gain higher "neural stability".
+- **Contradiction Handling**: Detects conflicting information and creates `fact_revisions` for cognitive reconciliation.
 
-## 🌌 Why this project?
-
-DigitalMiniTwin is an entirely locally-adaptable, AI-first personal twin platform designed to:
-- Learn natively from iterative conversations.
-- Preserve contextual memory and decay irrelevant facts over time.
-- Evolve its persona tone, behaving like a mirror of the user.
-- Eliminate dependency on high-cost cloud APIs by supporting **local-first intelligence** (Ollama/Gemma / WebLLM).
-- Deliver a premium, uncompromised "Cyber-Clinical" UI featuring real-time audio visualization, matrix rains, and glassmorphism.
+### 🛡️ Atomic Persistence & Security
+- **Idempotent Conversation Turns**: Every chat cycle is tracked via a `Turn Envelope` (`conversation_turns` collection), preventing race conditions and duplicate writes.
+- **Cryptographic Bridge**: Communication with the Reflection Sidecar is now secured via **HMAC-SHA256 signatures** and timestamped payloads.
+- **SafeFetch Bridge**: Integrated automated retries and exponential backoff for all inter-service communication.
 
 ---
 
-## 🛠 Features
+## 🍌 Nano Banana Pro: The Edge Brain
 
-- **Security & Identity:** Clerk Auth with layered Canvas background protection.
-- **Data Persistence:** PocketBase edge storage layer.
-- **Cognitive Agentic Core:** Ollama / Gemma capabilities directly accessible via LangChain.
-- **Bi-Directional Memory Engine:** Long-term memory extraction + daily cron decay algorithms.
-- **Voice Bridge Readiness:** LiveKit real-time audio connection endpoints baked in.
+DigitalMiniTwin is designed for **Sovereign Edge Deployment**. The **Nano Banana Pro** represents our reference hardware architecture for a dedicated, local AI node.
+
+![Nano Banana Pro Edge Brain](nano_banana_pro_twin_brain_1776726998003.png)
+
+*Concept: A dedicated local compute node running Ollama and PocketBase locally, providing zero-latency, private digital twin hosting.*
+
+## 🐝 Observability & Tracing (Phase 1)
+
+This project implements a production-grade observability layer using **OpenTelemetry (OTel)**. It provides end-to-end tracing across the Next.js API, Memory Engine, and Go sidecar.
+
+### Tracing Architecture
+- **Standard**: OpenTelemetry SDK (Portable & Vendor-neutral).
+- **Store**: PocketBase `traces` collection (Local-first Phase 1).
+- **Propagation**: W3C TraceContext over HTTP headers.
+- **Admin UI**: Built-in dashboard at `/admin/observability`.
+
+### Privacy-First Policy
+To protect user data, the tracing layer **does not record raw prompts**. Instead, it captures "Prompt Shapes":
+- **Message Metrics**: Role sequence, message count.
+- **Volume Metrics**: Input/Output character counts.
+- **Token Estimation**: 
+  - `actual_*`: Real metrics from Ollama (if available).
+  - `estimated_*`: Approximations (char count / 4).
+- **Memory Context**: Record categories and IDs of retrieved memories only.
+
+### How to use
+Visit `/admin/observability` to view:
+1. Recent execution traces.
+2. Latency waterfall views.
+3. Memory operation diagnostics.
+4. Tool calling lifecycle.
+
+---
+
+## 🌌 Core Features
+
+- **Security & Identity:** Clerk Auth with layered environment validation via Zod.
+- **Cognitive Agentic Core:** Ollama / Gemma 4 with full support for autonomous tool calling.
 - **Immersive Dashboards:** Magnetic cursor interactions, typing terminals, tool execution accordions, and CSS 3D Holograms.
+- **Quality Gate:** Strict architectural enforcement via `npm run verify`.
 
 ---
 
@@ -43,36 +73,14 @@ DigitalMiniTwin is an entirely locally-adaptable, AI-first personal twin platfor
 
 ```mermaid
 graph TD
-  U[User Voice/Text] --> W[Next.js 16 App Router]
-  W --> C[Clerk Auth & AuthZ]
-  W --> A[API Layer / Edge]
-  A <--> P[PocketBase Vector Memory]
-  A <--> O[Ollama / Local LLMs]
+  U[User Voice/Text] --> W[Next.js 15 App Router]
+  W --> C[Clerk Auth & Zod Env Verification]
+  W --> A[API Layer / Atomic Turns]
+  A <--> P[PocketBase / Reinforced Facts]
+  A <--> O[Ollama / all-minilm Embeddings]
+  A -- Signed Request --> S[Reflection Sidecar]
   V[Vercel Scheduled Cron] --> A
-  subgraph Data Evolution
-    P
-  end
 ```
-
----
-
-## 📸 Interface Gallery
-
-### 1. Welcome to the Void (Landing)
-<!-- TO CAPTURE: Please capture landing.png and place it in docs/images/landing.png -->
-![Landing](docs/images/landing.png)
-
-### 2. Neural Handshake (Auth)
-<!-- TO CAPTURE: Please capture auth.png and place it in docs/images/auth.png -->
-![Authentication](docs/images/auth.png)
-
-### 3. Command Dashboard
-<!-- TO CAPTURE: Please capture dashboard.png and place it in docs/images/dashboard.png -->
-![Dashboard](docs/images/dashboard.png)
-
-### 4. Memory Evolution Matrix
-<!-- TO CAPTURE: Please capture memory.png and place it in docs/images/memory.png -->
-![Memory Engine](docs/images/memory.png)
 
 ---
 
@@ -80,35 +88,35 @@ graph TD
 
 | Layer | Technology |
 |---|---|
-| **Frontend Framework** | Next.js 16 (App Router), React 19, TypeScript |
+| **Frontend Framework** | Next.js 15 (App Router), React 19, TypeScript |
 | **Styling & UI UX** | Tailwind CSS v4, Motion (Framer), Vanilla CSS System |
-| **Authentication** | Clerk Auth Hub |
-| **Database & Vector** | PocketBase |
-| **Local AI Node** | Ollama + Gemma 4 |
-| **Hosting & Automation**| Vercel + Vercel Cron Jobs |
+| **Verification** | Zod Environment Schema & Custom Performance Gates |
+| **Database** | PocketBase (Memory + Turns + Sessions) |
+| **Local AI Node** | Ollama + Gemma 4 / all-minilm |
 
 ---
 
 ## ⚡ Getting Started
 
-### 1. Clone the repository
+### 1. Clone & Install
 ```bash
 git clone https://github.com/Moeabdelaziz007/digitaltwin-local-agent.git
 cd digitaltwin-local-agent
-```
-
-### 2. Install Dependencies
-```bash
 npm install
 ```
 
-### 3. Configure the Environment
+### 2. Configure Environment
 ```bash
 cp .env.example .env.local
 ```
-*(Review the Environment Variables table below and fill in the required keys in `.env.local`)*
+Ensure you provide `CLERK_WEBHOOK_SECRET` and `SIDECAR_SHARED_SECRET` for secure communication.
 
-### 4. Launch the Neural Link
+### 3. Verify Neural Integrity
+```bash
+npm run verify
+```
+
+### 4. Launch Link
 ```bash
 npm run dev
 ```
@@ -119,67 +127,47 @@ npm run dev
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `POCKETBASE_URL` | Yes | Server-side PocketBase URL for API routes and memory engine |
+| `POCKETBASE_URL` | Yes | Server-side PocketBase URL |
 | `CLERK_SECRET_KEY` | Yes | Clerk server auth secret |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Yes | Clerk client publishable key |
-| `CLERK_WEBHOOK_SECRET` | Yes | Signature verification for `/api/webhooks/clerk` |
-| `SIDECAR_URL` | Yes | Reflection sidecar base URL used by `/api/conversation` |
-| `SIDECAR_SHARED_SECRET` | Yes | Shared secret between app and sidecar services |
-| `CRON_SECRET` | Yes | Bearer secret required by `/api/cron/*` routes |
-| `NEXT_PUBLIC_POCKETBASE_URL` | No | Optional client-facing PocketBase URL override |
-| `OLLAMA_URL` | No | Optional Ollama API URL (defaults to local) |
-| `OLLAMA_MODEL` | No | Optional default LLM model name |
-| `LIVEKIT_URL` | No | LiveKit websocket URL for voice token generation |
-| `LIVEKIT_API_KEY` | No | LiveKit API key for server-side token minting |
-| `LIVEKIT_API_SECRET` | No | LiveKit API secret for server-side token minting |
-| `NEXT_PUBLIC_LIVEKIT_URL` | No | Optional LiveKit URL fallback on the client |
-| `NEXT_PUBLIC_SENTRY_DSN` | No | Optional browser-side Sentry DSN |
+| `CLERK_WEBHOOK_SECRET` | Yes | Signature verification for Clerk sync |
+| `SIDECAR_SHARED_SECRET` | Yes | HMAC key for secured sidecar bridge |
+| `OLLAMA_URL` | No | Neural link to local LLM node |
 
 ---
 
 ## ⚠️ Troubleshooting
 
 <details>
-<summary><b>1. Build constantly fails on Vercel</b></summary>
+<summary><b>1. Type Errors / Build Fails</b></summary>
 <br/>
 
-- Run `npx tsc --noEmit` locally first. Next.js 16 enforces strict TypeScript definitions.
-- Ensure you commit all fixes before deploying. If `npm run build` fails locally, it will fail on Vercel.
-- Verify environment variables exist globally within your Vercel Project Dashboard.
+Run `npm run verify`. This script runs `tsc` and ensures all architectural guardrails (like `userId` checks) are present.
 </details>
 
 <details>
-<summary><b>2. Cron job rejects PocketBase connection</b></summary>
+<summary><b>2. Memory Drift or Duplicate Facts</b></summary>
 <br/>
 
-Never use `http://127.0.0.1:8090` in production. Always substitute with a live/hosted `POCKETBASE_URL`.
-</details>
-
-<details>
-<summary><b>3. LiveKit Audio not connecting</b></summary>
-<br/>
-
-Ensure your `LIVEKIT_API_KEY` and `LIVEKIT_API_SECRET` are correct. Do NOT expose `LIVEKIT_API_SECRET` to the frontend config.
+The system now uses `all-minilm` for deduplication. Ensure your Ollama instance has the model pulled: `ollama pull all-minilm`.
 </details>
 
 ---
 
 ## 🗺 Roadmap
 
-- [x] Contextual memory engine & abstraction layer
-- [x] Dynamic semantic extraction automation
-- [x] Full Clerk identity & session security implementation
-- [x] Stitch-Inspired UI/UX overhaul (Cinematic / Clinical Cyberpunk Pattern)
-- [ ] LiveKit edge deployment logic refinement
+- [x] Contextual memory reinforcement & semantic extraction
+- [x] Atomic conversation cycles & Turn indexing
+- [x] HMAC-signed Sidecar security bridge
+- [x] Zod-based environment validation schema
 - [ ] Fully visual Memory Map / Canvas interface
-- [ ] Hardware integration APIs (IOT / Wearable twin communication)
+- [ ] Hardware integration for **Nano Banana Pro** wearables
 - [ ] Admin Observability panel
 
 ---
 
 ## 🛠 Contributing
-Pull Requests, diagnostic bug reports, and architectural proposals are actively welcome. Ensure you test UX regressions running the script:
-`npm run scan-bugs` before proposing merges.
+Ensure you run `npm run verify` before proposing any architectural merges.
 
 ## 📄 License
-This project operates under the [MIT License](LICENSE).
+MIT License.
+

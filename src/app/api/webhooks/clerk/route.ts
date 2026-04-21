@@ -13,6 +13,10 @@ const POCKETBASE_URL = env.POCKETBASE_URL;
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = env.CLERK_WEBHOOK_SECRET;
+  if (!WEBHOOK_SECRET) {
+    console.error('[WEBHOOK] Missing CLERK_WEBHOOK_SECRET');
+    return new Response('Server misconfigured', { status: 500 });
+  }
 
   // Get svix headers for verification
   const headerPayload = await headers();
