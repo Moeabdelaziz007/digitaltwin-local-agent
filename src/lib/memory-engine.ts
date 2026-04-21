@@ -315,6 +315,7 @@ export async function buildMemoryContext(userId: string): Promise<string> {
     ]);
 
     // Stage 1: Profile handling
+    let profile: UserProfile;
     if (profileRes.status === 'rejected') return buildFallbackPrompt();
     profile = profileRes.value;
 
