@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import pb from "@/lib/pocketbase-client";
 import type { ResearchGem, SkillDraft, ImprovementProposal } from "@/types/twin";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,9 +23,9 @@ export function WorkReport({ isOpen, onClose, userId }: WorkReportProps) {
     if (isOpen && userId) {
       void loadData();
     }
-  }, [isOpen, userId]);
+  }, [isOpen, userId, loadData]);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const [researchRes, skillsRes, proposalsRes] = await Promise.all([
@@ -42,7 +42,7 @@ export function WorkReport({ isOpen, onClose, userId }: WorkReportProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [userId]);
 
   const handleSaveGem = async (gemId: string) => {
     try {

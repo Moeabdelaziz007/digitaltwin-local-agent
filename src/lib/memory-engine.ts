@@ -4,14 +4,11 @@
 // ============================================================
 
 import { createHash, randomUUID } from 'crypto';
-import PocketBase from 'pocketbase';
 import type { UserProfile, ConversationMessage, ProfileSnapshot, Fact, ResearchGem } from '@/types/twin';
 import { OllamaTool, callOllama, fetchEmbedding } from '@/lib/ollama-client';
 import { skillRegistry } from '@/lib/skills/registry';
 
 
-import { env } from '@/lib/env';
-import { obs } from '@/lib/observability/observability-service';
 import { getServerPB } from '@/lib/pb-server';
 import { config } from '@/lib/observability/config-service';
 
@@ -147,7 +144,7 @@ export async function executeRecallMemory(userId: string, topic: string): Promis
 
       return `Found ${result.items.length} facts:\n` +
         result.items.map(f => `- ${getFactText(f)} (category: ${f.category})`).join('\n');
-    } catch (_error) {
+    } catch {
       return "Failed to recall memory due to internal error.";
     }
   });
@@ -275,7 +272,7 @@ export async function executeSaveMemory(userId: string, fact: string, category: 
 
       obs.recordMemoryStats(span, { operation_type: 'write', memory_type: 'new_fact', selected_ids: newRecord.id });
       return `Succesfully saved and reinforced fact: "${fact}" under ${category}.`;
-    } catch (_error) {
+    } catch {
       return 'Failed to save fact to long-term memory.';
     }
   });
