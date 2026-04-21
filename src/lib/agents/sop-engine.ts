@@ -35,16 +35,16 @@ export class SOPEngine {
   private tasks: Map<string, SOPTask> = new Map();
 
   /**
-   * Initialize a new SOP task based on a predefined template.
+   * Initialize a new SOP task. Can be static (template) or dynamic (MAS-ZERO self-designing).
    */
-  createTask(sopName: string, initialContext: Record<string, any> = {}): SOPTask {
-    const steps = this.getTemplateSteps(sopName);
+  createTask(sopName: string, initialContext: Record<string, any> = {}, isDynamic: boolean = false): SOPTask {
+    const steps = isDynamic ? [] : this.getTemplateSteps(sopName);
     const task: SOPTask = {
       id: crypto.randomUUID(),
       sopName,
       steps,
       context: initialContext,
-      status: 'pending',
+      status: isDynamic ? 'pending' : 'pending',
       startedAt: new Date().toISOString(),
     };
     this.tasks.set(task.id, task);
@@ -52,7 +52,22 @@ export class SOPEngine {
   }
 
   /**
-   * Get template steps for a specific SOP.
+   * MAS-ZERO: Self-Designing Agents
+   * Allows a Meta-Agent to generate or refine the steps of a task on-the-fly.
+   */
+  async evolveSteps(taskId: string, generatedSteps: SOPStep[]): Promise<SOPTask> {
+    const task = this.tasks.get(taskId);
+    if (!task) throw new Error(`Task ${taskId} not found.`);
+
+    // Merge or replace steps based on the meta-agent's design
+    task.steps = [...task.steps, ...generatedSteps];
+    console.log(`[SOP Engine] Evolved task ${taskId} with ${generatedSteps.length} new steps.`);
+    
+    return task;
+  }
+
+  /**
+   * Get template steps for a specific SOP (Static Baseline).
    */
   private getTemplateSteps(sopName: string): SOPStep[] {
     switch (sopName) {
@@ -70,7 +85,8 @@ export class SOPEngine {
           { id: '3', name: 'ExecutionGuard', description: 'Verify security and gas constraints', agent: 'Builder', status: 'pending' },
         ];
       default:
-        throw new Error(`SOP Template "${sopName}" not found.`);
+        // For dynamic tasks, we might not have a template
+        return [];
     }
   }
 
@@ -83,6 +99,11 @@ export class SOPEngine {
 
     const currentStepIndex = task.steps.findIndex(s => s.status === 'pending' || s.status === 'running');
     if (currentStepIndex === -1) {
+      // If no steps left, but task is pending, maybe it's waiting for evolution
+      if (task.steps.length === 0) {
+         console.warn(`[SOP Engine] Task ${taskId} has no steps. Waiting for MetaArchitect evolution.`);
+         return task;
+      }
       task.status = 'completed';
       task.completedAt = new Date().toISOString();
       return task;

@@ -290,7 +290,7 @@ export interface ConsensusInput {
 }
 
 export interface AgentProposal {
-  agent: 'planner' | 'critic' | 'guardian';
+  agent: 'planner' | 'critic' | 'guardian' | 'architect' | 'scout' | 'risk_manager' | 'execution' | 'ceo';
   verdict: 'accept' | 'revise' | 'reject';
   confidence: number;
   risk: 'low' | 'med' | 'high';
@@ -318,4 +318,11 @@ export interface ConsensusVerdict {
   critic: AgentProposal;
   guardian: AgentProposal;
   risk_flags: RiskFlags;
+  // Venture Lab Extensions (MAS-ZERO)
+  architect?: AgentProposal;
+  scout?: AgentProposal;
+  risk_manager?: AgentProposal;
+  execution?: AgentProposal;
+  ceo?: AgentProposal;
+  is_venture_cycle?: boolean;
 }

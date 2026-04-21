@@ -2,9 +2,11 @@
 
 interface PresenceOrbProps {
   state: "idle" | "listening" | "thinking" | "speaking" | "learning" | "researching";
+  size?: number; // Base size in tailwind units (e.g. 16 for w-16 h-16)
+  className?: string;
 }
 
-export function PresenceOrb({ state }: PresenceOrbProps) {
+export function PresenceOrb({ state, size = 64, className = "" }: PresenceOrbProps) {
   // Determine state-specific glow and animation classes
   const getGlowClass = () => {
     switch (state) {
@@ -40,7 +42,10 @@ export function PresenceOrb({ state }: PresenceOrbProps) {
   };
 
   return (
-    <div className="relative flex items-center justify-center w-64 h-64 cursor-pointer group">
+    <div 
+      className={`relative flex items-center justify-center transition-all ${className}`}
+      style={{ width: size * 4, height: size * 4 }}
+    >
       {/* Outer Halo */}
       <div 
         className={`absolute inset-0 rounded-full blur-xl opacity-50 transition-twin ${getGlowClass()} ${getAnimationClass()}`}
@@ -48,7 +53,8 @@ export function PresenceOrb({ state }: PresenceOrbProps) {
       
       {/* Inner Solid Core */}
       <div 
-        className={`relative z-10 w-32 h-32 rounded-full border-2 transition-twin glass-surface flex items-center justify-center ${getOrbFillClass()}`}
+        className={`relative z-10 rounded-full border-2 transition-twin glass-surface flex items-center justify-center ${getOrbFillClass()}`}
+        style={{ width: size * 2, height: size * 2 }}
       >
         {state === "thinking" && (
           <div className="absolute inset-0 rounded-full border-t-2 border-[var(--color-state-thinking)] animate-spin opacity-50" />
@@ -64,3 +70,4 @@ export function PresenceOrb({ state }: PresenceOrbProps) {
     </div>
   );
 }
+
