@@ -32,25 +32,11 @@ async function getTraceSummaries(filterType?: string) {
 
 export default async function ObservabilityAdmin({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
   const { userId } = await auth();
-  
-  // PHASE 4 FIX: Stricter Admin Guard
-  // In a real app, you library would check a 'role' or specific email from a whitelist.
-  const isAdmin = userId === env.ADMIN_USER_ID || userId === 'user_2m1c...'; // Hypothetical
-  if (!userId || !isAdmin) {
-    return (
-      <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-8">
-        <div className="max-w-md w-full glass border border-red-500/30 p-12 text-center rounded-2xl">
-          <h2 className="text-2xl font-bold text-red-500 mb-4">ACCESS DENIED</h2>
-          <p className="text-neutral-400 text-sm leading-relaxed mb-8 uppercase tracking-widest">
-            Administrative level clearance required to view production telemetry.
-          </p>
-          <Link href="/" className="px-6 py-2 bg-neutral-900 border border-neutral-800 text-xs font-bold uppercase tracking-widest text-neutral-400 hover:text-white transition-all">
-            Return to Safety
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  if (!userId) redirect('/sign-in');
+
+  // PHASE 4 FIX: Strict Admin Guard
+  const isAdmin = userId === env.ADMIN_USER_ID;
+  if (!isAdmin) redirect('/');
 
   // Basic admin check (could use publicMetadata in production)
   // For now we allow authenticated users to see trial observability
