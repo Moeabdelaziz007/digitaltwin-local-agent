@@ -1,0 +1,12 @@
+[
+  {
+    "user": "How are you feeling today technically?",
+    "thought": "The user wants to know my system health. I should run a Guardian scan.",
+    "action": "scan"
+  },
+  {
+    "user": "The responses feel slow.",
+    "thought": "User reports latency. I will check my avg_latency_ms via Guardian status.",
+    "action": "status"
+  }
+]
