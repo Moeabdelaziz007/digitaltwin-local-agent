@@ -43,6 +43,14 @@ export class SkillRegistry {
    */
   public async discover(): Promise<void> {
     try {
+      // Phase 2 Hardening: Check if directory exists first
+      try {
+        await fs.access(this.skillsDir);
+      } catch {
+        console.warn(`[SkillRegistry] Warning: Skills directory not found at ${this.skillsDir}. Starting with empty skill set.`);
+        return;
+      }
+
       const folders = await fs.readdir(this.skillsDir);
       for (const folder of folders) {
         const folderPath = path.join(this.skillsDir, folder);
@@ -75,7 +83,12 @@ export class SkillRegistry {
       try {
         const examplesStr = await fs.readFile(path.join(skillPath, 'examples.json'), 'utf-8');
         examples = JSON.parse(examplesStr);
-      } catch { }
+      } catch (e) { 
+        // Examples are optional, but we should log if it's a parsing error vs missing file
+        if ((e as any).code !== 'ENOENT') {
+          console.warn(`[SkillRegistry] Optional examples for ${name} failed to load:`, e);
+        }
+      }
 
       this.skills.set(name, {
         metadata: parsed.data,
