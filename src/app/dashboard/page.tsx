@@ -80,39 +80,44 @@ export default function DashboardPage() {
       });
 
       if (!response.ok) throw new Error("Connection lost");
-      const data = await response.json();
       
-      // Atomic response logic for POST mode
-      // (Future: Upgrade to stream reader here for char-by-char)
-      const twinReply = data.reply || "... (No response)";
+      const traceId = response.headers.get('X-Trace-Id') || '';
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
       
-      // Typewriter Effect logic
-      let currentIdx = 0;
-      setMessages(prev => [...prev, { role: 'twin', content: '' }]);
-      
-      const interval = setInterval(() => {
+      if (!reader) throw new Error("No reader");
+
+      // Phase 3: True Streaming Integration
+      setMessages(prev => [...prev, { role: 'twin', content: '', traceId }]);
+      let fullContent = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        fullContent += chunk;
+
         setMessages(prev => {
           const newHistory = prev.slice(0, -1);
-          return [...newHistory, { role: 'twin', content: twinReply.slice(0, currentIdx + 1), traceId: data.traceId }];
+          return [...newHistory, { role: 'twin', content: fullContent, traceId }];
         });
-        currentIdx++;
-        if (currentIdx >= twinReply.length) {
-          clearInterval(interval);
-          setIsLoading(false);
-          setOrbState('idle');
-          
-          // Trigger Learning Toast randomly for demo
-          if (messages.length % 4 === 0) {
-            setToastFact(userMsg.slice(0, 30) + "...");
-            setToastVisible(true);
-            setTimeout(() => setToastVisible(false), 4000);
-            setLearningProgress(p => Math.min(100, p + 1));
-          }
-        }
-      }, 20);
+      }
 
-    } catch {
-      setMessages(prev => [...prev, { role: 'twin', content: "SYSTEM ERROR: DATA STREAM INTERRUPTED." }]);
+      setIsLoading(false);
+      setOrbState('idle');
+
+      // Trigger Learning Toast randomly for demo
+      if (messages.length % 4 === 0) {
+        setToastFact(userMsg.slice(0, 30) + "...");
+        setToastVisible(true);
+        setTimeout(() => setToastVisible(false), 4000);
+        setLearningProgress(p => Math.min(100, p + 1));
+      }
+
+    } catch (err) {
+      console.error('Streaming error:', err);
+      setMessages(prev => [...prev, { role: 'twin', content: "SYSTEM ERROR: NEURAL LINK SEVERED." }]);
       setIsLoading(false);
       setOrbState('idle');
     }

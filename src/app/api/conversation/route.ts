@@ -59,7 +59,10 @@ async function reserveTurnIndex(pb: PocketBase, userId: string, sessionId: strin
       });
       return current;
     } catch (error) {
-      if (attempt === maxAttempts - 1) throw error;
+      if (attempt === maxAttempts - 1) {
+        console.error(`[CONVERSATION_API] Critical: Failed to reserve turn index for session ${sessionId} after ${maxAttempts} attempts. Potential write conflict.`);
+        throw error;
+      }
       await new Promise((resolve) => setTimeout(resolve, 20 * (attempt + 1)));
     }
   }
@@ -306,61 +309,105 @@ export async function POST(request: NextRequest) {
       // Build Memory Context (Ebbinghaus-aware)
       const systemPrompt = await buildMemoryContext(userId);
 
-      // Autonomous Tool Calling Cycle
-      const reply = await callOllamaWithTools(
-        systemPrompt,
-        message.trim(),
-        MEMORY_TOOLS,
-        async (toolName, args) => {
-          if (toolName === 'recallMemory') {
-            return await executeRecallMemory(userId, args.topic as string);
-          }
-          if (toolName === 'saveMemory') {
-            return await executeSaveMemory(userId, args.fact as string, args.category as string);
-          }
-          return 'Tool not found';
+      // Autonomous Tool Calling Cycle (Phase 3 Hardening: Hybrid Atomic/Streaming)
+      // We run tools atomically to maintain context, but stream the FINAL response.
+      const messages: OllamaMessage[] = [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: message.trim() },
+      ];
+
+      let iterations = 0;
+      const MAX_ITERATIONS = 3;
+      let finalToolResponse: any = null;
+
+      while (iterations < MAX_ITERATIONS) {
+        const res = await fetch(`${env.OLLAMA_URL}/api/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: env.OLLAMA_MODEL,
+            messages,
+            tools: MEMORY_TOOLS,
+            stream: false,
+          }),
+        });
+
+        if (!res.ok) throw new Error('Ollama Tool Call API failed');
+        const data = await res.json();
+        const responseMessage = data.message as OllamaMessage;
+
+        if (!responseMessage.tool_calls || responseMessage.tool_calls.length === 0) {
+          finalToolResponse = responseMessage;
+          break;
         }
-      );
 
-      const twinMessageId = uuidv4();
-
-      // Save Twin reply linked to turn envelope.
-      await pb.collection('conversations').create({
-        user_id: userId,
-        session_id: sessionId,
-        role: 'twin',
-        content: reply,
-        turn_index: turnIndex,
-        turn_id: turn.id,
-        message_id: twinMessageId,
-      });
-
-      await pb.collection(TURN_COLLECTION).update(turn.id, {
-        status: 'completed',
-        response_content: reply,
-        user_message_id: userMessageRecord.id,
-        twin_message_id: twinMessageId,
-      });
-
-      // Trigger Reflection
-      if (Math.floor(turnIndex / 2) % 5 === 0) {
-        triggerReflection(userId, sessionId).catch(() => {});
+        messages.push(responseMessage);
+        for (const toolCall of responseMessage.tool_calls) {
+          const result = await (async () => {
+            if (toolCall.function.name === 'recallMemory') return await executeRecallMemory(userId, toolCall.function.arguments.topic);
+            if (toolCall.function.name === 'saveMemory') return await executeSaveMemory(userId, toolCall.function.arguments.fact, toolCall.function.arguments.category);
+            return 'Tool not found';
+          })();
+          messages.push({ role: 'tool', name: toolCall.function.name, content: JSON.stringify(result) });
+        }
+        iterations++;
       }
 
-      // Response DTO with ETag
-      const etag = crypto.createHash('md5').update(reply + sessionId + turnIndex).digest('hex').slice(0, 16);
+      // ── PHASE 3 STREAMING EXECUTION ──
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        async start(controller) {
+          let fullReply = "";
+          try {
+            // Check if we have any tool thoughts before the stream (usually finalToolResponse has the content)
+            // But we want to stream the ACTUAL generation of the final message
+            for await (const token of streamOllama(message.trim(), messages)) {
+              fullReply += token;
+              controller.enqueue(encoder.encode(token));
+            }
+            controller.close();
 
-      return NextResponse.json({
-        reply,
-        sessionId,
-        turnIndex,
-        messageId,
-        turnId: turn.id,
-        traceId: span.spanContext().traceId,
-        idempotentReplay: false,
-      }, {
+            // POST-STREAM PERSISTENCE (Backgrounded)
+            void (async () => {
+              try {
+                const twinMessageId = uuidv4();
+                await pb.collection('conversations').create({
+                  user_id: userId,
+                  session_id: sessionId,
+                  role: 'twin',
+                  content: fullReply,
+                  turn_index: turnIndex,
+                  turn_id: turn.id,
+                  message_id: twinMessageId,
+                });
+
+                await pb.collection(TURN_COLLECTION).update(turn.id, {
+                  status: 'completed',
+                  response_content: fullReply,
+                  user_message_id: userMessageRecord.id,
+                  twin_message_id: twinMessageId,
+                });
+
+                if (Math.floor(turnIndex / 2) % 5 === 0) {
+                  triggerReflection(userId, sessionId).catch(() => {});
+                }
+              } catch (e) {
+                console.error('[POST/STREAM/SAVE] Final persistence error:', e);
+              }
+            })();
+          } catch (err) {
+            controller.error(err);
+          }
+        }
+      });
+
+      return new Response(stream, {
         headers: {
-          ETag: `"${etag}"`,
+          'Content-Type': 'text/plain; charset=utf-8',
+          'X-Session-Id': sessionId,
+          'X-Turn-Index': turnIndex.toString(),
+          'X-Message-Id': messageId,
+          'X-Trace-Id': span.spanContext().traceId,
           'Cache-Control': 'no-store',
         },
       });
