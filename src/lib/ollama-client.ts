@@ -5,8 +5,8 @@
 
 import { env } from '@/lib/env';
 import { obs } from '@/lib/observability/observability-service';
-
-const OLLAMA_URL = env.OLLAMA_URL;
+import { safeFetch } from '@/lib/safe-fetch';
+import { trace, SpanStatusCode } from '@opentelemetry/api';
 const OLLAMA_MODEL = env.OLLAMA_MODEL;
 const EMBEDDING_MODEL = 'all-minilm';
 
@@ -50,27 +50,25 @@ export async function callOllama(
     const chatMessages: OllamaMessage[] = messages || [{ role: 'user', content: prompt }];
     const inputChars = chatMessages.reduce((sum, m) => sum + (m.content?.length || 0), 0);
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
-
-    const res = await fetch(`${OLLAMA_URL}/api/chat`, {
+    const result = await safeFetch(`${env.OLLAMA_URL}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      signal: controller.signal,
       body: JSON.stringify({
         model: OLLAMA_MODEL,
         messages: chatMessages,
         stream: false,
         options: { temperature: 0.7 },
       }),
-    }).finally(() => clearTimeout(timeout));
+    }, {
+      timeoutMs: 30000,
+      retries: 2,
+    });
 
-    if (!res.ok) {
-      const err = await res.text();
-      throw new Error(`Ollama Error: ${err}`);
+    if (!result.ok || !result.response) {
+      throw new Error(`Ollama Error: ${result.error?.message || 'Unknown error'}`);
     }
 
-    const data = await res.json();
+    const data = await result.response.json();
     const content = cleanMarkdown(data.message.content);
     const outputChars = content.length;
 
@@ -123,25 +121,24 @@ export async function* streamOllama(
   });
 
   try {
-    const controller = new AbortController();
-    // No strict timeout for streams as they can be long-running, but we could add one for the initial connection
-    
-    const res = await fetch(`${OLLAMA_URL}/api/chat`, {
+    const result = await safeFetch(`${env.OLLAMA_URL}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      signal: controller.signal,
       body: JSON.stringify({
         model: OLLAMA_MODEL,
         messages: chatMessages,
         stream: true,
       }),
+    }, {
+      timeoutMs: 10000, // Timeout for initial connection
+      retries: 1,
     });
 
-    if (!res.ok || !res.body) {
+    if (!result.ok || !result.response || !result.response.body) {
       throw new Error('Ollama streaming connection failed');
     }
 
-    const reader = res.body.getReader();
+    const reader = result.response.body.getReader();
     const decoder = new TextDecoder();
     let fullOutput = "";
 
@@ -187,9 +184,6 @@ export async function* streamOllama(
   }
 }
 
-// Add these imports to ollama-client.ts to support manual span management
-import { trace, SpanStatusCode } from '@opentelemetry/api';
-
 /**
  * CAPABILITY 3: callOllamaWithTools()
  * The Autonomous Cognitive Loop.
@@ -216,23 +210,22 @@ export async function callOllamaWithTools(
   const MAX_ITERATIONS = 3;
 
   while (iterations < MAX_ITERATIONS) {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 60000); // 60s for tool-calling iteration
-
-    const res = await fetch(`${OLLAMA_URL}/api/chat`, {
+    const result = await safeFetch(`${env.OLLAMA_URL}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      signal: controller.signal,
       body: JSON.stringify({
         model: OLLAMA_MODEL,
         messages,
         tools,
         stream: false,
       }),
-    }).finally(() => clearTimeout(timeout));
+    }, {
+      timeoutMs: 60000,
+      retries: 1,
+    });
 
-    if (!res.ok) throw new Error('Ollama Tool Call API failed');
-    const data = await res.json();
+    if (!result.ok || !result.response) throw new Error('Ollama Tool Call API failed');
+    const data = await result.response.json();
     const responseMessage = data.message as OllamaMessage;
 
     // Check if tools were requested
@@ -268,21 +261,20 @@ export async function callOllamaWithTools(
  */
 export async function fetchEmbedding(prompt: string): Promise<number[] | null> {
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000); // 5s for embeddings
-
-    const res = await fetch(`${OLLAMA_URL}/api/embeddings`, {
+    const result = await safeFetch(`${env.OLLAMA_URL}/api/embeddings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      signal: controller.signal,
       body: JSON.stringify({
         model: EMBEDDING_MODEL,
         prompt: prompt,
       }),
-    }).finally(() => clearTimeout(timeout));
+    }, {
+      timeoutMs: 5000,
+      retries: 1,
+    });
 
-    if (!res.ok) return null;
-    const data = await res.json();
+    if (!result.ok || !result.response) return null;
+    const data = await result.response.json();
     return data.embedding;
   } catch (error) {
     console.error('[OLLAMA/EMBEDDING] Failed to fetch embedding:', error);

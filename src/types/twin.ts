@@ -65,6 +65,7 @@ export interface ConversationTurn extends PBRecord {
   user_message_id?: string;
   twin_message_id?: string;
   trace_id?: string;
+  consensus_meta?: ConsensusVerdict;
 }
 
 export interface SessionCounter extends PBRecord {
@@ -224,4 +225,47 @@ export interface ReflectionResult {
     recommended_shift: string;
     learning_progress_delta: number;
   };
+}
+
+// ----------------------------------------------------------
+// Consensus Engine Types
+// ----------------------------------------------------------
+
+export interface ConsensusInput {
+  userMessage: string;
+  memoryContext: string;
+  sessionId?: string;
+  turnIndex?: number;
+  traceId?: string;
+}
+
+export interface AgentProposal {
+  agent: 'planner' | 'critic' | 'guardian';
+  verdict: 'accept' | 'revise' | 'reject';
+  confidence: number;
+  risk: 'low' | 'med' | 'high';
+  output: string;
+  reasoning_summary: string;
+  issues: string[];
+}
+
+export interface RiskFlags {
+  prompt_injection: boolean;
+  hallucination_risk: boolean;
+  privacy_leak_risk: boolean;
+  policy_risk: boolean;
+}
+
+export interface ConsensusVerdict {
+  final_answer: string;
+  confidence: number;
+  risk: 'low' | 'med' | 'high';
+  fallback_used: boolean;
+  timed_out: boolean;
+  latency_ms: number;
+  disagreement: boolean;
+  planner: AgentProposal;
+  critic: AgentProposal;
+  guardian: AgentProposal;
+  risk_flags: RiskFlags;
 }

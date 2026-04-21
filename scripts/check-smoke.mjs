@@ -108,7 +108,7 @@ const checks = [
     name: 'cron auth guard',
     file: 'src/app/api/cron/decay/route.ts',
     mustContain: [
-      "authHeader !== `Bearer ${process.env.CRON_SECRET}`",
+      "authHeader !== `Bearer ${env.CRON_SECRET}`",
       "return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });",
     ],
   },
