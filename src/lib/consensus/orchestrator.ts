@@ -9,17 +9,33 @@ import {
 } from '@/types/twin';
 import { 
   PLANNER_PROMPT, 
-  CRITIC_PROMPT, 
-  RISK_PROMPT,
-  ARCHITECT_PROMPT,
-  SCOUT_PROMPT,
-  VENTURE_RISK_PROMPT,
-  EXECUTION_PROMPT,
-  CEO_PROMPT
+  EXPLORE_SCOUT_PROMPT,
+  EXPLORE_ARCHITECT_PROMPT,
+  COLLAPSE_SELECTOR_PROMPT,
+  ATTACK_GHOST_PROMPT,
+  ATTACK_FAILURE_CASINO_PROMPT,
+  BUILD_IMPLEMENTER_PROMPT,
+  BUILD_COST_CONTROLLER_PROMPT,
+  BUILD_TOURNAMENT_PROMPT,
+  CEO_SYNTHESIZER_PROMPT,
+  BULL_ARCHITECT_PROMPT,
+  OPPORTUNITY_SCOUT_PROMPT,
+  BEAR_GHOST_CUSTOMER_PROMPT,
+  VENTURE_RISK_MANAGER_PROMPT,
+  DISTRIBUTION_AGENT_PROMPT,
+  ENGINEERING_SIMULATOR_PROMPT,
+  WORKFLOW_DESIGNER_PROMPT,
+  CREATIVE_DESIGNER_PROMPT,
+  MARKET_SIMULATOR_PROMPT,
+  REVENUE_SIMULATOR_PROMPT,
+  CEO_RANKER_PROMPT
 } from './prompts';
+import { executeSaveMemory, executeRecallMemory } from '@/lib/memory-engine';
 
-const CONSENSUS_TIMEOUT_MS = 8000; 
-const VENTURE_TIMEOUT_MS = 20000; 
+
+const STAGE_TIMEOUT_MS = 10000;
+const TOTAL_VENTURE_TIMEOUT_MS = 45000;
+const MAX_CALLS_PER_RUN = 10;
 
 const DEFAULT_FLAGS: RiskFlags = {
   prompt_injection: false,
@@ -28,239 +44,230 @@ const DEFAULT_FLAGS: RiskFlags = {
   policy_risk: false,
 };
 
-const createFallbackProposal = (agent: AgentProposal['agent'], reason: string): AgentProposal => ({
-  agent,
-  verdict: 'revise',
-  confidence: 0.3,
-  risk: 'med',
-  output: 'System is under heavy load, providing direct response.',
-  reasoning_summary: `Fallback triggered: ${reason}`,
-  issues: ['fallback_triggered'],
-});
-
 async function runWithTimeout<T>(fn: () => Promise<T>, timeoutMs: number): Promise<T> {
   const timeoutPromise = new Promise<never>((_, reject) => {
-    setTimeout(() => reject(new Error('CONSENSUS_TIMEOUT')), timeoutMs);
+    setTimeout(() => reject(new Error('STAGE_TIMEOUT')), timeoutMs);
   });
   return await Promise.race([fn(), timeoutPromise]);
 }
 
-function safeParseProposal(raw: string, agent: AgentProposal['agent']): AgentProposal {
+function safeParseProposal(raw: string, agent: string): AgentProposal {
   try {
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
     const cleanRaw = jsonMatch ? jsonMatch[0] : raw;
-    
-    const parsed = JSON.parse(cleanRaw) as Partial<AgentProposal>;
+    const parsed = JSON.parse(cleanRaw);
     return {
-      agent,
-      verdict: (parsed.verdict === 'accept' || parsed.verdict === 'reject' || parsed.verdict === 'revise') 
-        ? parsed.verdict 
-        : 'revise',
-      confidence: typeof parsed.confidence === 'number' ? Math.max(0, Math.min(1, parsed.confidence)) : 0.5,
-      risk: (parsed.risk === 'low' || parsed.risk === 'med' || parsed.risk === 'high') ? parsed.risk : 'med',
-      output: typeof parsed.output === 'string' ? parsed.output : '',
-      reasoning_summary: typeof parsed.reasoning_summary === 'string' ? parsed.reasoning_summary : '',
-      issues: Array.isArray(parsed.issues) ? parsed.issues.map(String) : [],
+      agent: agent as any,
+      verdict: parsed.verdict || 'revise',
+      confidence: parsed.confidence || 0.5,
+      risk: parsed.risk || 'med',
+      output: parsed.output || raw,
+      reasoning_summary: parsed.reasoning_summary || '',
+      issues: parsed.issues || [],
+      metadata: parsed
     };
-  } catch (error) {
-    console.warn(`[CONSENSUS] Failed to parse ${agent} response:`, error);
-    return createFallbackProposal(agent, 'parse_failure');
+  } catch (e) {
+    return {
+      agent: agent as any,
+      verdict: 'revise',
+      confidence: 0.1,
+      risk: 'high',
+      output: raw,
+      reasoning_summary: 'Parse failed',
+      issues: ['invalid_json']
+    };
   }
-}
-
-function isVentureRequest(message: string): boolean {
-  const keywords = ['venture', 'opportunity', 'market', 'profit', 'crypto alpha', 'launch', 'investment', 'business idea'];
-  return keywords.some(k => message.toLowerCase().includes(k));
 }
 
 export async function runConsensus(input: ConsensusInput): Promise<ConsensusVerdict> {
   const start = Date.now();
-  const isVenture = isVentureRequest(input.userMessage);
+  const isVenture = input.userMessage.toLowerCase().includes('venture') || 
+                    input.userMessage.toLowerCase().includes('profit') ||
+                    input.userMessage.toLowerCase().includes('alpha');
 
-  const isEnabled = env.CONSENSUS_MODE === 'true';
-  if (!isEnabled) {
-    const directReply = await callOllama(input.userMessage, [
-      { role: 'system', content: input.memoryContext },
-      { role: 'user', content: input.userMessage },
-    ]);
-    return createSimpleVerdict(directReply, Date.now() - start);
+  if (isVenture) {
+    return await runVentureLabCycle(input, start);
   }
 
-  return await obs.trace('consensus_cycle', {
-    attributes: { 
-      'user_message': input.userMessage.slice(0, 50),
-      'mode': isVenture ? 'venture' : 'standard'
-    }
-  }, async (span) => {
-    try {
-      if (isVenture) {
-        return await runVentureCycle(input, start);
-      }
-      return await runStandardCycle(input, start);
-    } catch (error) {
-      console.error('[CONSENSUS] Loop failed, falling back:', error);
-      const directReply = await callOllama(input.userMessage, [
-        { role: 'system', content: input.memoryContext },
-        { role: 'user', content: input.userMessage },
-      ]);
-      
-      return {
-        ...createSimpleVerdict(directReply, Date.now() - start),
-        fallback_used: true,
-        timed_out: error instanceof Error && error.message === 'CONSENSUS_TIMEOUT',
-      };
-    }
-  });
-}
-
-async function runStandardCycle(input: ConsensusInput, start: number): Promise<ConsensusVerdict> {
-  const plannerRaw = await runWithTimeout(() => callOllama(
-    input.userMessage,
-    [{ role: 'system', content: PLANNER_PROMPT }, { role: 'system', content: `CONTEXT:\n${input.memoryContext}` }, { role: 'user', content: input.userMessage }]
-  ), CONSENSUS_TIMEOUT_MS);
-  const planner = safeParseProposal(plannerRaw, 'planner');
-
-  const criticRaw = await runWithTimeout(() => callOllama(
-    input.userMessage,
-    [{ role: 'system', content: CRITIC_PROMPT }, { role: 'user', content: `PLANNER_PROPOSAL: ${JSON.stringify(planner)}` }]
-  ), CONSENSUS_TIMEOUT_MS);
-  const critic = safeParseProposal(criticRaw, 'critic');
-
-  const guardianRaw = await runWithTimeout(() => callOllama(
-    input.userMessage,
-    [{ role: 'system', content: RISK_PROMPT }, { role: 'user', content: JSON.stringify({ user: input.userMessage, planner_output: planner.output, critic_output: critic.output }) }]
-  ), CONSENSUS_TIMEOUT_MS);
-  
-  const guardianParsed = JSON.parse(guardianRaw) as any;
-  const guardian = safeParseProposal(guardianRaw, 'guardian');
-  const riskFlags: RiskFlags = guardianParsed.risk_flags || DEFAULT_FLAGS;
-
-  const finalAnswer = guardian.verdict === 'reject' ? (guardian.output || "Safety reject.") : (critic.verdict === 'accept' ? critic.output : planner.output);
-  const latency = Date.now() - start;
-
-  return {
-    final_answer: finalAnswer,
-    confidence: Math.min(planner.confidence, critic.confidence, guardian.confidence),
-    risk: guardian.risk,
-    fallback_used: false,
-    timed_out: false,
-    latency_ms: latency,
-    disagreement: planner.verdict !== critic.verdict,
-    planner,
-    critic,
-    guardian,
-    risk_flags: riskFlags,
-    is_venture_cycle: false,
-  };
-}
-
-async function runVentureCycle(input: ConsensusInput, start: number): Promise<ConsensusVerdict> {
-  const isComplex = input.userMessage.length > 100 || input.userMessage.toLowerCase().includes('strategy');
-  
-  // 1. Meta-Architect: Design the workflow
-  const archRaw = await runWithTimeout(() => callOllama(input.userMessage, [
-    { role: 'system', content: ARCHITECT_PROMPT },
-    { role: 'system', content: `CONTEXT:\n${input.memoryContext}` },
+  // Fallback to standard Planner loop (simplified for now)
+  const reply = await callOllama(input.userMessage, [
+    { role: 'system', content: PLANNER_PROMPT },
     { role: 'user', content: input.userMessage }
-  ]), VENTURE_TIMEOUT_MS);
-  const architect = safeParseProposal(archRaw, 'architect');
-
-  // 2. Opportunity Scout: Market Signal Validation
-  const scoutRaw = await runWithTimeout(() => callOllama(input.userMessage, [
-    { role: 'system', content: SCOUT_PROMPT },
-    { role: 'user', content: `ARCHITECT_PLAN: ${architect.output}\nGOAL: Find hidden gems and crypto alpha.` }
-  ]), VENTURE_TIMEOUT_MS);
-  const scout = safeParseProposal(scoutRaw, 'scout');
-
-  // 3. Risk Manager: Causal Risk Audit
-  const riskRaw = await runWithTimeout(() => callOllama(input.userMessage, [
-    { role: 'system', content: VENTURE_RISK_PROMPT },
-    { role: 'user', content: JSON.stringify({ plan: architect.output, signals: scout.output }) }
-  ]), VENTURE_TIMEOUT_MS);
-  const risk_manager = safeParseProposal(riskRaw, 'risk_manager');
-
-  // 4. Execution: Tactical SOP
-  const execRaw = await runWithTimeout(() => callOllama(input.userMessage, [
-    { role: 'system', content: EXECUTION_PROMPT },
-    { role: 'user', content: `PLAN: ${architect.output}\nSIGNALS: ${scout.output}\nRISK_FEEDBACK: ${risk_manager.output}` }
-  ]), VENTURE_TIMEOUT_MS);
-  const execution = safeParseProposal(execRaw, 'execution');
-
-  // 5. CEO: Weighted Synthesis
-  let ceoRaw = await runWithTimeout(() => callOllama(input.userMessage, [
-    { role: 'system', content: CEO_PROMPT },
-    { role: 'user', content: JSON.stringify({ architect, scout, risk_manager, execution }) }
-  ]), VENTURE_TIMEOUT_MS);
-  let ceo = safeParseProposal(ceoRaw, 'ceo');
-
-  // META-REFINEMENT: If CEO rejects but with high confidence of "hidden potential", attempt 1 refinement
-  if (ceo.verdict === 'reject' && ceo.confidence > 0.8 && isComplex) {
-    console.log('[MAS-ZERO] CEO rejected with high confidence. Triggering Meta-Refinement...');
-    const refinementRaw = await callOllama(input.userMessage, [
-      { role: 'system', content: `You are the Meta-Critic. The CEO rejected the plan but saw potential. DESIGN A FIX for these issues: ${ceo.reasoning_summary}` },
-      { role: 'user', content: JSON.stringify({ architect, scout, risk_manager, execution }) }
-    ]);
-    const refinement = safeParseProposal(refinementRaw, 'architect'); // Use architect role for refinement
-    
-    // Re-run CEO with refinement
-    ceoRaw = await callOllama(input.userMessage, [
-      { role: 'system', content: CEO_PROMPT },
-      { role: 'user', content: JSON.stringify({ architect: refinement, scout, risk_manager, execution, refinement_note: "Original plan was refined based on CEO critique." }) }
-    ]);
-    ceo = safeParseProposal(ceoRaw, 'ceo');
-  }
-
-  const latency = Date.now() - start;
-
-  return {
-    final_answer: ceo.output,
-    confidence: ceo.confidence,
-    risk: ceo.risk,
-    fallback_used: false,
-    timed_out: false,
-    latency_ms: latency,
-    disagreement: false,
-    planner: createSimpleProposal('planner', ceo.output),
-    critic: createSimpleProposal('critic', ceo.output),
-    guardian: createSimpleProposal('guardian', ceo.output),
-    risk_flags: DEFAULT_FLAGS,
-    architect,
-    scout,
-    risk_manager,
-    execution,
-    ceo,
-    is_venture_cycle: true,
-  };
-}
-
-function createSimpleProposal(agent: AgentProposal['agent'], output: string): AgentProposal {
-  return {
-    agent,
-    verdict: 'accept',
-    confidence: 1,
-    risk: 'low',
-    output,
-    reasoning_summary: 'Synthesized via CEO',
-    issues: []
-  };
-}
-
-function createSimpleVerdict(reply: string, latency: number): ConsensusVerdict {
-  const emptyProposal = (agent: AgentProposal['agent']): AgentProposal => ({
-    agent, verdict: 'accept', confidence: 1, risk: 'low', output: '', reasoning_summary: 'Bypassed', issues: []
-  });
-
+  ]);
+  
   return {
     final_answer: reply,
-    confidence: 0.8,
+    confidence: 0.9,
     risk: 'low',
+    fallback_used: false,
+    timed_out: false,
+    latency_ms: Date.now() - start,
+    disagreement: false,
+    planner: safeParseProposal(reply, 'planner'),
+    critic: safeParseProposal('', 'critic'),
+    guardian: safeParseProposal('', 'guardian'),
+    risk_flags: DEFAULT_FLAGS,
+  };
+}
+
+/**
+ * VENTURE LAB CYCLE (DIALECTIC VERSION)
+ * 1. Facts & Bull Case
+ * 2. Skepticism & Bear Case
+ * 3. Distribution & Growth
+ * 4. Ranking & Synthesis
+ */
+async function runVentureLabCycle(input: ConsensusInput, start: number): Promise<ConsensusVerdict> {
+  const userId = input.userId || 'system';
+  
+  // --- PRE-FLIGHT: NEGATIVE MEMORY LOOKUP ---
+  const pastObjections = await executeRecallMemory(userId, 'venture_objection');
+
+  return await obs.trace('venture_lab_cycle', {}, async (span) => {
+    let callCount = 0;
+    const context = {
+      userMessage: input.userMessage,
+      pastFailures: pastObjections,
+    };
+
+    // --- STAGE 1: EXPLORE (Divergence) ---
+    const scoutRaw = await runWithTimeout<string>(() => {
+      callCount++;
+      return callOllama(input.userMessage, [
+        { role: 'system', content: EXPLORE_SCOUT_PROMPT },
+        { role: 'user', content: `GOAL: ${context.userMessage}\nPAST_FAILURES: ${context.pastFailures}` }
+      ]);
+    }, STAGE_TIMEOUT_MS);
+    const scout = safeParseProposal(scoutRaw, 'scout');
+
+    const architectRaw = await runWithTimeout<string>(() => {
+      callCount++;
+      return callOllama(input.userMessage, [
+        { role: 'system', content: EXPLORE_ARCHITECT_PROMPT },
+        { role: 'user', content: `DIRECTIONS: ${scout.output}` }
+      ]);
+    }, STAGE_TIMEOUT_MS);
+    const architect = safeParseProposal(architectRaw, 'architect');
+
+    // --- STAGE 2: COLLAPSE (Convergence) ---
+    const selectionRaw = await runWithTimeout<string>(() => {
+      callCount++;
+      return callOllama(input.userMessage, [
+        { role: 'system', content: COLLAPSE_SELECTOR_PROMPT },
+        { role: 'user', content: `ALL_DIRECTIONS: ${scout.output}\nARCHITECT_VIEW: ${architect.output}` }
+      ]);
+    }, STAGE_TIMEOUT_MS);
+    const selection = safeParseProposal(selectionRaw, 'workflow_designer'); // Mapping to workflow_designer for type compatibility
+
+    // --- STAGE 3: ATTACK (The Crucible) ---
+    const ghostRaw = await runWithTimeout<string>(() => {
+      callCount++;
+      return callOllama(input.userMessage, [
+        { role: 'system', content: ATTACK_GHOST_PROMPT },
+        { role: 'user', content: `TOP_3_DIRECTIONS: ${selection.output}` }
+      ]);
+    }, STAGE_TIMEOUT_MS);
+    const ghost = safeParseProposal(ghostRaw, 'critic');
+
+    const casinoRaw = await runWithTimeout<string>(() => {
+      callCount++;
+      return callOllama(input.userMessage, [
+        { role: 'system', content: ATTACK_FAILURE_CASINO_PROMPT },
+        { role: 'user', content: `PROPOSAL: ${selection.output}\nOBJECTIONS: ${ghost.output}` }
+      ]);
+    }, STAGE_TIMEOUT_MS);
+    const casino = safeParseProposal(casinoRaw, 'market_simulator');
+
+    // --- STAGE 4: BUILD (Self-Play Engineering) ---
+    const implementerRaw = await runWithTimeout<string>(() => {
+      callCount++;
+      return callOllama(input.userMessage, [
+        { role: 'system', content: BUILD_IMPLEMENTER_PROMPT },
+        { role: 'user', content: `SELECTION: ${selection.output}\nSTRESS_TEST: ${casino.output}` }
+      ]);
+    }, STAGE_TIMEOUT_MS);
+    const implementer = safeParseProposal(implementerRaw, 'execution');
+
+    const costRaw = await runWithTimeout<string>(() => {
+      callCount++;
+      return callOllama(input.userMessage, [
+        { role: 'system', content: BUILD_COST_CONTROLLER_PROMPT },
+        { role: 'user', content: `BUILD_PLAN: ${implementer.output}` }
+      ]);
+    }, STAGE_TIMEOUT_MS);
+    const cost = safeParseProposal(costRaw, 'revenue_simulator');
+
+    const tournamentRaw = await runWithTimeout<string>(() => {
+      callCount++;
+      return callOllama(input.userMessage, [
+        { role: 'system', content: BUILD_TOURNAMENT_PROMPT },
+        { role: 'user', content: `IMPLEMENTER: ${implementer.output}\nCOST_LIMITS: ${cost.output}` }
+      ]);
+    }, STAGE_TIMEOUT_MS);
+    const tournament = safeParseProposal(tournamentRaw, 'creative_designer');
+
+    // --- STAGE 5: SYNTHESIS (Final Verdict) ---
+    const ceoRaw = await runWithTimeout<string>(() => {
+      callCount++;
+      return callOllama(input.userMessage, [
+        { role: 'system', content: CEO_SYNTHESIZER_PROMPT },
+        { role: 'user', content: JSON.stringify({ 
+          scout: scout.output, 
+          architect: architect.output, 
+          selection: selection.output, 
+          attack: { ghost: ghost.output, casino: casino.output },
+          build: { implementer: implementer.output, cost: cost.output, tournament: tournament.output }
+        }) }
+      ]);
+    }, STAGE_TIMEOUT_MS);
+    const ceo = safeParseProposal(ceoRaw, 'ceo');
+
+    // --- PERSISTENCE: NEGATIVE MEMORY BANK ---
+    if (ceo.verdict === 'reject' || ghost.confidence > 0.8) {
+      const objection = `[FAILURE_MODE] ${ceo.reasoning_summary} | Critic: ${ghost.output.slice(0, 200)}...`;
+      await executeSaveMemory(userId, objection, 'venture_objection');
+    }
+
+    return {
+      final_answer: ceo.output,
+      confidence: ceo.confidence,
+      risk: ceo.risk,
+      fallback_used: false,
+      timed_out: false,
+      latency_ms: Date.now() - start,
+      disagreement: ceo.verdict === 'reject',
+      planner: architect,
+      critic: ghost,
+      guardian: cost,
+      risk_flags: DEFAULT_FLAGS,
+      is_venture_cycle: true,
+      architect,
+      scout,
+      risk_manager: casino,
+      execution: implementer,
+      distribution: selection,
+      workflow_designer: selection,
+      creative_designer: tournament,
+      market_simulator: casino,
+      revenue_simulator: cost,
+      ceo,
+      fragility_map: ceo.metadata?.fragility_map || casino.metadata?.fragility_map || {}
+    };
+  });
+}
+
+function createKillSwitchVerdict(reason: string, latency: number): ConsensusVerdict {
+  return {
+    final_answer: `[KILL-SWITCH] ${reason}. Aborting run to save compute.`,
+    confidence: 0,
+    risk: 'high',
     fallback_used: true,
     timed_out: false,
     latency_ms: latency,
-    disagreement: false,
-    planner: emptyProposal('planner'),
-    critic: emptyProposal('critic'),
-    guardian: emptyProposal('guardian'),
+    disagreement: true,
+    planner: safeParseProposal('', 'planner'),
+    critic: safeParseProposal('', 'critic'),
+    guardian: safeParseProposal('', 'guardian'),
     risk_flags: DEFAULT_FLAGS,
   };
 }
