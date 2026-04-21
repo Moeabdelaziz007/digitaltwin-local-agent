@@ -29,9 +29,9 @@ export function WorkReport({ isOpen, onClose, userId }: WorkReportProps) {
     setLoading(true);
     try {
       const [researchRes, skillsRes, proposalsRes] = await Promise.all([
-        pb.collection("research_gems").getList(1, 10, { filter: `user_id="${userId}"`, sort: "-created" }),
-        pb.collection("skill_drafts").getList(1, 10, { filter: `user_id="${userId}"`, sort: "-created" }),
-        pb.collection("improvement_proposals").getList(1, 10, { sort: "-created" })
+        pb.collection("research_gems").getList<ResearchGem>(1, 10, { filter: `user_id="${userId}"`, sort: "-created" }),
+        pb.collection("skill_drafts").getList<SkillDraft>(1, 10, { filter: `user_id="${userId}"`, sort: "-created" }),
+        pb.collection("improvement_proposals").getList<ImprovementProposal>(1, 10, { sort: "-created" })
       ]);
 
       setResearch(researchRes.items);
