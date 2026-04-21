@@ -15,7 +15,8 @@
     "verify": "chmod +x scripts/quality-gate.sh && ./scripts/quality-gate.sh",
     "scan-bugs": "grep -rinE 'console\\.log|TODO|FIXME|localhost|sk_test|pk_test|body\\.userId' src/ || echo 'Zero critical debugging artifacts found!'",
     "test:cron:decay": "curl -H 'Authorization: Bearer test' http://localhost:3000/api/cron/decay",
-    "test:cron:snapshot": "curl -H 'Authorization: Bearer test' http://localhost:3000/api/cron/snapshot"
+    "test:cron:snapshot": "curl -H 'Authorization: Bearer test' http://localhost:3000/api/cron/snapshot",
+    "check:memory-dataset": "node scripts/check-memory-dataset-version.js"
   },
   "dependencies": {
     "@clerk/nextjs": "^5.7.0",
