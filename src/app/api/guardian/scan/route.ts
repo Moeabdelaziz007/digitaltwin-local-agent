@@ -7,7 +7,7 @@ import { env } from '@/lib/env';
  * GET /api/guardian/scan
  * Triggers a real-world system audit.
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const { userId } = await auth();
     

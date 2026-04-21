@@ -127,7 +127,7 @@ export default async function TraceDetail({ params }: { params: Promise<{ traceI
                            </div>
                            <div style={{ marginLeft: `${depth * 12}px` }} className="text-[10px] text-neutral-500 uppercase flex gap-2">
                               <span>{span.component}</span>
-                              {typeof (span.attributes_json as any)?.['llm.model_name'] === 'string' && <span>• {(span.attributes_json as any)['llm.model_name']}</span>}
+                              {typeof span.attributes_json?.['llm.model_name'] === 'string' && <span>• {String(span.attributes_json['llm.model_name'])}</span>}
                            </div>
                         </div>
                         <div className="w-3/4 relative h-6 rounded bg-neutral-800/30">

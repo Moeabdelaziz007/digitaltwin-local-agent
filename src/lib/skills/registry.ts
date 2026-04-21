@@ -85,7 +85,7 @@ export class SkillRegistry {
         examples = JSON.parse(examplesStr);
       } catch (e) { 
         // Examples are optional, but we should log if it's a parsing error vs missing file
-        if ((e as any).code !== 'ENOENT') {
+        if ((e as { code?: string }).code !== 'ENOENT') {
           console.warn(`[SkillRegistry] Optional examples for ${name} failed to load:`, e);
         }
       }

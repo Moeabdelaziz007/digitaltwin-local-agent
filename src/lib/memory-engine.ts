@@ -191,9 +191,8 @@ export async function executeSaveMemory(userId: string, fact: string, category: 
       const lexicalMatch = exactFingerprintMatch || overlapCandidate;
 
       if (lexicalMatch) {
-        const [dedupThreshold, lexicalThreshold, reinforcementDelta] = await Promise.all([
+        const [dedupThreshold, reinforcementDelta] = await Promise.all([
           config.get('MEMORY_DEDUP_THRESHOLD', DEFAULT_SIMILARITY_THRESHOLD),
-          config.get('MEMORY_LEXICAL_OVERLAP', DEFAULT_LEXICAL_OVERLAP),
           config.get('MEMORY_REINFORCEMENT_DELTA', DEFAULT_REINFORCEMENT_DELTA)
         ]);
 
