@@ -297,13 +297,17 @@ export async function buildMemoryContext(userId: string): Promise<string> {
     const pb = getServerPB();
 
     // Parallel Data Fetching for optimized latency
+    let recentMessages: any[] = [];
+    let decayFilteredFacts: string[] = [];
+    let researchGems: string[] = [];
+
     const [profileRes, messagesRes, factsRes, gemsRes] = await Promise.allSettled([
       pb.collection('user_profiles').getFirstListItem<UserProfile>(`user_id = "${userId}"`),
-      pb.collection('conversations').getList<ConversationMessage>(1, 15, {
+      pb.collection('conversations').getList<any>(1, 15, {
         filter: `user_id = "${userId}"`,
         sort: '-created',
       }),
-      pb.collection('facts').getFullList<Fact>({
+      pb.collection('facts').getFullList<any>({
         filter: `user_id = "${userId}" && confidence > 0.1 && status != "archived"`,
         sort: '-confidence',
         requestKey: null
