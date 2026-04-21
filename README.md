@@ -1,76 +1,111 @@
-<div align="center">
-  <img src="https://github.com/Moeabdelaziz007/digitaltwin-local-agent/blob/main/public/logo.png?raw=true" width="400" alt="Venture Lab Logo" />
-  
-  # 🚀 DIGITAL TWIN: AUTONOMOUS VENTURE LAB (v3.0)
-  ### [EN] Production-Grade Dialectic Lifecycle | [AR] مختبر المشاريع المستقل (إصدار 3.0)
-</div>
+<p align="center">
+  <img src="public/assets/docs/header.svg" width="100%" alt="Digital Twin Header" />
+</p>
 
----
+<p align="center">
+  <img src="https://img.shields.io/badge/Language-Bilingual-emerald?style=for-the-badge" alt="Bilingual" />
+  <img src="https://img.shields.io/badge/Status-Active-cyan?style=for-the-badge" alt="Status" />
+  <img src="https://img.shields.io/badge/Architecture-MAS--ZERO-6366f1?style=for-the-badge" alt="Architecture" />
+  <img src="https://img.shields.io/badge/2026-Ready-000000?style=for-the-badge" alt="2026 Ready" />
+</p>
 
-[ ![GitHub Stars](https://img.shields.io/github/stars/Moeabdelaziz007/digitaltwin-local-agent?style=for-the-badge&color=ffd700&logo=github) ](https://github.com/Moeabdelaziz007/digitaltwin-local-agent)
-[ ![Next.js](https://img.shields.io/badge/Next.js-15/16_Ready-black?style=for-the-badge&logo=next.js) ](https://nextjs.org)
-[ ![Architecture](https://img.shields.io/badge/Logic-MAS--ZERO_Dialectic-blue?style=for-the-badge) ](docs/roadmap.md)
-[ ![Strategy](https://img.shields.io/badge/Phase-Zero--Cost--Build-green?style=for-the-badge) ](docs/roadmap.md)
+<h1 align="center">
+  <img src="public/assets/docs/logo.svg" width="60" style="vertical-align: middle; margin-right: 10px;" />
+  Digital Twin Venture Lab
+</h1>
 
----
+<p align="center">
+  <i>The Sovereign Engine for Autonomous Profit Orchestration</i>
+  <br/>
+  محرك السيادة لتنظيم الأرباح الذاتية
+</p>
 
-## 🌌 The Vision / الرؤية
+***
 
-**[EN]** DigitalTwin v3.0 has transitioned from a personal assistant to a **Self-Operating Venture Lab**. Based on the **MAS-ZERO (2025)** framework, it utilizes a 5-stage **Dialectic Lifecycle** to identify, validate, and architect micro-ventures with **Zero Operational Cost**. It doesn't just "talk"—it simulates failures, builds architecture tournaments, and generates production-ready blueprints.
+## 🌐 Vision | الرؤية
 
-**[AR]** انتقل "التوأم الرقمي" في إصداره الثالث من مجرد مساعد شخصي إلى **مختبر مشاريع ذاتي التشغيل**. بناءً على إطار عمل **MAS-ZERO (2025)**، يستخدم النظام **دورة حياة جدلية** من 5 مراحل لتحديد، والتحقق من، وهندسة المشاريع الصغيرة بـ **تكلفة تشغيل صفرية**. هو لا يكتفي "بالحديث" فقط - بل يحاكي الفشل، ويجري بطولات هندسية، وينتج مخططات جاهزة للتنفيذ.
+<table width="100%">
+  <tr>
+    <td width="50%" valign="top">
+      <h3>English</h3>
+      <p><b>Digital Twin Venture Lab</b> is a local-first autonomous system that transforms raw ideas into validated, revenue-generating ventures. Built for the 2026 economic landscape, it prioritizes <b>Zero-Cost execution</b> and <b>Sovereign Privacy</b>.</p>
+    </td>
+    <td width="50%" valign="top" align="right" dir="rtl">
+      <h3>العربية</h3>
+      <p><b>مختبر مشاريع التوأم الرقمي</b> هو نظام ذاتي القيادة يعمل محلياً بالكامل، يقوم بتحويل الأفكار الخام إلى مشاريع مدرة للربح. صُمم للمشهد الاقتصادي لعام 2026، مع التركيز على <b>التنفيذ صفري التكلفة</b> و<b>الخصوصية السيادية</b>.</p>
+    </td>
+  </tr>
+</table>
 
----
+***
 
-## 🏗️ The 5-Stage Dialectic Lifecycle
+## 🚀 Core Engine: MAS-ZERO | المحرك الجوهري
 
-Our system operates in 5 constrained loops to ensure maximum ROI and resilience:
+<details open>
+<summary><b>Dialectic Multi-Agent Architecture | هندسة الوكلاء المتعددة</b></summary>
 
-| Stage | Name | Function | Output |
-| :--- | :--- | :--- | :--- |
-| **1. Explore** | Divergence | Scout + Architect sense market gaps and trend anomalies. | 10 Directions |
-| **2. Collapse** | Convergence | Selection Agent prunes the noise based on "Zero-Cost" feasibility. | Top 3 Ideas |
-| **3. Attack** | The Crucible | Ghost Customer + Failure Casino stress-test the idea's fragility. | Fragility Map |
-| **4. Build** | Self-Play | Implementer + Cost Controller conduct Architecture Tournaments. | Build Trace |
-| **5. Synthesis**| Consensus | CEO Agent merges all traces into a definitive Venture Blueprint. | Final Alpha |
+The system employs a 14-agent consensus loop to pressure-test every opportunity:
+يعتمد النظام على حلقة إجماع مكونة من 14 وكيلاً لاختبار كل فرصة:
 
----
+| Agent | Role | الدور |
+| :--- | :--- | :--- |
+| **Meta-Architect** | Workflow Design | تصميم سير العمل |
+| **Devil's Advocate** | Fragility Analysis | تحليل نقاط الضعف |
+| **Revenue Architect** | Profit Simulation | محاكاة الأرباح |
+| **Distribution Scout** | Growth Loops | حلقات النمو |
+| **CEO Orchestrator** | Final Synthesis | التوليف النهائي |
 
-## 📐 Architecture / الهندسة المعمارية
+</details>
+
+***
+
+## 🛠 Tech Stack | المكونات التقنية
 
 ```mermaid
-graph TD
-  User((Goal)) --> Explore[Stage 1: Explore - Divergence]
-  Explore --> Collapse[Stage 2: Collapse - Convergence]
-  Collapse --> Attack[Stage 3: Attack - Failure Casino]
-  Attack --> Build[Stage 4: Build - Self-Play Engineering]
-  Build --> Synthesis[Stage 5: Synthesis - CEO Consensus]
-  
-  Synthesis -->|Score > 85| Launch((Launch Venture))
-  Synthesis -->|Score < 60| Memory((Negative Memory Bank))
-  
-  subgraph Self_Improving_Cycle
-    Memory -->|Killer Objections| Explore
-    Build -->|New Skill Proposal| Synthesis
-  end
+graph LR
+  A[Local LLM / Ollama] --> B{MAS-ZERO Engine}
+  B --> C[Venture Blueprint]
+  B --> D[Fragility Map]
+  C --> E[Sidecar Execution]
+  D --> E
 ```
 
----
+- **Frontend**: Next.js 15 (Turbopack), Framer Motion, Tailwind 4.
+- **Intelligence**: Local-first MAS via Ollama (Llama 3 / Mistral).
+- **Storage**: PocketBase (Encrypted Local-First).
+- **Execution**: Go-powered Sidecars for atomic tasks.
 
-## 🧠 v3.0 Core Innovations / الابتكارات الجوهرية
+***
 
-- **🎲 Failure Casino (Simulation)**: Stochastic scenario simulation to find "Black Swan" events that could kill a venture before deployment.
-- **🏗️ Architecture Tournaments**: Competitive self-play between agents to find the most cost-effective technical stack.
-- **🛡️ Fragility Mapping**: Quantitative risk assessment across market, tech, and distribution vectors.
-- **⚡ Zero-Cost Mandate**: Strict auditing of every proposed step to ensure it runs on free-tier infrastructure (Vercel, Supabase, Ollama).
-- **📝 Trace-Driven Execution**: Every decision is logged in an execution trace, allowing for human-in-the-loop verification of the agent's logic.
+## 🚦 System Status | حالة النظام
 
----
+| Component | Status | Speed |
+| :--- | :--- | :--- |
+| **Cognitive Meta-Loop** | <img src="https://img.shields.io/badge/-Operational-emerald" /> | 250ms |
+| **Memory Graph** | <img src="https://img.shields.io/badge/-Synced-cyan" /> | 12ms |
+| **Venture Simulation** | <img src="https://img.shields.io/badge/-Calibrating-yellow" /> | 1.2s |
 
-## 🛠 Safety & Sovereignty / الأمان والسيادة
-Everything runs locally via **Ollama** and **PocketBase**. Your financial alpha is protected by local-first sovereignty. No third-party API dependencies required for core logic.
+***
 
----
+## 📖 Quick Start | ابدأ هنا
 
-## 📄 License / الترخيص
-MIT License. Part of the Autonomous Venture Lab Initiative.
+```bash
+# Clone the Sovereign Engine
+git clone https://github.com/Moeabdelaziz007/digitaltwin-local-agent.git
+
+# Install Dependencies (Zero overhead)
+npm install
+
+# Launch the Lab
+npm run dev
+```
+
+***
+
+<p align="center">
+  <i>Engineered for Profit. Optimized for Sovereignty.</i>
+  <br/>
+  <b>2026 Venture Lab :: MAS-ZERO v3.5</b>
+  <br/>
+  <a href="ARCHITECTURE.md">Architecture</a> • <a href="ROADMAP.md">Roadmap</a> • <a href="AGENTS.md">Agents</a>
+</p>

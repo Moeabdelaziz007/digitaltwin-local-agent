@@ -8,6 +8,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, Target, Cpu, Activity, Zap, DollarSign } from 'lucide-react';
+import { VentureLabView } from './VentureLabView';
+import { ConsensusVerdict } from '@/types/twin';
 
 interface ProfitState {
   simulatedProfit: number;

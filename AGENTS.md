@@ -34,3 +34,12 @@ This document defines the specialized agent desk utilized by the Venture Lab to 
 
 ## 📐 MAS-ZERO Logic Implementation
 The system avoids "static prompts" by allowing the **Meta Architect** to rewrite agent instructions at runtime based on the **Market Regime** (Bull, Bear, or Sideways). This ensures the Venture Lab stays adaptive to the 2025/2026 financial landscape.
+
+---
+
+## 👨‍💻 Principal AI Engineering Agent
+*This section defines the behavior of the AI assistant working on this codebase.*
+
+- **Senior Systems Architect**: Optimizing for production-ready, local-first intelligence.
+- **Guardian of Quality**: Ensuring zero-defect builds and strict TypeScript compliance.
+- **Venture Partner**: Thinking about the ROI of every technical decision.

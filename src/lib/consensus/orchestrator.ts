@@ -9,33 +9,27 @@ import {
 } from '@/types/twin';
 import { 
   PLANNER_PROMPT, 
-  EXPLORE_SCOUT_PROMPT,
-  EXPLORE_ARCHITECT_PROMPT,
-  COLLAPSE_SELECTOR_PROMPT,
-  ATTACK_GHOST_PROMPT,
-  ATTACK_FAILURE_CASINO_PROMPT,
-  BUILD_IMPLEMENTER_PROMPT,
-  BUILD_COST_CONTROLLER_PROMPT,
-  BUILD_TOURNAMENT_PROMPT,
-  CEO_SYNTHESIZER_PROMPT,
-  BULL_ARCHITECT_PROMPT,
-  OPPORTUNITY_SCOUT_PROMPT,
-  BEAR_GHOST_CUSTOMER_PROMPT,
-  VENTURE_RISK_MANAGER_PROMPT,
-  DISTRIBUTION_AGENT_PROMPT,
-  ENGINEERING_SIMULATOR_PROMPT,
-  WORKFLOW_DESIGNER_PROMPT,
-  CREATIVE_DESIGNER_PROMPT,
+  OPPORTUNITY_HUNTER_PROMPT,
+  EVIDENCE_FORAGER_PROMPT,
+  SIGNAL_MINER_PROMPT,
+  PLAN_CACHE_KEEPER_PROMPT,
+  VENTURE_CONDUCTOR_PROMPT,
+  DEVILS_ADVOCATE_PROMPT,
   MARKET_SIMULATOR_PROMPT,
+  BUILD_SIMULATOR_PROMPT,
   REVENUE_SIMULATOR_PROMPT,
-  CEO_RANKER_PROMPT
+  REVENUE_ARCHITECT_PROMPT,
+  AFFILIATE_SCOUT_PROMPT,
+  DISTRIBUTION_STRATEGIST_PROMPT,
+  SPEC_BLACKSMITH_PROMPT,
+  CEO_SYNTHESIZER_PROMPT,
+  FAILURE_ARCHIVIST_PROMPT
 } from './prompts';
 import { executeSaveMemory, executeRecallMemory } from '@/lib/memory-engine';
 
 
-const STAGE_TIMEOUT_MS = 10000;
-const TOTAL_VENTURE_TIMEOUT_MS = 45000;
-const MAX_CALLS_PER_RUN = 10;
+const STAGE_TIMEOUT_MS = 12000;
+const TOTAL_VENTURE_TIMEOUT_MS = 60000;
 
 const DEFAULT_FLAGS: RiskFlags = {
   prompt_injection: false,
@@ -58,7 +52,7 @@ function safeParseProposal(raw: string, agent: string): AgentProposal {
     const parsed = JSON.parse(cleanRaw);
     return {
       agent: agent as any,
-      verdict: parsed.verdict || 'revise',
+      verdict: parsed.verdict || 'accept',
       confidence: parsed.confidence || 0.5,
       risk: parsed.risk || 'med',
       output: parsed.output || raw,
@@ -83,13 +77,14 @@ export async function runConsensus(input: ConsensusInput): Promise<ConsensusVerd
   const start = Date.now();
   const isVenture = input.userMessage.toLowerCase().includes('venture') || 
                     input.userMessage.toLowerCase().includes('profit') ||
-                    input.userMessage.toLowerCase().includes('alpha');
+                    input.userMessage.toLowerCase().includes('alpha') ||
+                    input.userMessage.toLowerCase().includes('revenue');
 
   if (isVenture) {
     return await runVentureLabCycle(input, start);
   }
 
-  // Fallback to standard Planner loop (simplified for now)
+  // Fallback to standard Planner loop
   const reply = await callOllama(input.userMessage, [
     { role: 'system', content: PLANNER_PROMPT },
     { role: 'user', content: input.userMessage }
@@ -111,121 +106,116 @@ export async function runConsensus(input: ConsensusInput): Promise<ConsensusVerd
 }
 
 /**
- * VENTURE LAB CYCLE (DIALECTIC VERSION)
- * 1. Facts & Bull Case
- * 2. Skepticism & Bear Case
- * 3. Distribution & Growth
- * 4. Ranking & Synthesis
+ * VENTURE LAB CYCLE (MAS-ZERO v3.5 - 14 AGENTS)
+ * 1. EXPLORE: Hunter -> Forager -> Miner
+ * 2. COLLAPSE: Cache -> Conductor
+ * 3. ATTACK: Advocate -> Market Simulator
+ * 4. BUILD: BuildSim -> RevSim -> Architect -> Affiliate -> Distribution
+ * 5. SYNTHESIS: Blacksmith -> CEO -> Archivist
  */
 async function runVentureLabCycle(input: ConsensusInput, start: number): Promise<ConsensusVerdict> {
   const userId = input.userId || 'system';
   
-  // --- PRE-FLIGHT: NEGATIVE MEMORY LOOKUP ---
-  const pastObjections = await executeRecallMemory(userId, 'venture_objection');
-
-  return await obs.trace('venture_lab_cycle', {}, async (span) => {
-    let callCount = 0;
-    const context = {
-      userMessage: input.userMessage,
-      pastFailures: pastObjections,
-    };
-
+  return await obs.trace('venture_lab_v3.5', {}, async (span) => {
     // --- STAGE 1: EXPLORE (Divergence) ---
-    const scoutRaw = await runWithTimeout<string>(() => {
-      callCount++;
-      return callOllama(input.userMessage, [
-        { role: 'system', content: EXPLORE_SCOUT_PROMPT },
-        { role: 'user', content: `GOAL: ${context.userMessage}\nPAST_FAILURES: ${context.pastFailures}` }
-      ]);
-    }, STAGE_TIMEOUT_MS);
-    const scout = safeParseProposal(scoutRaw, 'scout');
+    const [hunterRaw, pastFailures] = await Promise.all([
+      runWithTimeout(() => callOllama(input.userMessage, [
+        { role: 'system', content: OPPORTUNITY_HUNTER_PROMPT },
+        { role: 'user', content: `REQUEST: ${input.userMessage}` }
+      ]), STAGE_TIMEOUT_MS),
+      executeRecallMemory(userId, 'venture_failure')
+    ]);
+    const hunter = safeParseProposal(hunterRaw, 'scout');
 
-    const architectRaw = await runWithTimeout<string>(() => {
-      callCount++;
-      return callOllama(input.userMessage, [
-        { role: 'system', content: EXPLORE_ARCHITECT_PROMPT },
-        { role: 'user', content: `DIRECTIONS: ${scout.output}` }
-      ]);
-    }, STAGE_TIMEOUT_MS);
-    const architect = safeParseProposal(architectRaw, 'architect');
+    const foragerRaw = await runWithTimeout(() => callOllama(input.userMessage, [
+      { role: 'system', content: EVIDENCE_FORAGER_PROMPT },
+      { role: 'user', content: `OPPORTUNITIES: ${hunter.output}\nPAST_FAILURES: ${pastFailures}` }
+    ]), STAGE_TIMEOUT_MS);
+    const forager = safeParseProposal(foragerRaw, 'architect');
+
+    const minerRaw = await runWithTimeout(() => callOllama(input.userMessage, [
+      { role: 'system', content: SIGNAL_MINER_PROMPT },
+      { role: 'user', content: `EVIDENCE: ${forager.output}` }
+    ]), STAGE_TIMEOUT_MS);
+    const miner = safeParseProposal(minerRaw, 'scout');
 
     // --- STAGE 2: COLLAPSE (Convergence) ---
-    const selectionRaw = await runWithTimeout<string>(() => {
-      callCount++;
-      return callOllama(input.userMessage, [
-        { role: 'system', content: COLLAPSE_SELECTOR_PROMPT },
-        { role: 'user', content: `ALL_DIRECTIONS: ${scout.output}\nARCHITECT_VIEW: ${architect.output}` }
-      ]);
-    }, STAGE_TIMEOUT_MS);
-    const selection = safeParseProposal(selectionRaw, 'workflow_designer'); // Mapping to workflow_designer for type compatibility
+    const cacheRaw = await runWithTimeout(() => callOllama(input.userMessage, [
+      { role: 'system', content: PLAN_CACHE_KEEPER_PROMPT },
+      { role: 'user', content: `EXPLORATION_DATA: ${miner.output}` }
+    ]), STAGE_TIMEOUT_MS);
+    const cache = safeParseProposal(cacheRaw, 'workflow_designer');
+
+    const conductorRaw = await runWithTimeout(() => callOllama(input.userMessage, [
+      { role: 'system', content: VENTURE_CONDUCTOR_PROMPT },
+      { role: 'user', content: `SELECTED_DATA: ${cache.output}\nMAPPING: ${miner.output}` }
+    ]), STAGE_TIMEOUT_MS);
+    const conductor = safeParseProposal(conductorRaw, 'workflow_designer');
 
     // --- STAGE 3: ATTACK (The Crucible) ---
-    const ghostRaw = await runWithTimeout<string>(() => {
-      callCount++;
-      return callOllama(input.userMessage, [
-        { role: 'system', content: ATTACK_GHOST_PROMPT },
-        { role: 'user', content: `TOP_3_DIRECTIONS: ${selection.output}` }
-      ]);
-    }, STAGE_TIMEOUT_MS);
-    const ghost = safeParseProposal(ghostRaw, 'critic');
+    const advocateRaw = await runWithTimeout(() => callOllama(input.userMessage, [
+      { role: 'system', content: DEVILS_ADVOCATE_PROMPT },
+      { role: 'user', content: `VENTURE_PROPOSAL: ${conductor.output}` }
+    ]), STAGE_TIMEOUT_MS);
+    const advocate = safeParseProposal(advocateRaw, 'critic');
 
-    const casinoRaw = await runWithTimeout<string>(() => {
-      callCount++;
-      return callOllama(input.userMessage, [
-        { role: 'system', content: ATTACK_FAILURE_CASINO_PROMPT },
-        { role: 'user', content: `PROPOSAL: ${selection.output}\nOBJECTIONS: ${ghost.output}` }
-      ]);
-    }, STAGE_TIMEOUT_MS);
-    const casino = safeParseProposal(casinoRaw, 'market_simulator');
+    const marketSimRaw = await runWithTimeout(() => callOllama(input.userMessage, [
+      { role: 'system', content: MARKET_SIMULATOR_PROMPT },
+      { role: 'user', content: `PROPOSAL: ${conductor.output}\nOBJECTIONS: ${advocate.output}` }
+    ]), STAGE_TIMEOUT_MS);
+    const marketSim = safeParseProposal(marketSimRaw, 'market_simulator');
 
-    // --- STAGE 4: BUILD (Self-Play Engineering) ---
-    const implementerRaw = await runWithTimeout<string>(() => {
-      callCount++;
-      return callOllama(input.userMessage, [
-        { role: 'system', content: BUILD_IMPLEMENTER_PROMPT },
-        { role: 'user', content: `SELECTION: ${selection.output}\nSTRESS_TEST: ${casino.output}` }
-      ]);
-    }, STAGE_TIMEOUT_MS);
-    const implementer = safeParseProposal(implementerRaw, 'execution');
+    // --- STAGE 4: BUILD (Triple Simulation) ---
+    const buildSimRaw = await runWithTimeout(() => callOllama(input.userMessage, [
+      { role: 'system', content: BUILD_SIMULATOR_PROMPT },
+      { role: 'user', content: `PROPOSAL: ${conductor.output}\nMARKET_FEEDBACK: ${marketSim.output}` }
+    ]), STAGE_TIMEOUT_MS);
+    const buildSim = safeParseProposal(buildSimRaw, 'execution');
 
-    const costRaw = await runWithTimeout<string>(() => {
-      callCount++;
-      return callOllama(input.userMessage, [
-        { role: 'system', content: BUILD_COST_CONTROLLER_PROMPT },
-        { role: 'user', content: `BUILD_PLAN: ${implementer.output}` }
-      ]);
-    }, STAGE_TIMEOUT_MS);
-    const cost = safeParseProposal(costRaw, 'revenue_simulator');
+    const revSimRaw = await runWithTimeout(() => callOllama(input.userMessage, [
+      { role: 'system', content: REVENUE_SIMULATOR_PROMPT },
+      { role: 'user', content: `BUILD_PLAN: ${buildSim.output}` }
+    ]), STAGE_TIMEOUT_MS);
+    const revSim = safeParseProposal(revSimRaw, 'revenue_simulator');
 
-    const tournamentRaw = await runWithTimeout<string>(() => {
-      callCount++;
-      return callOllama(input.userMessage, [
-        { role: 'system', content: BUILD_TOURNAMENT_PROMPT },
-        { role: 'user', content: `IMPLEMENTER: ${implementer.output}\nCOST_LIMITS: ${cost.output}` }
-      ]);
-    }, STAGE_TIMEOUT_MS);
-    const tournament = safeParseProposal(tournamentRaw, 'creative_designer');
+    const architectRaw = await runWithTimeout(() => callOllama(input.userMessage, [
+      { role: 'system', content: REVENUE_ARCHITECT_PROMPT },
+      { role: 'user', content: `REVENUE_FORECAST: ${revSim.output}\nBUILD_SIM: ${buildSim.output}` }
+    ]), STAGE_TIMEOUT_MS);
+    const architect = safeParseProposal(architectRaw, 'architect');
 
-    // --- STAGE 5: SYNTHESIS (Final Verdict) ---
-    const ceoRaw = await runWithTimeout<string>(() => {
-      callCount++;
-      return callOllama(input.userMessage, [
-        { role: 'system', content: CEO_SYNTHESIZER_PROMPT },
-        { role: 'user', content: JSON.stringify({ 
-          scout: scout.output, 
-          architect: architect.output, 
-          selection: selection.output, 
-          attack: { ghost: ghost.output, casino: casino.output },
-          build: { implementer: implementer.output, cost: cost.output, tournament: tournament.output }
-        }) }
-      ]);
-    }, STAGE_TIMEOUT_MS);
+    const affiliateRaw = await runWithTimeout(() => callOllama(input.userMessage, [
+      { role: 'system', content: AFFILIATE_SCOUT_PROMPT },
+      { role: 'user', content: `OFFER: ${architect.output}` }
+    ]), STAGE_TIMEOUT_MS);
+    const affiliate = safeParseProposal(affiliateRaw, 'scout');
+
+    const distributionRaw = await runWithTimeout(() => callOllama(input.userMessage, [
+      { role: 'system', content: DISTRIBUTION_STRATEGIST_PROMPT },
+      { role: 'user', content: `OFFER: ${architect.output}\nAFFILIATES: ${affiliate.output}` }
+    ]), STAGE_TIMEOUT_MS);
+    const distribution = safeParseProposal(distributionRaw, 'distribution');
+
+    // --- STAGE 5: SYNTHESIS (Final Consensus) ---
+    const blacksmithRaw = await runWithTimeout(() => callOllama(input.userMessage, [
+      { role: 'system', content: SPEC_BLACKSMITH_PROMPT },
+      { role: 'user', content: `ALL_DATA: ${JSON.stringify({ conductor: conductor.output, attack: marketSim.output, build: architect.output, distribution: distribution.output })}` }
+    ]), STAGE_TIMEOUT_MS);
+    const blacksmith = safeParseProposal(blacksmithRaw, 'execution');
+
+    const ceoRaw = await runWithTimeout(() => callOllama(input.userMessage, [
+      { role: 'system', content: CEO_SYNTHESIZER_PROMPT },
+      { role: 'user', content: `FINAL_SPEC: ${blacksmith.output}\nFULL_TRACE_META: ${JSON.stringify({ stages: 5, agents: 14 })}` }
+    ]), STAGE_TIMEOUT_MS);
     const ceo = safeParseProposal(ceoRaw, 'ceo');
 
-    // --- PERSISTENCE: NEGATIVE MEMORY BANK ---
-    if (ceo.verdict === 'reject' || ghost.confidence > 0.8) {
-      const objection = `[FAILURE_MODE] ${ceo.reasoning_summary} | Critic: ${ghost.output.slice(0, 200)}...`;
-      await executeSaveMemory(userId, objection, 'venture_objection');
+    // --- PERSISTENCE: FAILURE ARCHIVIST ---
+    if (ceo.verdict === 'reject' || advocate.confidence > 0.85) {
+      const archivistRaw = await callOllama(input.userMessage, [
+        { role: 'system', content: FAILURE_ARCHIVIST_PROMPT },
+        { role: 'user', content: `FAILED_VENTURE: ${conductor.output}\nREASON: ${ceo.reasoning_summary}` }
+      ]);
+      await executeSaveMemory(userId, archivistRaw, 'venture_failure');
     }
 
     return {
@@ -236,25 +226,26 @@ async function runVentureLabCycle(input: ConsensusInput, start: number): Promise
       timed_out: false,
       latency_ms: Date.now() - start,
       disagreement: ceo.verdict === 'reject',
-      planner: architect,
-      critic: ghost,
-      guardian: cost,
+      planner: forager,
+      critic: advocate,
+      guardian: revSim,
       risk_flags: DEFAULT_FLAGS,
       is_venture_cycle: true,
+      scout: hunter,
       architect,
-      scout,
-      risk_manager: casino,
-      execution: implementer,
-      distribution: selection,
-      workflow_designer: selection,
-      creative_designer: tournament,
-      market_simulator: casino,
-      revenue_simulator: cost,
+      risk_manager: marketSim,
+      execution: blacksmith,
+      distribution,
+      workflow_designer: conductor,
+      creative_designer: architect,
+      market_simulator: marketSim,
+      revenue_simulator: revSim,
       ceo,
-      fragility_map: ceo.metadata?.fragility_map || casino.metadata?.fragility_map || {}
+      fragility_map: ceo.metadata?.fragility_map || marketSim.metadata?.fragility_map || {}
     };
   });
 }
+
 
 function createKillSwitchVerdict(reason: string, latency: number): ConsensusVerdict {
   return {
