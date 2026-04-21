@@ -1,0 +1,15 @@
+{
+  "name": "memory-curator",
+  "description": "Refines, prunes, and deduplicates long-term memory facts to prevent persona drift.",
+  "version": "1.0.0",
+  "when_to_use": "When the agent detects contradictory facts or when memory retrieval returns too many redundant items.",
+  "required_tools": ["fetch_facts", "delete_fact", "update_fact"],
+  "input_contract": {
+    "target_facts": "array of fact IDs to analyze"
+  },
+  "output_contract": {
+    "consolidated_fact": "string",
+    "removed_ids": "array"
+  },
+  "safety_notes": "Never delete biographical facts without explicit user confirmation."
+}
