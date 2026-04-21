@@ -26,6 +26,12 @@ import { env } from '@/lib/env';
 const TURN_COLLECTION = 'conversation_turns';
 const COUNTER_COLLECTION = 'session_counters';
 
+const REFLECTION_FETCH_CONFIG = {
+  timeoutMs: env.SIDECAR_REFLECT_TIMEOUT_MS,
+  retries: env.SIDECAR_REFLECT_RETRIES,
+  backoffMs: env.SIDECAR_REFLECT_BACKOFF_MS,
+} as const;
+
 // SIDECAR_URL is resolved inside triggerReflection() to avoid stale module-level state
 
 // SIDECAR_URL is resolved inside triggerReflection() to avoid stale module-level state
@@ -467,9 +473,7 @@ async function triggerReflection(userId: string, sessionId: string): Promise<voi
       },
       body: rawBody,
     }, {
-      timeoutMs: 5000,
-      retries: 2,
-      backoffMs: 300,
+      ...REFLECTION_FETCH_CONFIG,
       sessionId,
     });
 

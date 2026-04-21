@@ -16,6 +16,9 @@ const envSchema = z.object({
   OLLAMA_MODEL: z.string().default('gemma4'),
   SIDECAR_URL: z.string().url().optional(),
   SIDECAR_SHARED_SECRET: z.string().min(1).default('dev_secret_only'),
+  SIDECAR_REFLECT_TIMEOUT_MS: z.coerce.number().int().positive().default(5000),
+  SIDECAR_REFLECT_RETRIES: z.coerce.number().int().min(0).default(2),
+  SIDECAR_REFLECT_BACKOFF_MS: z.coerce.number().int().min(0).default(300),
 
   // VOICE & REAL-TIME (LiveKit)
   LIVEKIT_API_KEY: z.string().optional(),
@@ -57,9 +60,14 @@ const fallbackEnv = {
   OLLAMA_MODEL: process.env.OLLAMA_MODEL || 'gemma4',
   SIDECAR_URL: process.env.SIDECAR_URL || 'http://localhost:8081',
   SIDECAR_SHARED_SECRET: process.env.SIDECAR_SHARED_SECRET || 'dev_secret_only',
+  SIDECAR_REFLECT_TIMEOUT_MS: Number(process.env.SIDECAR_REFLECT_TIMEOUT_MS || 5000),
+  SIDECAR_REFLECT_RETRIES: Number(process.env.SIDECAR_REFLECT_RETRIES || 2),
+  SIDECAR_REFLECT_BACKOFF_MS: Number(process.env.SIDECAR_REFLECT_BACKOFF_MS || 300),
   ADMIN_USER_ID: process.env.ADMIN_USER_ID || '',
   PB_ADMIN_EMAIL: process.env.PB_ADMIN_EMAIL || '',
   PB_ADMIN_PASSWORD: process.env.PB_ADMIN_PASSWORD || '',
-} satisfies Record<string, string>;
+};
 
-export const env: typeof fallbackEnv = parsed.success ? (parsed.data as unknown as typeof fallbackEnv) : fallbackEnv;
+type Env = z.infer<typeof envSchema>;
+
+export const env: Env = parsed.success ? parsed.data : (fallbackEnv as Env);
