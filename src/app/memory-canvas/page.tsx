@@ -18,6 +18,7 @@ import FactNodeComponent from "@/components/memory-canvas/FactNode";
 import NodeDetailPanel from "@/components/memory-canvas/NodeDetailPanel";
 import CanvasToolbar from "@/components/memory-canvas/CanvasToolbar";
 import { useUser } from "@clerk/nextjs";
+import { GitBranch, Network } from "lucide-react";
 
 /* ── Custom node type registration ── */
 const NODE_TYPES = { factNode: FactNodeComponent };
@@ -30,6 +31,7 @@ interface FactNodeData {
 }
 
 export default function MemoryCanvasPage() {
+  const [viewMode, setViewMode] = useState<"facts" | "causal">("facts");
   const { user, isLoaded: userLoaded } = useUser();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
@@ -46,6 +48,55 @@ export default function MemoryCanvasPage() {
         const userId = user?.id;
         if (!userId) {
           setLoading(false);
+          return;
+        }
+
+        const relationColor: Record<string, string> = {
+          causes: "#60A5FA",
+          amplifies: "#A78BFA",
+          reduces: "#34D399",
+          blocks: "#F87171",
+          depends_on: "#FBBF24",
+        };
+
+        if (viewMode === "causal") {
+          const nodesRes = await pb.collection("causal_nodes").getFullList({
+            filter: `user_id = "${userId}"`,
+            sort: "-created",
+          });
+          const edgesRes = await pb.collection("causal_edges").getFullList({
+            filter: `user_id = "${userId}"`,
+          });
+
+          const newNodes: Node[] = nodesRes.map((node, index) => ({
+            id: node.id,
+            type: "factNode",
+            position: {
+              x: (index % 4) * 280 + Math.random() * 40,
+              y: Math.floor(index / 4) * 180 + Math.random() * 30,
+            },
+            data: {
+              label: node.label,
+              category: node.node_type,
+              confidence: 0.8,
+              tags: [],
+            },
+          }));
+
+          const newEdges: Edge[] = edgesRes.map((edge) => ({
+            id: edge.id,
+            source: edge.source,
+            target: edge.target,
+            label: `${edge.relation_type} (${Number(edge.weight || 0).toFixed(2)})`,
+            animated: Number(edge.weight || 0) > 0.65,
+            style: {
+              stroke: relationColor[edge.relation_type] || "var(--color-brand-primary)",
+              strokeWidth: 1 + Number(edge.weight || 0) * 2.5,
+              strokeOpacity: 0.8,
+            },
+          }));
+          setNodes(newNodes);
+          setEdges(newEdges);
           return;
         }
 
@@ -98,8 +149,7 @@ export default function MemoryCanvasPage() {
     }
 
     void loadCanvasMap();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [setEdges, setNodes, user?.id, userLoaded, viewMode]);
 
   /* ── Node click → show detail panel ── */
   const onNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
@@ -127,6 +177,22 @@ export default function MemoryCanvasPage() {
       {/* ── Canvas Area ── */}
       <main className="flex-1 relative">
         <CanvasToolbar />
+        <div className="absolute top-4 right-4 z-10 glass-surface rounded-xl p-1.5 flex items-center gap-1">
+          <button
+            className={`px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1 ${viewMode === "facts" ? "bg-white/10 text-white" : "text-primitive-text-muted"}`}
+            onClick={() => setViewMode("facts")}
+          >
+            <Network size={14} />
+            Memory Facts
+          </button>
+          <button
+            className={`px-3 py-1.5 rounded-lg text-xs inline-flex items-center gap-1 ${viewMode === "causal" ? "bg-white/10 text-white" : "text-primitive-text-muted"}`}
+            onClick={() => setViewMode("causal")}
+          >
+            <GitBranch size={14} />
+            Causal View
+          </button>
+        </div>
 
         <ReactFlow
           nodes={nodes}

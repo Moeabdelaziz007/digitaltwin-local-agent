@@ -107,6 +107,36 @@ export interface ResearchGem extends PBRecord {
 }
 
 // ----------------------------------------------------------
+// PocketBase Collections: causal graph + simulations
+// ----------------------------------------------------------
+export interface CausalNode extends PBRecord {
+  user_id: string;
+  label: string;
+  normalized_label: string;
+  node_type: 'event' | 'decision' | 'outcome' | 'context';
+}
+
+export interface CausalEdge extends PBRecord {
+  user_id: string;
+  source: string;
+  target: string;
+  relation_type: 'causes' | 'amplifies' | 'reduces' | 'blocks' | 'depends_on';
+  weight: number;
+  evidence?: string;
+  fingerprint: string;
+  evidence_count?: number;
+  contradiction_count?: number;
+  last_observed_at?: string;
+}
+
+export interface SimulationRun extends PBRecord {
+  scenario: string;
+  assumptions: Record<string, unknown>;
+  predicted_outcomes: Array<Record<string, unknown>>;
+  confidence: number;
+}
+
+// ----------------------------------------------------------
 // PocketBase Collection: skill_drafts
 // ----------------------------------------------------------
 export interface SkillDraft extends PBRecord {

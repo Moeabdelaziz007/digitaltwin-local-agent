@@ -831,5 +831,50 @@
       { "id": "sd_7", "name": "backtest_result", "type": "json", "required": false, "options": {} }
     ],
     "listRule": "user_id = @request.auth.id", "viewRule": "user_id = @request.auth.id", "createRule": "user_id = @request.auth.id", "updateRule": "user_id = @request.auth.id", "deleteRule": "user_id = @request.auth.id"
+  },
+  {
+    "id": "causal_nodes",
+    "name": "causal_nodes",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "cn_1", "name": "user_id", "type": "relation", "required": true, "options": { "collectionId": "_pb_users_auth_", "maxSelect": 1, "cascadeDelete": true } },
+      { "id": "cn_2", "name": "label", "type": "text", "required": true, "options": { "max": 300 } },
+      { "id": "cn_3", "name": "normalized_label", "type": "text", "required": true, "options": { "max": 300 } },
+      { "id": "cn_4", "name": "node_type", "type": "select", "required": true, "options": { "values": ["event", "decision", "outcome", "context"] } }
+    ],
+    "listRule": "user_id = @request.auth.id", "viewRule": "user_id = @request.auth.id", "createRule": "user_id = @request.auth.id", "updateRule": "user_id = @request.auth.id", "deleteRule": "user_id = @request.auth.id"
+  },
+  {
+    "id": "causal_edges",
+    "name": "causal_edges",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "ce_1", "name": "user_id", "type": "relation", "required": true, "options": { "collectionId": "_pb_users_auth_", "maxSelect": 1, "cascadeDelete": true } },
+      { "id": "ce_2", "name": "source", "type": "relation", "required": true, "options": { "collectionId": "causal_nodes", "maxSelect": 1, "cascadeDelete": true } },
+      { "id": "ce_3", "name": "target", "type": "relation", "required": true, "options": { "collectionId": "causal_nodes", "maxSelect": 1, "cascadeDelete": true } },
+      { "id": "ce_4", "name": "relation_type", "type": "select", "required": true, "options": { "values": ["causes", "amplifies", "reduces", "blocks", "depends_on"] } },
+      { "id": "ce_5", "name": "weight", "type": "number", "required": false, "options": { "min": 0, "max": 1 } },
+      { "id": "ce_6", "name": "evidence", "type": "text", "required": false, "options": { "max": 2000 } },
+      { "id": "ce_7", "name": "fingerprint", "type": "text", "required": true, "options": { "max": 128 } },
+      { "id": "ce_8", "name": "evidence_count", "type": "number", "required": false, "options": { "min": 0 } },
+      { "id": "ce_9", "name": "contradiction_count", "type": "number", "required": false, "options": { "min": 0 } },
+      { "id": "ce_10", "name": "last_observed_at", "type": "date", "required": false, "options": {} }
+    ],
+    "listRule": "user_id = @request.auth.id", "viewRule": "user_id = @request.auth.id", "createRule": "user_id = @request.auth.id", "updateRule": "user_id = @request.auth.id", "deleteRule": "user_id = @request.auth.id"
+  },
+  {
+    "id": "sim_runs",
+    "name": "sim_runs",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "sr_1", "name": "scenario", "type": "text", "required": true, "options": { "max": 1000 } },
+      { "id": "sr_2", "name": "assumptions", "type": "json", "required": true, "options": {} },
+      { "id": "sr_3", "name": "predicted_outcomes", "type": "json", "required": true, "options": {} },
+      { "id": "sr_4", "name": "confidence", "type": "number", "required": true, "options": { "min": 0, "max": 1 } }
+    ],
+    "listRule": "", "viewRule": "", "createRule": null, "updateRule": null, "deleteRule": null
   }
 ]

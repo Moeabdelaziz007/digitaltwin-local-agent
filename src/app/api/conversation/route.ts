@@ -22,6 +22,8 @@ import { v4 as uuidv4 } from 'uuid';
 import type { ConversationRequest } from '@/types/twin';
 import crypto from 'crypto';
 import { env } from '@/lib/env';
+import { buildCausalSnippet, runRecommendationGuardian, shouldRunCounterfactual, simulateWhatIf } from '@/lib/memory/counterfactual';
+import { extractCausalTriples, isImportantTurn, persistCausalTriples } from '@/lib/memory/causal-extractor';
 
 const TURN_COLLECTION = 'conversation_turns';
 const COUNTER_COLLECTION = 'session_counters';
@@ -34,7 +36,7 @@ async function getOrCreateSessionCounter(pb: PocketBase, userId: string, session
   const filter = `user_id = "${userId}" && session_id = "${sessionId}"`;
   try {
     return await pb.collection(COUNTER_COLLECTION).getFirstListItem(filter);
-  } catch (error: any) {
+  } catch {
     console.log(`[CONV_API] Session counter not found, attempting creation for ${sessionId}`);
     try {
       return await pb.collection(COUNTER_COLLECTION).create({
@@ -325,17 +327,27 @@ export async function POST(request: NextRequest): Promise<Response> {
 
       // Build Memory Context (Ebbinghaus-aware)
       const systemPrompt = await buildMemoryContext(userId);
+      const shouldSimulate = shouldRunCounterfactual(message.trim());
+      const counterfactualResult = shouldSimulate
+        ? await simulateWhatIf({ userId, change: message.trim(), maxHops: 3 })
+        : null;
+      const causalSnippet = counterfactualResult ? buildCausalSnippet(counterfactualResult) : null;
 
       // Autonomous Tool Calling Cycle (Phase 3 Hardening: Hybrid Atomic/Streaming)
       // We run tools atomically to maintain context, but stream the FINAL response.
       const messages: OllamaMessage[] = [
         { role: 'system', content: systemPrompt },
+        ...(causalSnippet
+          ? [{
+              role: 'system' as const,
+              content: `${causalSnippet}\nUse cautious language and state uncertainty explicitly.`,
+            }]
+          : []),
         { role: 'user', content: message.trim() },
       ];
 
       let iterations = 0;
       const MAX_ITERATIONS = 3;
-      let _finalToolResponse: unknown = null;
 
       while (iterations < MAX_ITERATIONS) {
         const res = await fetch(`${env.OLLAMA_URL}/api/chat`, {
@@ -354,7 +366,6 @@ export async function POST(request: NextRequest): Promise<Response> {
         const responseMessage = data.message as OllamaMessage;
 
         if (!responseMessage.tool_calls || responseMessage.tool_calls.length === 0) {
-          _finalToolResponse = responseMessage;
           break;
         }
 
@@ -386,13 +397,14 @@ export async function POST(request: NextRequest): Promise<Response> {
 
             // POST-STREAM PERSISTENCE (Backgrounded)
             void (async () => {
-              try {
-                const twinMessageId = uuidv4();
-                await pb.collection('conversations').create({
+            try {
+              const twinMessageId = uuidv4();
+              const finalReply = runRecommendationGuardian(fullReply);
+              await pb.collection('conversations').create({
                   user_id: userId,
                   session_id: sessionId,
                   role: 'twin',
-                  content: fullReply,
+                  content: finalReply,
                   turn_index: turnIndex,
                   turn_id: turn.id,
                   message_id: twinMessageId,
@@ -400,10 +412,20 @@ export async function POST(request: NextRequest): Promise<Response> {
 
                 await pb.collection(TURN_COLLECTION).update(turn.id, {
                   status: 'completed',
-                  response_content: fullReply,
+                  response_content: finalReply,
                   user_message_id: userMessageRecord.id,
                   twin_message_id: twinMessageId,
                 });
+
+                if (isImportantTurn(message.trim())) {
+                  const triples = await extractCausalTriples({
+                    userMessage: message.trim(),
+                    assistantMessage: finalReply,
+                  });
+                  if (triples.length > 0) {
+                    await persistCausalTriples(pb, userId, triples);
+                  }
+                }
 
                 if (Math.floor(turnIndex / 2) % 5 === 0) {
                   triggerReflection(userId, sessionId).catch(() => {});
