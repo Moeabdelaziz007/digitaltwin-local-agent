@@ -199,7 +199,7 @@ export async function POST(request: NextRequest): Promise<Response> {
     const guardianAuth = request.headers.get('X-Guardian-Auth');
     const isGuardian = guardianAuth === env.CRON_SECRET; // Use CRON_SECRET as shared guardian secret
     
-    const userId = clerkUserId || (isGuardian ? 'guardian_test_01' : null);
+    const userId = clerkUserId || (isGuardian ? 'xfv321rhy53bmt3' : null);
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
