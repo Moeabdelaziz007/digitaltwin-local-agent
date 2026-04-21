@@ -1,4 +1,4 @@
-import { scoreCausalEdge } from '@/lib/memory/causal-scoring';
+import { scoreCausalEdge } from '@/lib/causal/scoring';
 import { getServerPB } from '@/lib/pb-server';
 
 interface SimInput {

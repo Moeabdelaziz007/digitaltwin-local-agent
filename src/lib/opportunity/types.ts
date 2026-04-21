@@ -1,5 +1,5 @@
 export interface OpportunityEvidence {
-  source: 'github' | 'market' | 'user';
+  source: 'user' | 'market' | 'github';
   summary: string;
   traceUrl?: string;
   confidence: number;
@@ -9,19 +9,19 @@ export interface OpportunityCard {
   id: string;
   problem_statement: string;
   target_user: string;
-  urgency_score: number;
-  implementation_effort: number;
-  estimated_value: number;
+  urgency_score: number; // 0-1
+  implementation_effort: number; // 1-10
+  estimated_value: number; // 1-10
   ROI_score: number;
   moat_hint: string;
   first_PoC_steps: string[];
   why_now: string;
   kill_criteria: string[];
-  dependency_risk: number;
-  legal_privacy_uncertainty: number;
-  data_confidence: number;
+  dependency_risk: number; // 0-1
+  legal_privacy_uncertainty: number; // 0-1
+  data_confidence: number; // 0-1
   evidence: OpportunityEvidence[];
-  fit_score: number;
+  fit_score: number; // 0 or 1
 }
 
 export interface ConnectorInput {

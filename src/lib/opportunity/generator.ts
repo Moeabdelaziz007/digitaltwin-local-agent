@@ -20,8 +20,12 @@ function buildPoCPlan(problem: string): string[] {
   ];
 }
 
+/**
+ * Orchestrates signal ingestion, candidate generation, and ranking.
+ */
 export async function generateDailyOpportunities(userId: string, input: ConnectorInput = {}): Promise<OpportunityCard[]> {
   const focus = input.userFocus ?? [];
+  
   const [githubSignal, marketSignals, userSignals] = await Promise.all([
     fetchGitHubSignals(input.githubRepo),
     fetchMarketSignals(input.trendKeywords),

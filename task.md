@@ -1,30 +1,29 @@
-# 📋 تتبع مهام مشروع Digital Mini Twin
+# 📋 قائمة مهام Venture Lab الذاتي التشغيل
 
-هذا الملف يتبع التقدم في مراحل بناء "التوأم الرقمي".
+هذا الملف يتبع التقدم في تحويل المشروع إلى محرك استثماري مستقل.
 
-## ✅ المراحل المكتملة
-- [x] **المرحلة 1**: إعداد المشروع (Next.js 15 + Tailwind 4).
-- [x] **المرحلة 2**: محرك Ollama + الذاكرة الهجينة.
-- [x] **المرحلة 3**: API المحادثات (Streaming + Tool calling).
-- [x] **المرحلة 4**: الأتمتة الإدراكية (Cron decay + Weekly snapshots).
-- [x] **خاص**: إزالة Sentry بالكامل وإصلاح أخطاء بناء Webpack.
-- [x] استقرار البناء (Build Stabilization):
-    - [x] توحيد إصدارات OpenTelemetry وتصحيح أنواع `memory-engine.ts`.
-    - [x] إصلاح صيغة الـ Middleware لتتوافق مع Clerk v5.
-    - [x] تحديث الـ Lockfile وتصفية تعارضات التبعيات.
-- [x] **مرحلة تطهير وتحصين الكود (Code Hardening Phase)**:
-    - [x] تحديث `src/types/twin.ts` بالأنواع المفقودة.
-    - [x] تطهير `memory-engine.ts` من `any`.
-    - [x] إصلاح الوعود العائمة وأنواع البيانات في `DashboardPage`.
-    - [x] معالجة رموز الاقتباس والأنواع في `WorkReport.tsx`.
-    - [x] إزالة المتغيرات غير المستخدمة في الـ API Routes.
+## ✅ المهام المكتملة
+- [x] **المرحلة 0**: إعادة صياغة الهوية والرؤية (Rebranding).
+    - [x] تحديث `README.md` بالهوية الجديدة.
+    - [x] وضع خطة التنفيذ المبدئية (`implementation_plan.md`).
+- [x] **تأسيس الأنواع**: دمج هياكل الـ Causal Graph والـ Profit Lab في `src/types/twin.ts`.
 
 ## 🔄 المهام الحالية (Active Tasks)
-- [ ] **المرحلة 6**: طبقة الصوت LiveKit (Voice Layer).
-    - [ ] إعداد API Token Endpoint (`/api/livekit`).
-    - [ ] تفعيل الاتصال الحقيقي في `VoiceBridge`.
-    - [ ] ربط الترددات الصوتية بحركة الـ `PresenceOrb`.
+- [ ] **المرحلة 3: وكلاء الربحية (Profit Agents)**
+    - [ ] تنفيذ `OpportunityScout` للبحث في (GitHub/X/DeFi).
+    - [ ] تنفيذ `ArbitrageAgent` مع محاكي الغاز والأرباح.
+    - [ ] إضافة منطق "Hidden Gems" (المراجحة بين الطبقات L2).
+- [ ] **المرحلة 4: لوحة تحكم الأرباح (Profit Dashboard)**
+    - [ ] بناء واجهة `ProfitDashboard` باستخدام Framer Motion.
+    - [ ] عرض "المخطط السببي للربح" (Causal Profit Graph).
 
-## ⏳ المهام المستقبلية (Future Roadmap)
-- [ ] **المرحلة 12**: تكامل البحث الخارجي (Web Search Skill).
-- [ ] **المرحلة 13**: تحسين نماذج الشخصيات (Cognitive Fine-tuning).
+## ⏳ المهام المستقبلية (Venture Roadmap)
+- [ ] **المرحلة 5: التنفيذ الآلي (Autonomous Execution)**
+    - [ ] تفعيل التنفيذ التلقائي للمشاريع المعتمدة.
+    - [ ] ربط محفظة مشفرة للتداول (في بيئة تجريبية أولاً).
+- [ ] **المرحلة 5: التنفيذ الآلي (Autonomous Execution)**
+    - [ ] تفعيل التنفيذ التلقائي للمشاريع المعتمدة من قبل "Consensus".
+
+## 📦 مهام مؤجلة (Legacy Tasks)
+- [ ] طبقة الصوت LiveKit (تؤجل لحين استقرار محرك الربحية).
+- [ ] مهارات البحث الويب العامة.

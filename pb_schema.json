@@ -1268,5 +1268,234 @@
     "createRule": "user_id = @request.headers.x_clerk_user_id",
     "updateRule": "user_id = @request.headers.x_clerk_user_id",
     "deleteRule": "user_id = @request.headers.x_clerk_user_id"
+  },
+  {
+    "id": "causal_nodes",
+    "name": "causal_nodes",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "cn_1",
+        "name": "user_id",
+        "type": "text",
+        "required": true,
+        "options": {}
+      },
+      {
+        "system": false,
+        "id": "cn_2",
+        "name": "label",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 300
+        }
+      },
+      {
+        "system": false,
+        "id": "cn_3",
+        "name": "normalized_label",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 300
+        }
+      },
+      {
+        "system": false,
+        "id": "cn_4",
+        "name": "node_type",
+        "type": "select",
+        "required": true,
+        "options": {
+          "values": [
+            "event",
+            "decision",
+            "outcome",
+            "context"
+          ]
+        }
+      }
+    ],
+    "listRule": "user_id = @request.headers.x_clerk_user_id",
+    "viewRule": "user_id = @request.headers.x_clerk_user_id",
+    "createRule": "user_id = @request.headers.x_clerk_user_id",
+    "updateRule": "user_id = @request.headers.x_clerk_user_id",
+    "deleteRule": "user_id = @request.headers.x_clerk_user_id"
+  },
+  {
+    "id": "causal_edges",
+    "name": "causal_edges",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "ce_1",
+        "name": "user_id",
+        "type": "text",
+        "required": true,
+        "options": {}
+      },
+      {
+        "system": false,
+        "id": "ce_2",
+        "name": "source",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "causal_nodes",
+          "cascadeDelete": true,
+          "maxSelect": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "ce_3",
+        "name": "target",
+        "type": "relation",
+        "required": true,
+        "options": {
+          "collectionId": "causal_nodes",
+          "cascadeDelete": true,
+          "maxSelect": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "ce_4",
+        "name": "relation_type",
+        "type": "select",
+        "required": true,
+        "options": {
+          "values": [
+            "causes",
+            "amplifies",
+            "reduces",
+            "blocks",
+            "depends_on"
+          ]
+        }
+      },
+      {
+        "system": false,
+        "id": "ce_5",
+        "name": "weight",
+        "type": "number",
+        "required": false,
+        "options": {
+          "min": 0,
+          "max": 1
+        }
+      },
+      {
+        "system": false,
+        "id": "ce_6",
+        "name": "evidence",
+        "type": "text",
+        "required": false,
+        "options": {
+          "max": 2000
+        }
+      },
+      {
+        "system": false,
+        "id": "ce_7",
+        "name": "fingerprint",
+        "type": "text",
+        "required": true,
+        "options": {
+          "max": 128
+        }
+      },
+      {
+        "system": false,
+        "id": "ce_8",
+        "name": "evidence_count",
+        "type": "number",
+        "required": false,
+        "options": {
+          "min": 0
+        }
+      },
+      {
+        "system": false,
+        "id": "ce_9",
+        "name": "contradiction_count",
+        "type": "number",
+        "required": false,
+        "options": {
+          "min": 0
+        }
+      },
+      {
+        "system": false,
+        "id": "ce_10",
+        "name": "last_observed_at",
+        "type": "date",
+        "required": false,
+        "options": {}
+      }
+    ],
+    "listRule": "user_id = @request.headers.x_clerk_user_id",
+    "viewRule": "user_id = @request.headers.x_clerk_user_id",
+    "createRule": "user_id = @request.headers.x_clerk_user_id",
+    "updateRule": "user_id = @request.headers.x_clerk_user_id",
+    "deleteRule": "user_id = @request.headers.x_clerk_user_id"
+  },
+  {
+    "id": "consensus_logs",
+    "name": "consensus_logs",
+    "type": "base",
+    "system": false,
+    "schema": [
+      {
+        "system": false,
+        "id": "cl_1",
+        "name": "user_id",
+        "type": "text",
+        "required": true,
+        "options": {}
+      },
+      {
+        "system": false,
+        "id": "cl_2",
+        "name": "session_id",
+        "type": "text",
+        "required": false,
+        "options": {}
+      },
+      {
+        "system": false,
+        "id": "cl_3",
+        "name": "user_message",
+        "type": "text",
+        "required": true,
+        "options": {}
+      },
+      {
+        "system": false,
+        "id": "cl_4",
+        "name": "final_verdict",
+        "type": "json",
+        "required": true,
+        "options": {}
+      },
+      {
+        "system": false,
+        "id": "cl_5",
+        "name": "latency_ms",
+        "type": "number",
+        "required": false,
+        "options": {}
+      }
+    ],
+    "listRule": "user_id = @request.headers.x_clerk_user_id",
+    "viewRule": "user_id = @request.headers.x_clerk_user_id",
+    "createRule": "user_id = @request.headers.x_clerk_user_id",
+    "updateRule": "user_id = @request.headers.x_clerk_user_id",
+    "deleteRule": "user_id = @request.headers.x_clerk_user_id"
   }
 ]
