@@ -19,9 +19,10 @@ import { obs } from '@/lib/observability/observability-service';
 import { safeFetch } from '@/lib/safe-fetch';
 import { getServerPB } from '@/lib/pb-server';
 import { v4 as uuidv4 } from 'uuid';
-import type { ConversationRequest } from '@/types/twin';
+import type { ConsensusVerdict, ConversationRequest } from '@/types/twin';
 import crypto from 'crypto';
 import { env } from '@/lib/env';
+import { runConsensus } from '@/lib/consensus/orchestrator';
 
 const TURN_COLLECTION = 'conversation_turns';
 const COUNTER_COLLECTION = 'session_counters';
@@ -34,7 +35,7 @@ async function getOrCreateSessionCounter(pb: PocketBase, userId: string, session
   const filter = `user_id = "${userId}" && session_id = "${sessionId}"`;
   try {
     return await pb.collection(COUNTER_COLLECTION).getFirstListItem(filter);
-  } catch (error: any) {
+  } catch {
     console.log(`[CONV_API] Session counter not found, attempting creation for ${sessionId}`);
     try {
       return await pb.collection(COUNTER_COLLECTION).create({
@@ -335,8 +336,6 @@ export async function POST(request: NextRequest): Promise<Response> {
 
       let iterations = 0;
       const MAX_ITERATIONS = 3;
-      let _finalToolResponse: unknown = null;
-
       while (iterations < MAX_ITERATIONS) {
         const res = await fetch(`${env.OLLAMA_URL}/api/chat`, {
           method: 'POST',
@@ -354,7 +353,6 @@ export async function POST(request: NextRequest): Promise<Response> {
         const responseMessage = data.message as OllamaMessage;
 
         if (!responseMessage.tool_calls || responseMessage.tool_calls.length === 0) {
-          _finalToolResponse = responseMessage;
           break;
         }
 
@@ -370,18 +368,22 @@ export async function POST(request: NextRequest): Promise<Response> {
         iterations++;
       }
 
+      const consensus: ConsensusVerdict = await runConsensus({
+        userMessage: message.trim(),
+        memoryContext: systemPrompt,
+        sessionId,
+        turnIndex,
+        traceId: span.spanContext().traceId,
+      });
+
       // ── PHASE 3 STREAMING EXECUTION ──
       const encoder = new TextEncoder();
       const stream = new ReadableStream({
         async start(controller) {
-          let fullReply = "";
+          let fullReply = '';
           try {
-            // Check if we have any tool thoughts before the stream (usually finalToolResponse has the content)
-            // But we want to stream the ACTUAL generation of the final message
-            for await (const token of streamOllama(message.trim(), messages)) {
-              fullReply += token;
-              controller.enqueue(encoder.encode(token));
-            }
+            fullReply = consensus.final_answer;
+            controller.enqueue(encoder.encode(fullReply));
             controller.close();
 
             // POST-STREAM PERSISTENCE (Backgrounded)
@@ -403,6 +405,7 @@ export async function POST(request: NextRequest): Promise<Response> {
                   response_content: fullReply,
                   user_message_id: userMessageRecord.id,
                   twin_message_id: twinMessageId,
+                  consensus_meta: consensus,
                 });
 
                 if (Math.floor(turnIndex / 2) % 5 === 0) {

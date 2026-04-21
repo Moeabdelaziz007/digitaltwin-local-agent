@@ -4,6 +4,8 @@ type TwinState = "idle" | "listening" | "thinking" | "speaking" | "learning";
 
 interface ThinkingStatePanelProps {
   activeState: TwinState;
+  consensusRisk?: 'low' | 'med' | 'high';
+  consensusConfidence?: number;
 }
 
 const PIPELINE_STEPS: {
@@ -11,17 +13,29 @@ const PIPELINE_STEPS: {
   activeWhen: TwinState;
   colorVar: string;
 }[] = [
-  { label: "Heard", activeWhen: "listening", colorVar: "state-listening" },
-  { label: "Recall", activeWhen: "thinking", colorVar: "state-thinking" },
-  { label: "Compose", activeWhen: "speaking", colorVar: "state-speaking" },
-  { label: "Learn", activeWhen: "learning", colorVar: "state-learning" },
+  { label: "Planner", activeWhen: "thinking", colorVar: "state-thinking" },
+  { label: "Critic", activeWhen: "speaking", colorVar: "state-speaking" },
+  { label: "Guardian", activeWhen: "learning", colorVar: "state-learning" },
 ];
 
-export default function ThinkingStatePanel({ activeState }: ThinkingStatePanelProps) {
+export default function ThinkingStatePanel({
+  activeState,
+  consensusRisk = 'med',
+  consensusConfidence,
+}: ThinkingStatePanelProps) {
   return (
     <div>
       <div className="text-xs font-mono text-primitive-text-muted uppercase tracking-widest mb-4">
-        Pipeline State
+        Consensus Timeline
+      </div>
+
+      <div className="flex items-center gap-2 mb-4">
+        <span className="text-[10px] px-2 py-1 rounded-full border border-border-subtle uppercase font-mono text-primitive-text-muted">
+          risk: {consensusRisk}
+        </span>
+        <span className="text-[10px] px-2 py-1 rounded-full border border-border-subtle uppercase font-mono text-primitive-text-muted">
+          confidence: {Math.round((consensusConfidence ?? 0.5) * 100)}%
+        </span>
       </div>
 
       <div className="space-y-3 font-mono text-xs text-primitive-text-muted">
