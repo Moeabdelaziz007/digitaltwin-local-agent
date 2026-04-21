@@ -3,9 +3,15 @@ import { getServerPB } from "@/lib/pb-server";
 import { promises as fs } from "fs";
 import path from "path";
 import { skillRegistry } from "@/lib/skills/registry";
+import { auth } from "@clerk/nextjs/server";
 
 export async function POST(req: NextRequest) {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { draftId } = await req.json();
     if (!draftId) {
       return NextResponse.json({ error: "Missing draftId" }, { status: 400 });

@@ -24,6 +24,7 @@
     "@livekit/components-styles": "^1.0.12",
     "@opentelemetry/api": "^1.9.0",
     "@opentelemetry/api-logs": "^0.55.0",
+    "@opentelemetry/core": "^1.30.0",
     "@opentelemetry/resources": "^1.30.0",
     "@opentelemetry/sdk-logs": "^0.55.0",
     "@opentelemetry/sdk-node": "^0.55.0",
@@ -55,10 +56,14 @@
     "tailwindcss": "4.0.0-beta.8",
     "typescript": "^5"
   },
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "packageManager": "pnpm@10.23.0+sha512.21c4e5698002ade97e4efe8b8b4a89a8de3c85a37919f957e7a0f30f38fbc5bbdd05980ffe29179b2fb6e6e691242e098d945d1601772cad0fef5fb6411e2a4b",
   "pnpm": {
     "overrides": {
       "@opentelemetry/api": "1.9.0",
+      "@opentelemetry/core": "1.30.0",
       "@opentelemetry/sdk-trace-base": "1.30.0",
       "@opentelemetry/resources": "1.30.0",
       "@opentelemetry/semantic-conventions": "1.30.0"
