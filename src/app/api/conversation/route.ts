@@ -16,6 +16,7 @@ import {
 import { callOllamaWithTools, streamOllama } from '@/lib/ollama-client';
 import { obs } from '@/lib/observability/observability-service';
 import { safeFetch } from '@/lib/safe-fetch';
+import { getServerPB } from '@/lib/pb-server';
 import { v4 as uuidv4 } from 'uuid';
 import type { ConversationRequest } from '@/types/twin';
 import crypto from 'crypto';
@@ -26,14 +27,7 @@ const COUNTER_COLLECTION = 'session_counters';
 
 // SIDECAR_URL is resolved inside triggerReflection() to avoid stale module-level state
 
-/**
- * Server-side PocketBase client (data layer only, no auth forwarding)
- */
-function getServerPB(): PocketBase {
-  const pb = new PocketBase(env.POCKETBASE_URL);
-  pb.autoCancellation(false);
-  return pb;
-}
+// SIDECAR_URL is resolved inside triggerReflection() to avoid stale module-level state
 
 async function getOrCreateSessionCounter(pb: PocketBase, userId: string, sessionId: string) {
   const filter = `user_id = "${userId}" && session_id = "${sessionId}"`;

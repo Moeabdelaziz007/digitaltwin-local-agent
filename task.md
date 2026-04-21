@@ -25,3 +25,10 @@
 - [ ] **المرحلة 7**: لوحة تجكم واجهة المستخدم (Dashboard UI).
 - [ ] **المرحلة 8**: تدفق التهيئة للمستخدمين الجدد (Onboarding Flow).
 - [ ] **المرحلة 9**: خريطة الذاكرة البصرية (Visual Memory Map / Canvas).
+    - [/] ربط المكون بنظام Clerk Auth وجلب البيانات الصحيحة.
+    - [ ] تحسين التصميم البصري للعقد والأسهم.
+
+- [ ] **المرحلة 11**: تحصين الخلفية البرمجية (Backend Hardening).
+    - [ ] إضافة Timeouts و AbortController لعميل Ollama.
+    - [ ] تحسين أداء `buildMemoryContext` عبر الجلب المتوازي (Parallel Fetching).
+    - [ ] توحيد الوصول لـ PocketBase باستخدام نمط Singleton.

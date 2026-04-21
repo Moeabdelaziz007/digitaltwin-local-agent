@@ -50,16 +50,20 @@ export async function callOllama(
     const chatMessages: OllamaMessage[] = messages || [{ role: 'user', content: prompt }];
     const inputChars = chatMessages.reduce((sum, m) => sum + (m.content?.length || 0), 0);
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
     const res = await fetch(`${OLLAMA_URL}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
       body: JSON.stringify({
         model: OLLAMA_MODEL,
         messages: chatMessages,
         stream: false,
         options: { temperature: 0.7 },
       }),
-    });
+    }).finally(() => clearTimeout(timeout));
 
     if (!res.ok) {
       const err = await res.text();
@@ -119,9 +123,13 @@ export async function* streamOllama(
   });
 
   try {
+    const controller = new AbortController();
+    // No strict timeout for streams as they can be long-running, but we could add one for the initial connection
+    
     const res = await fetch(`${OLLAMA_URL}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
       body: JSON.stringify({
         model: OLLAMA_MODEL,
         messages: chatMessages,
@@ -208,16 +216,20 @@ export async function callOllamaWithTools(
   const MAX_ITERATIONS = 3;
 
   while (iterations < MAX_ITERATIONS) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 60000); // 60s for tool-calling iteration
+
     const res = await fetch(`${OLLAMA_URL}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
       body: JSON.stringify({
         model: OLLAMA_MODEL,
         messages,
         tools,
         stream: false,
       }),
-    });
+    }).finally(() => clearTimeout(timeout));
 
     if (!res.ok) throw new Error('Ollama Tool Call API failed');
     const data = await res.json();
@@ -256,14 +268,18 @@ export async function callOllamaWithTools(
  */
 export async function fetchEmbedding(prompt: string): Promise<number[] | null> {
   try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000); // 5s for embeddings
+
     const res = await fetch(`${OLLAMA_URL}/api/embeddings`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
       body: JSON.stringify({
         model: EMBEDDING_MODEL,
         prompt: prompt,
       }),
-    });
+    }).finally(() => clearTimeout(timeout));
 
     if (!res.ok) return null;
     const data = await res.json();
