@@ -1,6 +1,5 @@
 import { 
   trace, 
-  context, 
   Span, 
   SpanStatusCode, 
   SpanKind,

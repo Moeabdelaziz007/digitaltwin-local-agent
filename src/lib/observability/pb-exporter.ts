@@ -120,7 +120,7 @@ export class PocketBaseSpanExporter implements SpanExporter {
 
     try {
       await this.pb.collection(this.collectionName).create(record);
-    } catch (error) {
+    } catch {
       // Silently fail to avoid crashing the main app execution
     }
   }

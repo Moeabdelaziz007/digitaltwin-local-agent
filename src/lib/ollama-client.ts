@@ -170,7 +170,7 @@ export async function* streamOllama(
               });
               return;
             }
-          } catch (_e) {
+          } catch {
             // Partial JSON line
           }
         }
