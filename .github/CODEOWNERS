@@ -1,0 +1,6 @@
+# Architecture approval required for infrastructure-sensitive files
+/package.json @architecture-team
+/.github/workflows/* @architecture-team
+/.env.example @architecture-team
+/src/lib/env.ts @architecture-team
+/pb_schema.json @architecture-team

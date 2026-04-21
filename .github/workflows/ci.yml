@@ -7,6 +7,112 @@ on:
       - main
 
 jobs:
+  pr-guardrails:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Enforce infra and docs change policy
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const perPage = 100;
+            const files = [];
+            for (let page = 1; ; page += 1) {
+              const response = await github.rest.pulls.listFiles({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                per_page: perPage,
+                page,
+              });
+              files.push(...response.data);
+              if (response.data.length < perPage) break;
+            }
+
+            const infraPaths = [
+              'package.json',
+              '.github/workflows/',
+              '.env.example',
+              'src/lib/env.ts',
+              'pb_schema.json',
+            ];
+
+            const changedNames = files.map((f) => f.filename);
+            const touchedInfra = changedNames.filter((name) =>
+              name === 'package.json' || name.startsWith('.github/workflows/')
+            );
+
+            const infraOnly = changedNames.length > 0 && changedNames.every((name) =>
+              infraPaths.some((infraPath) =>
+                infraPath.endsWith('/') ? name.startsWith(infraPath) : name === infraPath
+              )
+            );
+
+            const title = (pr.title || '').toLowerCase();
+            const body = (pr.body || '').toLowerCase();
+            const labels = (pr.labels || []).map((label) => label.name.toLowerCase());
+            const isInfraPR = infraOnly || labels.includes('infra') || title.startsWith('infra:') || body.includes('[infra]');
+
+            if (touchedInfra.length > 0 && !isInfraPR) {
+              core.setFailed([
+                'This PR changes infrastructure-sensitive files but is not marked as an infra PR.',
+                'Mark it with label `infra`, title prefix `infra:`, or keep changes infra-only.',
+                `Touched files: ${touchedInfra.join(', ')}`,
+              ].join('\n'));
+            }
+
+            const forbiddenDeletions = files
+              .filter((f) => f.status === 'removed' && (f.filename === 'task.md' || f.filename === 'walkthrough.md'))
+              .map((f) => f.filename);
+
+            if (forbiddenDeletions.length > 0) {
+              core.setFailed(`Deleting protected documentation files is not allowed: ${forbiddenDeletions.join(', ')}`);
+            }
+
+      - name: Check branch-base recency
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          git fetch origin "$BASE_REF"
+          MERGE_BASE=$(git merge-base "origin/$BASE_REF" "$HEAD_SHA")
+          BASE_HEAD=$(git rev-parse "origin/$BASE_REF")
+
+          MERGE_BASE_TS=$(git show -s --format=%ct "$MERGE_BASE")
+          BASE_HEAD_TS=$(git show -s --format=%ct "$BASE_HEAD")
+          NOW_TS=$(date +%s)
+
+          DIVERGENCE_DAYS=$(( (BASE_HEAD_TS - MERGE_BASE_TS) / 86400 ))
+          STALE_DAYS=$(( (NOW_TS - MERGE_BASE_TS) / 86400 ))
+
+          if [ "$MERGE_BASE" != "$BASE_HEAD" ] && [ "$DIVERGENCE_DAYS" -ge 7 ]; then
+            echo "::warning::Branch base is stale: merge-base is ${STALE_DAYS} days old and base advanced by ${DIVERGENCE_DAYS} days. Consider rebasing.";
+          else
+            echo "Branch base recency check passed: no significant staleness detected.";
+          fi
+
+      - name: Diff size guardrail
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          MAX_DIFF_LINES: 800
+        run: |
+          git fetch origin "$BASE_SHA" "$HEAD_SHA"
+          ADDED=$(git diff --numstat "$BASE_SHA" "$HEAD_SHA" | awk '{a+=$1} END {print a+0}')
+          REMOVED=$(git diff --numstat "$BASE_SHA" "$HEAD_SHA" | awk '{d+=$2} END {print d+0}')
+          TOTAL=$((ADDED + REMOVED))
+          echo "Diff size: +${ADDED} / -${REMOVED} (total ${TOTAL} lines changed)."
+
+          if [ "$TOTAL" -gt "$MAX_DIFF_LINES" ]; then
+            echo "::warning::Strict diff-size warning: ${TOTAL} changed lines exceeds limit ${MAX_DIFF_LINES}. Split the PR if possible.";
+          fi
+
   validate:
     runs-on: ubuntu-latest
     env:
