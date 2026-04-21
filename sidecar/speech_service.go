@@ -26,13 +26,15 @@ type NativeSpeechService struct {
 }
 
 func (s *NativeSpeechService) Transcribe(ctx context.Context, audio []byte) (string, error) {
-	// Call existing processAudioReal logic
-	log.Println("[Native Speech] Running real Whisper inference...")
-	return "Transcribed text (Native)", nil
+	// Task 4 Hardening: Wire to real voice bridge logic
+	log.Println("[Native Speech] Invoking real audio processing pipeline...")
+	processAudioReal("system", "default_session", audio)
+	return "Transcribed (Check logs for JobRelay)", nil
 }
 
 func (s *NativeSpeechService) Synthesize(ctx context.Context, text string) ([]byte, error) {
-	log.Println("[Native Speech] Generating voice synth...")
+	// TODO: wire to piper/local TTS
+	log.Println("[Native Speech] Generating voice synth (TODO: Integration Pending)...")
 	return []byte("synthetic-audio-stream"), nil
 }
 
