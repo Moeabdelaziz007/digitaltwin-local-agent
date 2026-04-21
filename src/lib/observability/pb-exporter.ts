@@ -109,18 +109,39 @@ export class PocketBaseSpanExporter implements SpanExporter {
       user_id_hash: userIdHash,
       request_type: requestType,
       component: component,
-      attributes_json: attributes,
+      attributes_json: this.redactAttributes(attributes),
       events_json: span.events,
       links_json: span.links,
-      redaction_level: 1, // Phase 1 default
+      redaction_level: 1, // Phase 4 active
     };
 
     try {
       await this.pb.collection(this.collectionName).create(record);
     } catch (error) {
       // Silently fail to avoid crashing the main app execution
-      // In production, we'd log this to a internal health check
     }
+  }
+
+  /**
+   * PII Redaction logic for span attributes.
+   * Ensures raw text, keys, and tokens are never persisted in plain text.
+   */
+  private redactAttributes(attributes: any): any {
+    const redacted = { ...attributes };
+    const piiKeys = ['prompt', 'content', 'fact', 'response', 'secret', 'key', 'token', 'authorization'];
+    
+    for (const key of Object.keys(redacted)) {
+      const lowerKey = key.toLowerCase();
+      if (piiKeys.some(pii => lowerKey.includes(pii))) {
+        const val = redacted[key];
+        if (typeof val === 'string' && val.length > 50) {
+          redacted[key] = `[REDACTED: ${val.length} chars]`;
+        } else {
+          redacted[key] = '[REDACTED]';
+        }
+      }
+    }
+    return redacted;
   }
 
   /**

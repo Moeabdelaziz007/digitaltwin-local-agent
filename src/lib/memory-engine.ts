@@ -9,8 +9,9 @@ import type { UserProfile, ConversationMessage, ProfileSnapshot, Fact } from '@/
 import { OllamaTool, callOllama, fetchEmbedding } from '@/lib/ollama-client';
 import { env } from '@/lib/env';
 import { obs } from '@/lib/observability/observability-service';
-
+import { getServerPB } from '@/lib/pb-server';
 import { config } from '@/lib/observability/config-service';
+import { fetchEmbedding, cosineSimilarity } from './ollama-client';
 
 // Fallback defaults if config service fails
 const DEFAULT_SIMILARITY_THRESHOLD = 0.88;
@@ -292,6 +293,7 @@ export async function executeSaveMemory(userId: string, fact: string, category: 
  *
  * Design: Live Ebbinghaus filtering + context ranking.
  */
+export async function buildMemoryContext(userId: string): Promise<string> {
   return await obs.trace('memory_build_context', {
     attributes: { 'user_id_hash': userId }
   }, async (span) => {
