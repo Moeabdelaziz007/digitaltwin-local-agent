@@ -1,0 +1,27 @@
+[
+  {
+    "id": "mem_001",
+    "topic": "user_coffee_preference",
+    "input": "I like my coffee black with no sugar.",
+    "expected_category": "preference",
+    "expected_fact": "likes coffee black, no sugar",
+    "type": "retrieval_test"
+  },
+  {
+    "id": "mem_002",
+    "topic": "user_work_location",
+    "input": "I work from a small office in Berlin.",
+    "expected_category": "work",
+    "expected_fact": "works in Berlin",
+    "type": "save_test"
+  },
+  {
+    "id": "mem_003",
+    "topic": "user_pet_name",
+    "input": "My cat's name is Luna.",
+    "expected_category": "personal",
+    "expected_fact": "cat is named Luna",
+    "type": "conflict_test",
+    "conflict_input": "My cat's name is Bella."
+  }
+]

@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import pb from "@/lib/pocketbase-client";
 import type { UserProfile } from "@/types/twin";
-import { Send, Brain, Shield, Info, Database } from "lucide-react";
+import { Send, Brain, Shield, Info, Database, ThumbsUp, ThumbsDown, X } from "lucide-react";
 import { VoiceBridge } from "@/components/VoiceBridge";
 import { ParticleNetwork } from "@/components/ParticleNetwork";
 import { LearningProgress } from "@/components/LearningProgress";
@@ -56,6 +56,8 @@ export default function DashboardPage() {
   const [toastFact, setToastFact] = useState('');
   const [_toastVisible, setToastVisible] = useState(false);
   const [voiceState, setVoiceState] = useState('disconnected');
+  const [feedbackMessage, setFeedbackMessage] = useState<{ index: number; traceId: string } | null>(null);
+  const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -88,6 +90,7 @@ export default function DashboardPage() {
     const userMsg = inputValue.trim();
     setInputValue('');
     setMessages(prev => [...prev, { role: 'user', content: userMsg }]);
+    setFeedbackMessage(null); // Clear any open feedback
     setIsLoading(true);
 
     try {
@@ -111,7 +114,7 @@ export default function DashboardPage() {
       const interval = setInterval(() => {
         setMessages(prev => {
           const newHistory = prev.slice(0, -1);
-          return [...newHistory, { role: 'twin', content: twinReply.slice(0, currentIdx + 1) }];
+          return [...newHistory, { role: 'twin', content: twinReply.slice(0, currentIdx + 1), traceId: data.traceId }];
         });
         currentIdx++;
         if (currentIdx >= twinReply.length) {
@@ -131,6 +134,32 @@ export default function DashboardPage() {
     } catch (_err) {
       setMessages(prev => [...prev, { role: 'twin', content: "SYSTEM ERROR: DATA STREAM INTERRUPTED." }]);
       setIsLoading(false);
+    }
+  };
+
+  const submitFeedback = async (rating: number, tags: string[] = []) => {
+    if (!feedbackMessage || isSubmittingFeedback) return;
+    setIsSubmittingFeedback(true);
+    try {
+      await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          traceId: feedbackMessage.traceId,
+          rating,
+          tags,
+          userId: user?.id,
+          metadata: {
+             timestamp: new Date().toISOString(),
+             url: window.location.href
+          }
+        })
+      });
+      setFeedbackMessage(null);
+    } catch (err) {
+      console.error('Feedback error:', err);
+    } finally {
+      setIsSubmittingFeedback(false);
     }
   };
 
@@ -201,7 +230,7 @@ export default function DashboardPage() {
                 key={i}
                 initial={{ opacity: 0, x: m.role === 'user' ? 20 : -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex group ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div className={`max-w-[85%] md:max-w-[70%] ${m.role === 'user' ? 'order-1' : 'order-2'}`}>
                   <div className={`p-4 rounded-xl text-sm leading-relaxed ${
@@ -217,6 +246,48 @@ export default function DashboardPage() {
                   <p className={`text-[10px] font-display mt-2 opacity-30 uppercase tracking-widest ${m.role === 'user' ? 'text-right' : 'text-left'}`}>
                     {m.role === 'user' ? 'Authored By User' : 'Generated Instance'}
                   </p>
+                  
+                  {m.role === 'twin' && (m as any).traceId && (
+                    <div className="flex items-center gap-3 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                       <button 
+                         onClick={() => { setFeedbackMessage({ index: i, traceId: (m as any).traceId }); submitFeedback(1); }}
+                         className="p-1 hover:text-cyan transition-colors"
+                       >
+                         <ThumbsUp size={12} />
+                       </button>
+                       <button 
+                         onClick={() => setFeedbackMessage({ index: i, traceId: (m as any).traceId })}
+                         className="p-1 hover:text-red-400 transition-colors"
+                       >
+                         <ThumbsDown size={12} />
+                       </button>
+                    </div>
+                  )}
+
+                  {feedbackMessage?.index === i && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-4 p-4 glass border border-white/10 rounded-xl max-w-xs"
+                    >
+                      <div className="flex justify-between items-center mb-3">
+                        <span className="text-[10px] uppercase tracking-widest text-cyan">Quality Feedback</span>
+                        <button onClick={() => setFeedbackMessage(null)}><X size={12} /></button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 mb-4">
+                        {['wrong_memory', 'bad_tool', 'too_verbose', 'missed_context'].map(tag => (
+                          <button 
+                            key={tag}
+                            onClick={() => submitFeedback(-1, [tag])}
+                            className="text-[9px] py-1 px-2 border border-white/5 bg-white/5 hover:bg-cyan/10 hover:border-cyan/30 transition-all rounded uppercase"
+                          >
+                            {tag.replace('_', ' ')}
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-[8px] text-text-muted italic">Selecting a reason helps your twin learn faster.</p>
+                    </motion.div>
+                  )}
                 </div>
               </motion.div>
             ))}

@@ -707,5 +707,82 @@
     "createRule": "",
     "updateRule": null,
     "deleteRule": null
+  },
+  {
+    "id": "app_config",
+    "name": "app_config",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "ac_1", "name": "key", "type": "text", "required": true, "options": { "min": 1, "max": 100 } },
+      { "id": "ac_2", "name": "value", "type": "json", "required": true, "options": {} },
+      { "id": "ac_3", "name": "version", "type": "number", "required": true, "options": { "min": 1 } },
+      { "id": "ac_4", "name": "is_active", "type": "bool", "required": false, "options": {} },
+      { "id": "ac_5", "name": "category", "type": "select", "required": true, "options": { "values": ["retrieval", "prompt", "routing", "general"] } }
+    ],
+    "listRule": "", "viewRule": "", "createRule": null, "updateRule": null, "deleteRule": null
+  },
+  {
+    "id": "feedback",
+    "name": "feedback",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "fb_1", "name": "user_id", "type": "text", "required": true, "options": {} },
+      { "id": "fb_2", "name": "trace_id", "type": "text", "required": true, "options": {} },
+      { "id": "fb_3", "name": "response_id", "type": "text", "required": false, "options": {} },
+      { "id": "fb_4", "name": "rating", "type": "number", "required": true, "options": { "min": -1, "max": 1 } },
+      { "id": "fb_5", "name": "tags", "type": "json", "required": false, "options": {} },
+      { "id": "fb_6", "name": "comment", "type": "text", "required": false, "options": { "max": 2000 } },
+      { "id": "fb_7", "name": "metadata", "type": "json", "required": false, "options": {} }
+    ],
+    "listRule": "user_id = @request.auth.id", "viewRule": "user_id = @request.auth.id", "createRule": "user_id = @request.auth.id", "updateRule": null, "deleteRule": null
+  },
+  {
+    "id": "improvement_proposals",
+    "name": "improvement_proposals",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "ip_1", "name": "subsystem", "type": "text", "required": true, "options": {} },
+      { "id": "ip_2", "name": "proposal_type", "type": "text", "required": true, "options": {} },
+      { "id": "ip_3", "name": "hypothesis", "type": "text", "required": true, "options": {} },
+      { "id": "ip_4", "name": "proposed_change", "type": "json", "required": true, "options": {} },
+      { "id": "ip_5", "name": "status", "type": "select", "required": true, "options": { "values": ["draft", "evaluating", "pending_approval", "approved", "rejected", "applied", "rolled_back"] } },
+      { "id": "ip_6", "name": "eval_metrics_before", "type": "json", "required": false, "options": {} },
+      { "id": "ip_7", "name": "eval_metrics_after", "type": "json", "required": false, "options": {} },
+      { "id": "ip_8", "name": "rollback_id", "type": "text", "required": false, "options": {} }
+    ],
+    "listRule": "", "viewRule": "", "createRule": null, "updateRule": null, "deleteRule": null
+  },
+  {
+    "id": "audit_log",
+    "name": "audit_log",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "al_1", "name": "proposal_id", "type": "relation", "required": true, "options": { "collectionId": "improvement_proposals", "maxSelect": 1 } },
+      { "id": "al_2", "name": "actor", "type": "text", "required": true, "options": {} },
+      { "id": "al_3", "name": "action", "type": "select", "required": true, "options": { "values": ["approve", "reject", "rollback"] } },
+      { "id": "al_4", "name": "reason", "type": "text", "required": true, "options": {} },
+      { "id": "al_5", "name": "before_config", "type": "json", "required": false, "options": {} },
+      { "id": "al_6", "name": "after_config", "type": "json", "required": false, "options": {} }
+    ],
+    "listRule": "", "viewRule": "", "createRule": null, "updateRule": null, "deleteRule": null
+  },
+  {
+    "id": "eval_runs",
+    "name": "eval_runs",
+    "type": "base",
+    "system": false,
+    "schema": [
+      { "id": "er_1", "name": "proposal_id", "type": "relation", "required": false, "options": { "collectionId": "improvement_proposals", "maxSelect": 1 } },
+      { "id": "er_2", "name": "run_date", "type": "date", "required": true, "options": {} },
+      { "id": "er_3", "name": "dataset_version", "type": "text", "required": true, "options": {} },
+      { "id": "er_4", "name": "results", "type": "json", "required": true, "options": {} },
+      { "id": "er_5", "name": "metrics_summary", "type": "json", "required": true, "options": {} },
+      { "id": "er_6", "name": "status", "type": "select", "required": true, "options": { "values": ["success", "regression", "failure"] } }
+    ],
+    "listRule": "", "viewRule": "", "createRule": null, "updateRule": null, "deleteRule": null
   }
 ]
