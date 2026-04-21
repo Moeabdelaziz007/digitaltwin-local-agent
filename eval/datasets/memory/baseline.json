@@ -1,27 +1,53 @@
-[
-  {
-    "id": "mem_001",
-    "topic": "user_coffee_preference",
-    "input": "I like my coffee black with no sugar.",
-    "expected_category": "preference",
-    "expected_fact": "likes coffee black, no sugar",
-    "type": "retrieval_test"
-  },
-  {
-    "id": "mem_002",
-    "topic": "user_work_location",
-    "input": "I work from a small office in Berlin.",
-    "expected_category": "work",
-    "expected_fact": "works in Berlin",
-    "type": "save_test"
-  },
-  {
-    "id": "mem_003",
-    "topic": "user_pet_name",
-    "input": "My cat's name is Luna.",
-    "expected_category": "personal",
-    "expected_fact": "cat is named Luna",
-    "type": "conflict_test",
-    "conflict_input": "My cat's name is Bella."
-  }
-]
+{
+  "dataset_version": "memory-baseline-v2",
+  "source": "eval/datasets/memory/baseline.json",
+  "cases": [
+    {
+      "id": "mem_001",
+      "topic": "user_coffee_preference",
+      "input": "I like my coffee black with no sugar.",
+      "expected_category": "preference",
+      "expected_fact": "likes coffee black, no sugar",
+      "type": "retrieval_test"
+    },
+    {
+      "id": "mem_002",
+      "topic": "user_work_location",
+      "input": "I work from a small office in Berlin.",
+      "expected_category": "biographical",
+      "expected_fact": "works in Berlin",
+      "type": "save_test"
+    },
+    {
+      "id": "mem_003",
+      "topic": "user_pet_name",
+      "input": "My cat's name is Luna.",
+      "expected_category": "biographical",
+      "expected_fact": "cat is named Luna",
+      "type": "conflict_test",
+      "setup_existing_fact": "My cat's name is Bella.",
+      "conflict_input": "My cat's name is Luna.",
+      "expected_path": "conflicted"
+    },
+    {
+      "id": "mem_004",
+      "topic": "morning_routine",
+      "input": "I go for a 20-minute walk every morning.",
+      "expected_category": "habit",
+      "expected_fact": "goes for a 20 minute walk every morning",
+      "type": "reinforcement_test",
+      "repeat_input": "I still go for a 20-minute walk every morning.",
+      "expected_path": "reinforced"
+    },
+    {
+      "id": "mem_005",
+      "topic": "old_phone_number",
+      "input": "My old phone number ended with 2049.",
+      "expected_category": "biographical",
+      "expected_fact": "old phone number ended with 2049",
+      "type": "archive_path_test",
+      "setup_status": "archived",
+      "expected_path": "excluded_from_context"
+    }
+  ]
+}

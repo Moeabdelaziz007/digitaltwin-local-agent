@@ -5,6 +5,11 @@ set -e
 
 echo "🔍 [GATE] Starting Full Neural Scan..."
 
+# 0. Memory Dataset Version Check
+echo "🧾 [GATE] Validating memory eval dataset version..."
+npm run check:memory-dataset
+
+
 # 1. Type Check
 echo "🛠️ [GATE] Validating TypeScript consistency..."
 npx tsc --noEmit
