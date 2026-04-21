@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { useUser, UserButton } from "@clerk/nextjs";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
+import { use } from "react";
 import pb from "@/lib/pocketbase-client";
 import type { UserProfile, UIMessage } from "@/types/twin";
 import { Send, Brain, Shield, Info, Database, ThumbsUp, ThumbsDown, X } from "lucide-react";
@@ -20,9 +22,11 @@ import { WorkReport } from "@/components/dashboard/WorkReport";
 
 // ── Main Dashboard Page ──
 
-export default function DashboardPage() {
+export default function DashboardPage({ searchParams }: { searchParams: Promise<{ filter?: string }> }) {
   const router = useRouter();
+  const { filter } = use(searchParams);
   const { user, isLoaded: userLoaded } = useUser();
+  const { userId } = useAuth();
   const [, setProfile] = useState<UserProfile | null>(null);
   
   // State
@@ -45,6 +49,7 @@ export default function DashboardPage() {
     if (!userLoaded || !user?.id) return;
     async function loadData() {
       try {
+        const record = await pb.collection("user_profiles").getFirstListItem(`user_id="${user.id}"`);
         setProfile(record as unknown as UserProfile);
       } catch {
         router.push("/onboard");
