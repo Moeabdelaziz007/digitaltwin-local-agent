@@ -193,13 +193,13 @@ export async function GET(request: NextRequest) {
 /**
  * FEATURE 2 — POST: Upgraded Tool Calling Handler
  */
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<Response> {
   try {
     const { userId: clerkUserId } = await auth();
     const guardianAuth = request.headers.get('X-Guardian-Auth');
     const isGuardian = guardianAuth === env.CRON_SECRET; // Use CRON_SECRET as shared guardian secret
     
-    const userId = clerkUserId || (isGuardian ? 'guardian-test-user' : null);
+    const userId = clerkUserId || (isGuardian ? 'guardian_test_01' : null);
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -223,7 +223,6 @@ export async function POST(request: NextRequest) {
     }, async (span) => {
       const messageId = uuidv4();
       const pb = getServerPB();
-      const userId = clerkUserId;
 
       if (!message?.trim()) {
         return NextResponse.json({ error: 'message is required' }, { status: 400 });
@@ -262,14 +261,20 @@ export async function POST(request: NextRequest) {
       const turnIndex = await reserveTurnIndex(pb, userId, sessionId);
 
       // Create the turn envelope first.
-      let turn = await pb.collection(TURN_COLLECTION).create({
-        user_id: userId,
-        session_id: sessionId,
-        turn_index: turnIndex,
-        idempotency_key: normalizedIdempotencyKey,
-        status: 'processing',
-        request_message_id: messageId,
-      });
+      let turn;
+      try {
+        turn = await pb.collection(TURN_COLLECTION).create({
+          user_id: userId,
+          session_id: sessionId,
+          turn_index: turnIndex,
+          idempotency_key: normalizedIdempotencyKey,
+          status: 'processing',
+          request_message_id: messageId,
+        });
+      } catch (err: any) {
+        console.error('[CONVERSATION_POST] Failed to create turn record:', err.data || err.message || err);
+        throw err;
+      }
 
       // If this was a race for the same idempotency key, replay winner's response.
       if (normalizedIdempotencyKey) {
@@ -418,9 +423,12 @@ export async function POST(request: NextRequest) {
       });
     });
 
-  } catch (error) {
-    console.error('[POST/conversation] Error:', error);
-    return NextResponse.json({ error: 'Failed to process conversation' }, { status: 500 });
+  } catch (error: any) {
+    console.error('[API_CONVERSATION_POST] Root failure:', error);
+    return NextResponse.json({ 
+      error: 'Guardian audit failed', 
+      details: error.data || error.message || String(error)
+    }, { status: 500 });
   }
 }
 
