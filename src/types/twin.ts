@@ -82,7 +82,7 @@ export interface Fact extends PBRecord {
   fact: string;
   fact_text?: string;
   fact_fingerprint?: string;
-  category: 'preference' | 'biographical' | 'habit' | 'goal' | 'emotion';
+  category: 'preference' | 'biographical' | 'habit' | 'goal' | 'emotion' | 'venture_objection';
   confidence: number;
   should_store: boolean;
   evidence_span?: string;
@@ -262,7 +262,7 @@ export interface UIMessage {
 export interface ReflectionResult {
   new_facts: Array<{
     fact: string;
-    category: 'preference' | 'biographical' | 'habit';
+    category: 'preference' | 'biographical' | 'habit' | 'venture_objection';
     confidence: number;
     should_store_fact: boolean;
     evidence_span: string;
@@ -284,19 +284,22 @@ export interface ReflectionResult {
 export interface ConsensusInput {
   userMessage: string;
   memoryContext: string;
+  userId?: string;
+
   sessionId?: string;
   turnIndex?: number;
   traceId?: string;
 }
 
 export interface AgentProposal {
-  agent: 'planner' | 'critic' | 'guardian' | 'architect' | 'scout' | 'risk_manager' | 'execution' | 'ceo';
+  agent: 'planner' | 'critic' | 'guardian' | 'architect' | 'scout' | 'risk_manager' | 'execution' | 'ceo' | 'workflow_designer' | 'creative_designer' | 'market_simulator' | 'revenue_simulator' | 'implementer' | 'cost_controller' | 'persona_drift';
   verdict: 'accept' | 'revise' | 'reject';
   confidence: number;
   risk: 'low' | 'med' | 'high';
   output: string;
   reasoning_summary: string;
   issues: string[];
+  metadata?: Record<string, any>;
 }
 
 export interface RiskFlags {
@@ -323,6 +326,15 @@ export interface ConsensusVerdict {
   scout?: AgentProposal;
   risk_manager?: AgentProposal;
   execution?: AgentProposal;
+  distribution?: AgentProposal;
   ceo?: AgentProposal;
+  workflow_designer?: AgentProposal;
+  creative_designer?: AgentProposal;
+  market_simulator?: AgentProposal;
+  revenue_simulator?: AgentProposal;
+  implementer?: AgentProposal;
+  cost_controller?: AgentProposal;
+  persona_drift?: AgentProposal;
   is_venture_cycle?: boolean;
+  fragility_map?: Record<string, number>;
 }

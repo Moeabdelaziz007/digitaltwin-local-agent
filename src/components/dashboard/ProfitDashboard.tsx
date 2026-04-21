@@ -24,8 +24,43 @@ export const ProfitDashboard: React.FC = () => {
     systemHealth: 98,
   });
 
+  const [selectedVenture, setSelectedVenture] = useState<ConsensusVerdict | null>(null);
+
+  // Mock data for testing the v3 View
+  const openMockReport = () => {
+    setSelectedVenture({
+      final_answer: "### VENTURE BLUEPRINT: AGENTIC ARBITRAGE\n\n**Executive Summary**\nThe system identifies a 12% spread on ETH/USDC pairs across Base and Arbitrum during high-volatility events. By utilizing the MAS-ZERO Zero-Cost infrastructure, we can execute atomic swaps with near-zero operational overhead.\n\n**Strategy**\n1. Deploy Sensing Agents on Base/Arbitrum.\n2. Utilize local wallet for signing.\n3. Execute only when profit > gas * 2.",
+      confidence: 0.94,
+      risk: 'low',
+      fallback_used: false,
+      timed_out: false,
+      latency_ms: 1200,
+      disagreement: false,
+      planner: { agent: 'planner', verdict: 'accept', output: '', confidence: 1, risk: 'low', reasoning_summary: '', issues: [] },
+      critic: { agent: 'critic', verdict: 'accept', output: '', confidence: 1, risk: 'low', reasoning_summary: '', issues: [] },
+      guardian: { agent: 'guardian', verdict: 'accept', output: '', confidence: 1, risk: 'low', reasoning_summary: '', issues: [] },
+      risk_flags: { prompt_injection: false, hallucination_risk: false, privacy_leak_risk: false, policy_risk: false },
+      is_venture_cycle: true,
+      fragility_map: {
+        "Gas Volatility": 45,
+        "Slippage Risk": 22,
+        "Liquidity Gap": 12,
+        "Competitor Front-run": 78
+      }
+    });
+  };
+
   return (
     <div className="p-6 space-y-8 bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl text-white">
+      <AnimatePresence>
+        {selectedVenture && (
+          <VentureLabView 
+            verdict={selectedVenture} 
+            onClose={() => setSelectedVenture(null)} 
+          />
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -78,12 +113,14 @@ export const ProfitDashboard: React.FC = () => {
               desc="Discrepancy detected between Base and Arbitrum. Net profit potential: $450/trade."
               tag="Crypto"
               score={94}
+              onClick={openMockReport}
             />
             <OpportunityItem 
               title="Micro-SaaS Agentic Bridge" 
               desc="Market gap for local-first AI automation in legal tech. Builder agent drafting MVP."
               tag="SaaS"
               score={88}
+              onClick={openMockReport}
             />
           </div>
         </div>
@@ -128,10 +165,11 @@ const StatCard: React.FC<{ label: string; value: string; icon: React.ReactNode; 
   </motion.div>
 );
 
-const OpportunityItem: React.FC<{ title: string; desc: string; tag: string; score: number }> = ({ title, desc, tag, score }) => (
+const OpportunityItem: React.FC<{ title: string; desc: string; tag: string; score: number, onClick?: () => void }> = ({ title, desc, tag, score, onClick }) => (
   <motion.div 
     initial={{ opacity: 0, x: -20 }}
     animate={{ opacity: 1, x: 0 }}
+    onClick={onClick}
     className="group p-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all cursor-pointer"
   >
     <div className="flex justify-between items-start mb-2">
@@ -139,7 +177,10 @@ const OpportunityItem: React.FC<{ title: string; desc: string; tag: string; scor
         <span className="px-2 py-0.5 bg-white/10 rounded-md text-[10px] font-mono text-white/60 uppercase">{tag}</span>
         <h4 className="font-semibold text-sm group-hover:text-emerald-400 transition-colors">{title}</h4>
       </div>
-      <span className="text-emerald-400 font-mono text-xs">{score}% Match</span>
+      <div className="flex items-center gap-3">
+        <span className="text-emerald-400 font-mono text-xs">{score}% Match</span>
+        <div className="px-2 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-lg text-[8px] font-bold text-emerald-500 uppercase opacity-0 group-hover:opacity-100 transition-opacity">View v3 Report</div>
+      </div>
     </div>
     <p className="text-xs text-white/40 line-clamp-1">{desc}</p>
   </motion.div>
