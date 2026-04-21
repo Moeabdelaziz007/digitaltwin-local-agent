@@ -1,0 +1,122 @@
+
+> digital-mini-twin@1.0.0 build /Users/cryptojoker710/Desktop/DegitalTwin
+> pnpm run check:env && next build
+
+
+> digital-mini-twin@1.0.0 check:env /Users/cryptojoker710/Desktop/DegitalTwin
+> node scripts/check-env.mjs
+
+✅ Environment check passed. Required variables are set.
+   ▲ Next.js 15.5.15
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+Failed to compile.
+
+./node_modules/.pnpm/@grpc+grpc-js@1.14.3/node_modules/@grpc/grpc-js/build/src/load-balancing-call.js
+Module not found: Can't resolve 'http2'
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./node_modules/.pnpm/@grpc+grpc-js@1.14.3/node_modules/@grpc/grpc-js/build/src/internal-channel.js
+./node_modules/.pnpm/@grpc+grpc-js@1.14.3/node_modules/@grpc/grpc-js/build/src/channel.js
+./node_modules/.pnpm/@grpc+grpc-js@1.14.3/node_modules/@grpc/grpc-js/build/src/index.js
+./node_modules/.pnpm/@opentelemetry+otlp-grpc-exporter-base@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/otlp-grpc-exporter-base/build/src/grpc-exporter-transport.js
+./node_modules/.pnpm/@opentelemetry+otlp-grpc-exporter-base@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/otlp-grpc-exporter-base/build/src/OTLPGRPCExporterNodeBase.js
+./node_modules/.pnpm/@opentelemetry+otlp-grpc-exporter-base@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/otlp-grpc-exporter-base/build/src/index.js
+./node_modules/.pnpm/@opentelemetry+exporter-logs-otlp-grpc@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/exporter-logs-otlp-grpc/build/src/OTLPLogExporter.js
+./node_modules/.pnpm/@opentelemetry+exporter-logs-otlp-grpc@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/exporter-logs-otlp-grpc/build/src/index.js
+./node_modules/.pnpm/@opentelemetry+sdk-node@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/sdk-node/build/src/sdk.js
+./node_modules/.pnpm/@opentelemetry+sdk-node@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/sdk-node/build/src/index.js
+./src/lib/observability/observability-service.ts
+./src/lib/memory-engine.ts
+./src/lib/eval/runner.ts
+./src/app/admin/improvements/page.tsx
+
+./node_modules/.pnpm/@grpc+grpc-js@1.14.3/node_modules/@grpc/grpc-js/build/src/server-interceptors.js
+Module not found: Can't resolve 'http2'
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./node_modules/.pnpm/@grpc+grpc-js@1.14.3/node_modules/@grpc/grpc-js/build/src/index.js
+./node_modules/.pnpm/@opentelemetry+otlp-grpc-exporter-base@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/otlp-grpc-exporter-base/build/src/grpc-exporter-transport.js
+./node_modules/.pnpm/@opentelemetry+otlp-grpc-exporter-base@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/otlp-grpc-exporter-base/build/src/OTLPGRPCExporterNodeBase.js
+./node_modules/.pnpm/@opentelemetry+otlp-grpc-exporter-base@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/otlp-grpc-exporter-base/build/src/index.js
+./node_modules/.pnpm/@opentelemetry+exporter-logs-otlp-grpc@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/exporter-logs-otlp-grpc/build/src/OTLPLogExporter.js
+./node_modules/.pnpm/@opentelemetry+exporter-logs-otlp-grpc@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/exporter-logs-otlp-grpc/build/src/index.js
+./node_modules/.pnpm/@opentelemetry+sdk-node@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/sdk-node/build/src/sdk.js
+./node_modules/.pnpm/@opentelemetry+sdk-node@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/sdk-node/build/src/index.js
+./src/lib/observability/observability-service.ts
+./src/lib/memory-engine.ts
+./src/lib/eval/runner.ts
+./src/app/admin/improvements/page.tsx
+
+./node_modules/.pnpm/@grpc+grpc-js@1.14.3/node_modules/@grpc/grpc-js/build/src/server.js
+Module not found: Can't resolve 'http2'
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./node_modules/.pnpm/@grpc+grpc-js@1.14.3/node_modules/@grpc/grpc-js/build/src/index.js
+./node_modules/.pnpm/@opentelemetry+otlp-grpc-exporter-base@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/otlp-grpc-exporter-base/build/src/grpc-exporter-transport.js
+./node_modules/.pnpm/@opentelemetry+otlp-grpc-exporter-base@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/otlp-grpc-exporter-base/build/src/OTLPGRPCExporterNodeBase.js
+./node_modules/.pnpm/@opentelemetry+otlp-grpc-exporter-base@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/otlp-grpc-exporter-base/build/src/index.js
+./node_modules/.pnpm/@opentelemetry+exporter-logs-otlp-grpc@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/exporter-logs-otlp-grpc/build/src/OTLPLogExporter.js
+./node_modules/.pnpm/@opentelemetry+exporter-logs-otlp-grpc@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/exporter-logs-otlp-grpc/build/src/index.js
+./node_modules/.pnpm/@opentelemetry+sdk-node@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/sdk-node/build/src/sdk.js
+./node_modules/.pnpm/@opentelemetry+sdk-node@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/sdk-node/build/src/index.js
+./src/lib/observability/observability-service.ts
+./src/lib/memory-engine.ts
+./src/lib/eval/runner.ts
+./src/app/admin/improvements/page.tsx
+
+./node_modules/.pnpm/@grpc+grpc-js@1.14.3/node_modules/@grpc/grpc-js/build/src/subchannel-call.js
+Module not found: Can't resolve 'http2'
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./node_modules/.pnpm/@grpc+grpc-js@1.14.3/node_modules/@grpc/grpc-js/build/src/transport.js
+./node_modules/.pnpm/@grpc+grpc-js@1.14.3/node_modules/@grpc/grpc-js/build/src/subchannel-pool.js
+./node_modules/.pnpm/@grpc+grpc-js@1.14.3/node_modules/@grpc/grpc-js/build/src/internal-channel.js
+./node_modules/.pnpm/@grpc+grpc-js@1.14.3/node_modules/@grpc/grpc-js/build/src/channel.js
+./node_modules/.pnpm/@grpc+grpc-js@1.14.3/node_modules/@grpc/grpc-js/build/src/index.js
+./node_modules/.pnpm/@opentelemetry+otlp-grpc-exporter-base@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/otlp-grpc-exporter-base/build/src/grpc-exporter-transport.js
+./node_modules/.pnpm/@opentelemetry+otlp-grpc-exporter-base@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/otlp-grpc-exporter-base/build/src/OTLPGRPCExporterNodeBase.js
+./node_modules/.pnpm/@opentelemetry+otlp-grpc-exporter-base@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/otlp-grpc-exporter-base/build/src/index.js
+./node_modules/.pnpm/@opentelemetry+exporter-logs-otlp-grpc@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/exporter-logs-otlp-grpc/build/src/OTLPLogExporter.js
+./node_modules/.pnpm/@opentelemetry+exporter-logs-otlp-grpc@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/exporter-logs-otlp-grpc/build/src/index.js
+./node_modules/.pnpm/@opentelemetry+sdk-node@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/sdk-node/build/src/sdk.js
+./node_modules/.pnpm/@opentelemetry+sdk-node@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/sdk-node/build/src/index.js
+./src/lib/observability/observability-service.ts
+./src/lib/memory-engine.ts
+./src/lib/eval/runner.ts
+./src/app/admin/improvements/page.tsx
+
+./node_modules/.pnpm/@grpc+grpc-js@1.14.3/node_modules/@grpc/grpc-js/build/src/transport.js
+Module not found: Can't resolve 'http2'
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./node_modules/.pnpm/@grpc+grpc-js@1.14.3/node_modules/@grpc/grpc-js/build/src/subchannel-pool.js
+./node_modules/.pnpm/@grpc+grpc-js@1.14.3/node_modules/@grpc/grpc-js/build/src/internal-channel.js
+./node_modules/.pnpm/@grpc+grpc-js@1.14.3/node_modules/@grpc/grpc-js/build/src/channel.js
+./node_modules/.pnpm/@grpc+grpc-js@1.14.3/node_modules/@grpc/grpc-js/build/src/index.js
+./node_modules/.pnpm/@opentelemetry+otlp-grpc-exporter-base@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/otlp-grpc-exporter-base/build/src/grpc-exporter-transport.js
+./node_modules/.pnpm/@opentelemetry+otlp-grpc-exporter-base@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/otlp-grpc-exporter-base/build/src/OTLPGRPCExporterNodeBase.js
+./node_modules/.pnpm/@opentelemetry+otlp-grpc-exporter-base@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/otlp-grpc-exporter-base/build/src/index.js
+./node_modules/.pnpm/@opentelemetry+exporter-logs-otlp-grpc@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/exporter-logs-otlp-grpc/build/src/OTLPLogExporter.js
+./node_modules/.pnpm/@opentelemetry+exporter-logs-otlp-grpc@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/exporter-logs-otlp-grpc/build/src/index.js
+./node_modules/.pnpm/@opentelemetry+sdk-node@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/sdk-node/build/src/sdk.js
+./node_modules/.pnpm/@opentelemetry+sdk-node@0.55.0_@opentelemetry+api@1.9.1/node_modules/@opentelemetry/sdk-node/build/src/index.js
+./src/lib/observability/observability-service.ts
+./src/lib/memory-engine.ts
+./src/lib/eval/runner.ts
+./src/app/admin/improvements/page.tsx
+
+
+> Build failed because of webpack errors
+ ELIFECYCLE  Command failed with exit code 1.

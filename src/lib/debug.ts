@@ -1,10 +1,6 @@
-import * as Sentry from '@sentry/nextjs';
-
 /**
  * SCAN FOR BUGS
  * Analyzes the runtime environment and potential code smells.
- * In a real environment, this might involve calling an internal API 
- * that runs grep on the server side.
  */
 export async function scanForBugs() {
   const issues: string[] = [];
@@ -38,15 +34,6 @@ export async function scanForBugs() {
  */
 export function errorHandler(error: Error, context: string) {
   console.error(`[SYSTEM_ERROR][${context}]:`, error);
-
-  // Capture with Sentry
-  Sentry.captureException(error, {
-    tags: { context },
-    extra: {
-      time: new Date().toISOString(),
-      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'Server',
-    }
-  });
 
   // Future: Log to PocketBase system_logs
   return {

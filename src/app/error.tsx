@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import * as Sentry from '@sentry/nextjs';
 import { motion } from 'framer-motion';
 
 export default function Error({
@@ -12,9 +11,7 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log the error to Sentry
     console.error(error);
-    Sentry.captureException(error);
   }, [error]);
 
   return (
@@ -55,7 +52,7 @@ export default function Error({
         </div>
 
         <div className="mt-12 text-[8px] text-text-faint uppercase tracking-[0.2em]">
-          Error Hash: {error.digest || 'UNKNOWN_INSTANCE'} {/* Diagnostic Code: 0x889100 */}
+          Error Hash: {error.digest || 'UNKNOWN_INSTANCE'}
         </div>
       </motion.div>
     </main>

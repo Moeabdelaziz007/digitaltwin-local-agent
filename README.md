@@ -1,6 +1,11 @@
-# 🧬 DigitalTwin: The Cognitive Meta-Loop
-> **A Sovereign, Self-Improving Digital Consciousness.**
-> **وعي رقمي سيادي، ذاتي التطوير والتحسين.**
+<div align="center">
+  <img src="https://github.com/Moeabdelaziz007/digitaltwin-local-agent/blob/main/public/logo.png?raw=true" width="400" alt="Digital Mini Twin Logo" />
+  
+  # 🧬 DIGITAL MINI TWIN
+  ### [EN] The Sovereign AI Consciousness | [AR] الوعي الرقمي السيادي
+</div>
+
+---
 
 ---
 
@@ -96,7 +101,7 @@ pnpm verify
 - [x] HMAC-signed Sidecar security bridge / جسر أمان مشفر للعمليات الخلفية
 - [x] Cognitive Meta Loop (Research + Evolution) / الحلقة الإدراكية الكبرى (البحث + التطور)
 - [ ] **Phase 4**: Fully visual Memory Map / Canvas interface / واجهة بصرية كاملة لخريطة الذاكرة
-- [ ] **Phase 5**: Hardware integration for Nano Banana Pro / تكامل العتاد لـ Nano Banana Pro
+- [ ] **Phase 5**: Advanced Collaborative Mode / وضع التعاون المتقدم
 
 ---
 

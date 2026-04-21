@@ -1,5 +1,4 @@
 // /api/conversation — Dual-Mode Chat Endpoint (Streaming + Tool-Calling)
-import * as Sentry from '@sentry/nextjs';
 //
 // GET:  Real-time streaming (Optimized for Web UI consumption)
 // POST: Atomic, tool-augmented logic (Optimized for structured UI/Reflection)
@@ -431,20 +430,12 @@ async function triggerReflection(userId: string, sessionId: string): Promise<voi
         status: result.status,
         error: result.error,
       });
-      Sentry.captureMessage('Sidecar reflection failed', {
-        level: 'warning',
-        extra: { status: result.status, error: result.error, sessionId }
-      });
     }
   } catch (error) {
     console.error('[triggerReflection] Unexpected reflection trigger error', {
       session_id: sessionId,
       user_id: userId,
       error,
-    });
-    Sentry.captureException(error, {
-      tags: { context: 'sidecar-reflection', userId },
-      extra: { sessionId }
     });
   }
 }

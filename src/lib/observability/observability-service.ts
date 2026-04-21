@@ -46,7 +46,7 @@ export class ObservabilityService {
         [SemanticResourceAttributes.SERVICE_NAME]: 'digital-twin-app',
         [SemanticResourceAttributes.SERVICE_VERSION]: '1.0.0',
       }),
-      spanProcessor: new BatchSpanProcessor(exporter),
+      spanProcessor: new BatchSpanProcessor(exporter) as any,
       instrumentations: [], // We'll do manual instrumentation for precision
     });
 
