@@ -105,7 +105,7 @@ const Hologram = () => (
 
 export default function LandingPage() {
   const router = useRouter();
-  const { isSignedIn: _isSignedIn, isLoaded: _isLoaded } = useUser();
+  useUser();
 
   return (
     <div className="relative min-h-svh bg-bg-void text-text-primary font-body overflow-x-hidden scan-overlay">

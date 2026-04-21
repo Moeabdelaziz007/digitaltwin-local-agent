@@ -7,7 +7,7 @@ import pb from '@/lib/pocketbase-client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MatrixRain } from '@/components/MatrixRain';
 import { TerminalIntro } from '@/components/TerminalIntro';
-import { Brain, Cpu, Shield, Sparkles, ArrowRight, ArrowLeft, Check } from 'lucide-react';
+import { Brain, Cpu, Shield, Sparkles, ArrowRight, ArrowLeft } from 'lucide-react';
 
 const STYLE_CHIPS = [
   { id: 'concise', label: 'Short & direct', icon: '⚡' },
@@ -99,7 +99,7 @@ export default function OnboardPage() {
       }
 
       router.push("/dashboard");
-    } catch (err) {
+    } catch {
       setError("UPLOAD ERROR: NEURAL LINK FAILED");
     } finally {
       setLoading(false);

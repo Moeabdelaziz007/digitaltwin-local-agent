@@ -15,7 +15,7 @@ const VoiceContext = createContext<VoiceContextType | null>(null);
 
 export function VoiceProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<VoiceState>('idle');
-  const [metrics, setMetrics] = useState<VoiceMetrics>({});
+  const [metrics] = useState<VoiceMetrics>({});
   const controllerRef = useRef(new VoiceController());
   
   // PHASE 4 HARDENING: Active Stream Control
@@ -31,7 +31,7 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
   const startListening = useCallback(() => {
     // Ensure AudioContext is resumed if suspended
     if (audioContextRef.current?.state === 'suspended') {
-      audioContextRef.current.resume();
+      void audioContextRef.current.resume();
     }
     controllerRef.current.state = 'listening';
   }, []);
@@ -45,7 +45,7 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
     
     // PHASE 4 FIX: Stricter Active Stream Cancellation
     if (audioContextRef.current && audioContextRef.current.state === 'running') {
-      audioContextRef.current.suspend();
+      void audioContextRef.current.suspend();
     }
 
     if (ttsAbortControllerRef.current) {
@@ -73,7 +73,7 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
       // References for advanced skill manipulation
       audioContext: audioContextRef.current,
       ttsAbortController: ttsAbortControllerRef.current
-    } as any}>
+    } as unknown as VoiceContextType}>
       {children}
     </VoiceContext.Provider>
   );

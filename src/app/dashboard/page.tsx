@@ -23,7 +23,7 @@ import { WorkReport } from "@/components/dashboard/WorkReport";
 export default function DashboardPage() {
   const router = useRouter();
   const { user, isLoaded: userLoaded } = useUser();
-  const [_profile, setProfile] = useState<UserProfile | null>(null);
+  const [, setProfile] = useState<UserProfile | null>(null);
   
   // State
   const [messages, setMessages] = useState<UIMessage[]>([]);
@@ -31,7 +31,7 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [learningProgress, setLearningProgress] = useState(3);
   const [toastFact, setToastFact] = useState('');
-  const [_toastVisible, setToastVisible] = useState(false);
+  const [, setToastVisible] = useState(false);
   const [voiceState, setVoiceState] = useState('disconnected');
   const [feedbackMessage, setFeedbackMessage] = useState<{ index: number; traceId: string } | null>(null);
   const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
@@ -45,9 +45,8 @@ export default function DashboardPage() {
     if (!userLoaded || !user?.id) return;
     async function loadData() {
       try {
-        const record = await pb.collection("user_profiles").getFirstListItem(`user_id="${user?.id}"`);
         setProfile(record as unknown as UserProfile);
-      } catch (_e) {
+      } catch {
         router.push("/onboard");
       }
     }
@@ -112,7 +111,7 @@ export default function DashboardPage() {
         }
       }, 20);
 
-    } catch (_err) {
+    } catch {
       setMessages(prev => [...prev, { role: 'twin', content: "SYSTEM ERROR: DATA STREAM INTERRUPTED." }]);
       setIsLoading(false);
       setOrbState('idle');

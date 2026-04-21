@@ -7,7 +7,7 @@ const STANDARD_TTL = 5 * 60 * 1000; // 5 minutes for general config
 
 interface ConfigEntry {
   key: string;
-  value: any;
+  value: unknown;
   version: number;
   lastUpdated: number;
   category: 'retrieval' | 'prompt' | 'routing' | 'general';
@@ -17,7 +17,7 @@ class ConfigService {
   private static instance: ConfigService;
   private cache: Map<string, ConfigEntry> = new Map();
   private pb: PocketBase;
-  private lkg: Map<string, any> = new Map(); // Last Known Good values
+  private lkg: Map<string, unknown> = new Map(); // Last Known Good values
 
   private constructor() {
     this.pb = new PocketBase(env.POCKETBASE_URL);
