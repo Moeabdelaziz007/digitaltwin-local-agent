@@ -88,6 +88,10 @@ cp .env.example .env.local
 pnpm verify
 ```
 
+### 3. LiveKit Env Naming (Unified) / توحيد اسم متغير LiveKit
+- Use only `NEXT_PUBLIC_LIVEKIT_URL` for the LiveKit websocket URL (client + server token route).
+- Do not use `LIVEKIT_URL`.
+
 > [!TIP]
 > **Vercel Build Fix / إصلاح بناء فيرسل**:
 > To resolve `cli with get core cause` errors, ensure `ENABLE_COREPACK=1` is set in your Vercel Dashboard env vars.

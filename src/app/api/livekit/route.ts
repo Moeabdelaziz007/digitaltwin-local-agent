@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { AccessToken } from "livekit-server-sdk";
 import { auth } from "@clerk/nextjs/server";
+import { env } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
 
@@ -13,9 +14,9 @@ export async function GET() {
     }
 
     // 2. Validate Environment
-    const apiKey = process.env.LIVEKIT_API_KEY;
-    const apiSecret = process.env.LIVEKIT_API_SECRET;
-    const wsUrl = process.env.LIVEKIT_URL;
+    const apiKey = env.LIVEKIT_API_KEY;
+    const apiSecret = env.LIVEKIT_API_SECRET;
+    const wsUrl = env.NEXT_PUBLIC_LIVEKIT_URL;
 
     if (!apiKey || !apiSecret || !wsUrl) {
       return NextResponse.json({ error: "Voice infrastructure not configured" }, { status: 500 });
