@@ -36,3 +36,10 @@ Before merging/deploying, verify all of the following locally or in CI:
   - `/api/conversation` unauthorized branch.
   - `/api/cron/decay` CRON secret guard.
   - `/api/webhooks/clerk` signature verification requirement.
+- `npm run check:memory-dataset` passes to verify memory eval dataset metadata/version alignment.
+
+## Memory Eval Dataset Versioning
+- Source of truth: `eval/datasets/memory/baseline.json`.
+- Required fields: `dataset_version`, `source`, and `cases[]`.
+- CI guard: `scripts/check-memory-dataset-version.js` (invoked by `scripts/quality-gate.sh`).
+- Keep `dataset_version` bumped when cases/expected behavior change, to prevent eval history drift.
