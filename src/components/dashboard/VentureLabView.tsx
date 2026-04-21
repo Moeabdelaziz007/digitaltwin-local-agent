@@ -35,7 +35,7 @@ export const VentureLabView: React.FC<VentureLabViewProps> = ({ verdict, onClose
               <Zap className="text-emerald-400" size={24} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white uppercase tracking-tight">Venture Blueprint: v3.0</h2>
+              <h2 className="text-xl font-bold text-white uppercase tracking-tight">Venture Blueprint: v0.01</h2>
               <p className="text-xs text-white/40 font-mono">MAS-ZERO Dialectic Synthesis Complete</p>
             </div>
           </div>
@@ -181,7 +181,7 @@ export const VentureLabView: React.FC<VentureLabViewProps> = ({ verdict, onClose
 
         {/* Footer */}
         <div className="p-4 bg-black/40 border-t border-white/5 flex justify-between items-center text-[10px] font-mono text-white/20">
-          <span>DigitalTwin :: MAS-ZERO-ENGINE-V3</span>
+          <span>DigitalTwin :: MAS-ZERO-ENGINE-V0.01</span>
           <span>Security Level: Sovereign Local</span>
         </div>
       </div>

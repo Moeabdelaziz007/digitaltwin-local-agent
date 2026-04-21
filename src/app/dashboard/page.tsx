@@ -199,7 +199,7 @@ export default function DashboardPage({ searchParams }: { searchParams: Promise<
             <svg width="20" height="20" viewBox="0 0 100 100" className="text-cyan">
               <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" fill="none" stroke="currentColor" strokeWidth="8" />
             </svg>
-            <span className="font-display font-bold text-xs tracking-tighter uppercase">Digital Twin v2.1</span>
+            <span className="font-display font-bold text-xs tracking-tighter uppercase">Digital Twin v0.01</span>
           </div>
           <div className="flex items-center gap-1.5 px-2 py-0.5 bg-cyan/10 rounded-full">
             <div className="w-1.5 h-1.5 bg-cyan rounded-full animate-pulse" />
