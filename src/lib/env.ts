@@ -24,6 +24,7 @@ const envSchema = z.object({
   ADMIN_USER_ID: z.string().min(1).optional(),
   PB_ADMIN_EMAIL: z.string().email().optional(),
   PB_ADMIN_PASSWORD: z.string().min(1).optional(),
+  CONSENSUS_MODE: z.string().default('false'),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -60,6 +61,7 @@ const fallbackEnv = {
   ADMIN_USER_ID: process.env.ADMIN_USER_ID || '',
   PB_ADMIN_EMAIL: process.env.PB_ADMIN_EMAIL || '',
   PB_ADMIN_PASSWORD: process.env.PB_ADMIN_PASSWORD || '',
+  CONSENSUS_MODE: process.env.CONSENSUS_MODE || 'false',
 } satisfies Record<string, string>;
 
 export const env: typeof fallbackEnv = parsed.success ? (parsed.data as unknown as typeof fallbackEnv) : fallbackEnv;

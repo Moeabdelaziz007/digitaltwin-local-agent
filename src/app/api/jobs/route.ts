@@ -1,61 +1,48 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
-import { randomUUID } from 'crypto';
+import { jobsService, JobType } from '@/lib/jobs/jobs-service';
 
-type JobsPayload = {
-  type?: unknown;
-  user_id?: unknown;
-};
-
+/**
+ * POST /api/jobs
+ * Enqueue a background task.
+ */
 export async function POST(req: NextRequest) {
-  const { userId } = await auth();
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  let body: JobsPayload;
   try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
-  }
+    const { userId: clerkUserId } = await auth();
+    if (!clerkUserId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-  const type = body.type;
-  const requestedUserId = body.user_id;
+    const body = await req.json();
+    const { type, payload, user_id: requestedUserId } = body;
 
-  if (type !== 'RESEARCH_TASK') {
-    return NextResponse.json({ error: 'Unsupported job type' }, { status: 400 });
-  }
+    // 1. Validation
+    if (!type || !requestedUserId) {
+      return NextResponse.json({ error: 'Missing type or user_id' }, { status: 400 });
+    }
 
-  if (typeof requestedUserId !== 'string' || requestedUserId.length === 0) {
-    return NextResponse.json({ error: 'Missing or invalid user_id' }, { status: 400 });
-  }
+    // 2. Security: Ensure user can only enqueue jobs for themselves
+    if (requestedUserId !== clerkUserId) {
+       return NextResponse.json({ error: 'Forbidden: Cannot enqueue jobs for other users' }, { status: 403 });
+    }
 
-  if (requestedUserId !== userId) {
-    return NextResponse.json({ error: 'Forbidden user_id' }, { status: 403 });
-  }
+    const supportedTypes: JobType[] = ['RESEARCH_TASK', 'EVAL_RUN', 'MEMORY_MAINTENANCE', 'PROFILE_SNAPSHOT'];
+    if (!supportedTypes.includes(type)) {
+      return NextResponse.json({ error: `Unsupported job type: ${type}` }, { status: 400 });
+    }
 
-  const jobId = randomUUID();
+    // 3. Enqueue
+    const jobId = await jobsService.enqueue(clerkUserId, type, payload || {});
 
-  // Safe placeholder enqueue (non-blocking): keeps UX functional while queue worker is wired.
-  console.info('[JOBS_API] Accepted placeholder research job', {
-    jobId,
-    type,
-    userId,
-    createdAt: new Date().toISOString(),
-  });
-
-  return NextResponse.json(
-    {
+    return NextResponse.json({
       accepted: true,
-      job: {
-        id: jobId,
-        type,
-        user_id: userId,
-        status: 'queued_placeholder',
-      },
-      message: 'Research job accepted (placeholder queue).',
-    },
-    { status: 202 },
-  );
+      jobId,
+      status: 'queued',
+      message: `${type} has been accepted and added to the processing queue.`
+    }, { status: 202 });
+
+  } catch (error) {
+    console.error('[JOBS_API] Error:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
 }

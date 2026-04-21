@@ -140,6 +140,26 @@ export class ObservabilityService {
       'memory.reasons': stats.reasons || '',
     });
   }
+
+  /**
+   * recordConsensusStats
+   * Record metrics for the multi-agent consensus loop.
+   */
+  public recordConsensusStats(stats: {
+    hallucinationFlagRate: number;
+    averageConsensusLatencyMs: number;
+    disagreementRate: number;
+  }) {
+    const tracer = trace.getTracer(this.tracerName);
+    const span = tracer.startSpan('consensus_metrics');
+    span.setAttributes({
+      'consensus.hallucination_flag_rate': stats.hallucinationFlagRate,
+      'consensus.average_latency_ms': stats.averageConsensusLatencyMs,
+      'consensus.disagreement_rate': stats.disagreementRate,
+    });
+    span.setStatus({ code: SpanStatusCode.OK });
+    span.end();
+  }
 }
 
 export const obs = ObservabilityService.getInstance();
