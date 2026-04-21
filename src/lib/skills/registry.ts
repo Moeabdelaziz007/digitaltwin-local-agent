@@ -1,21 +1,27 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 
-export interface SkillMetadata {
-  name: string;
-  description: string;
-  version: string;
-  when_to_use: string;
-  required_tools: string[];
-  input_contract: Record<string, any>;
-  output_contract: Record<string, any>;
-  safety_notes: string;
-}
+import { z } from 'zod';
+
+export const SkillSchema = z.object({
+  name: z.string(),
+  version: z.string(),
+  description: z.string(),
+  when_to_use: z.string(),
+  permissions: z.array(z.enum(['memory_read', 'memory_write', 'network', 'filesystem'])),
+  required_tools: z.array(z.string()),
+  input_schema: z.object({}).passthrough(),
+  output_schema: z.object({}).passthrough(),
+  safety_notes: z.string()
+});
+
+export type SkillMetadata = z.infer<typeof SkillSchema>;
 
 export interface Skill {
   metadata: SkillMetadata;
   instructions: string;
   examples: string[];
+  enabled: boolean;
 }
 
 export class SkillRegistry {
@@ -57,24 +63,49 @@ export class SkillRegistry {
       const metadataStr = await fs.readFile(path.join(skillPath, 'skill.json'), 'utf-8');
       const instructions = await fs.readFile(path.join(skillPath, 'instructions.md'), 'utf-8');
       
+      const rawMetadata = JSON.parse(metadataStr);
+      const parsed = SkillSchema.safeParse(rawMetadata);
+
+      if (!parsed.success) {
+        console.error(`[SkillRegistry] Validation failed for ${name}:`, parsed.error.format());
+        return;
+      }
+
       let examples: string[] = [];
       try {
         const examplesStr = await fs.readFile(path.join(skillPath, 'examples.json'), 'utf-8');
         examples = JSON.parse(examplesStr);
-      } catch {
-        // Examples are optional
-      }
+      } catch { }
 
       this.skills.set(name, {
-        metadata: JSON.parse(metadataStr),
+        metadata: parsed.data,
         instructions,
-        examples
+        examples,
+        enabled: true
       });
       
-      console.log(`[SkillRegistry] Loaded skill: ${name}`);
+      console.log(`[SkillRegistry] Loaded skill: ${name} (v${parsed.data.version})`);
     } catch (error) {
       console.error(`[SkillRegistry] Failed to load skill ${name}:`, error);
     }
+  }
+
+  public getActiveSkillsContext(): string {
+    const active = Array.from(this.skills.values()).filter(s => (s as any).enabled);
+    if (active.length === 0) return '';
+
+    return `
+### Available Skills
+The following specialized capabilities are available through the Skill Engine:
+
+${active.map(s => `
+#### ${s.metadata.name} (v${s.metadata.version})
+- **When to use**: ${s.metadata.when_to_use}
+- **Permissions**: ${s.metadata.permissions.join(', ')}
+- **Capabilities**: ${s.metadata.description}
+- **Instructions**: ${s.instructions}
+`).join('\n')}
+`;
   }
 
   public getActiveSkills(): Skill[] {

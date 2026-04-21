@@ -407,14 +407,14 @@ async function triggerReflection(userId: string, sessionId: string): Promise<voi
       .update(`${ts}.${rawBody}`)
       .digest('hex');
 
+    console.log('[triggerReflection] Triggering sidecar reflection for session:', sessionId);
+
     const result = await safeFetch(`${url}/reflect`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-dmt-ts': ts,
         'x-dmt-signature': signature,
-        // Propagate trace context
-        'traceparent': `00-${span.SpanContext().traceId}-${span.SpanContext().spanId}-01`,
       },
       body: rawBody,
     }, {

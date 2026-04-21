@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useVoice } from './VoiceProvider';
+import { useVoice } from '../../lib/voice/VoiceProvider';
 import { Activity, Zap, ShieldCheck, AlertTriangle } from 'lucide-react';
 
 export function VoiceDiagnostics() {

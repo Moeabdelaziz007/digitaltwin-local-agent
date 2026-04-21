@@ -1,0 +1,23 @@
+{
+  "name": "project-researcher",
+  "version": "1.0.0",
+  "description": "Analyzes repository structure, searches code, and orchestrates complex refactoring research.",
+  "when_to_use": "When the user asks about codebase architecture, where a feature is implemented, or how to refactor a component.",
+  "permissions": ["filesystem", "network"],
+  "required_tools": ["ls_dir", "grep_search", "view_file"],
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "query": { "type": "string" },
+      "scope": { "type": "string" }
+    }
+  },
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "findings": { "type": "array" },
+      "recommendations": { "type": "string" }
+    }
+  },
+  "safety_notes": "Do not expose .env files or secrets during analysis."
+}
