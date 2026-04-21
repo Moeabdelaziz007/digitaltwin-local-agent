@@ -5,7 +5,7 @@ import { useUser, UserButton } from "@clerk/nextjs";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import pb from "@/lib/pocketbase-client";
-import type { UserProfile } from "@/types/twin";
+import type { UserProfile, UIMessage } from "@/types/twin";
 import { Send, Brain, Shield, Info, Database, ThumbsUp, ThumbsDown, X } from "lucide-react";
 import { VoiceBridge } from "@/components/VoiceBridge";
 import { ParticleNetwork } from "@/components/ParticleNetwork";
@@ -26,7 +26,7 @@ export default function DashboardPage() {
   const [_profile, setProfile] = useState<UserProfile | null>(null);
   
   // State
-  const [messages, setMessages] = useState<Array<{ role: 'user' | 'twin', content: string }>>([]);
+  const [messages, setMessages] = useState<UIMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [learningProgress, setLearningProgress] = useState(3);
@@ -150,7 +150,7 @@ export default function DashboardPage() {
     if (voiceState === 'listening') setOrbState('listening');
     else if (voiceState === 'speaking') setOrbState('speaking');
     else if (voiceState === 'disconnected' && orbState !== 'thinking' && orbState !== 'researching') setOrbState('idle');
-  }, [voiceState]);
+  }, [voiceState, orbState]);
 
   const triggerResearch = async () => {
     if (!user?.id) return;
@@ -214,7 +214,7 @@ export default function DashboardPage() {
             <p className="font-display text-[10px] text-cyan/40 uppercase tracking-[0.4em] mb-2">Cognitive Link Status</p>
             <div className="flex items-center gap-2 justify-center">
                <button 
-                 onClick={(e) => { e.stopPropagation(); triggerResearch(); }}
+                 onClick={(e) => { e.stopPropagation(); void triggerResearch(); }}
                  className="text-[9px] font-display text-cyan hover:text-white transition-all uppercase tracking-widest border border-cyan/20 px-2 py-1 rounded bg-cyan/5"
                >
                  Pulse Research
@@ -258,16 +258,16 @@ export default function DashboardPage() {
                     {m.role === 'user' ? 'Authored By User' : 'Generated Instance'}
                   </p>
                   
-                  {m.role === 'twin' && (m as any).traceId && (
+                  {m.role === 'twin' && m.traceId && (
                     <div className="flex items-center gap-3 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
                        <button 
-                         onClick={() => { setFeedbackMessage({ index: i, traceId: (m as any).traceId }); submitFeedback(1); }}
+                         onClick={() => { setFeedbackMessage({ index: i, traceId: m.traceId! }); void submitFeedback(1); }}
                          className="p-1 hover:text-cyan transition-colors"
                        >
                          <ThumbsUp size={12} />
                        </button>
                        <button 
-                         onClick={() => setFeedbackMessage({ index: i, traceId: (m as any).traceId })}
+                         onClick={() => setFeedbackMessage({ index: i, traceId: m.traceId! })}
                          className="p-1 hover:text-red-400 transition-colors"
                        >
                          <ThumbsDown size={12} />

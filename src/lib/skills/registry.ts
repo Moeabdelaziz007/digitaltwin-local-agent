@@ -91,7 +91,7 @@ export class SkillRegistry {
   }
 
   public getActiveSkillsContext(): string {
-    const active = Array.from(this.skills.values()).filter(s => (s as any).enabled);
+    const active = Array.from(this.skills.values()).filter(s => s.enabled);
     if (active.length === 0) return '';
 
     return `

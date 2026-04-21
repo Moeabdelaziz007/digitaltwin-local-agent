@@ -82,18 +82,6 @@ async function findTurnByIdempotency(
   }
 }
 
-/**
- * PHASE 2: Sidecar Request Signing
- * Generates an HMAC-SHA256 signature for payload verification.
- */
-function generateSignature(payload: object, secret: string): string {
-  return crypto
-    .createHmac('sha256', secret)
-    .update(JSON.stringify(payload))
-    .digest('hex');
-}
-
-
 
 /**
  * FEATURE 1 — GET: Real-time Streaming Endpoint
@@ -251,7 +239,7 @@ export async function POST(request: NextRequest) {
             turnIndex: existingTurn.turn_index,
             messageId: existingTurn.request_message_id || messageId,
             turnId: existingTurn.id,
-            traceId: (existingTurn as any).trace_id || span.spanContext().traceId,
+            traceId: existingTurn.trace_id || span.spanContext().traceId,
             idempotentReplay: true,
           }, {
             headers: {
@@ -293,7 +281,7 @@ export async function POST(request: NextRequest) {
             turnIndex: turn.turn_index,
             messageId: turn.request_message_id,
             turnId: turn.id,
-            traceId: (turn as any).trace_id || span.spanContext().traceId,
+            traceId: turn.trace_id || span.spanContext().traceId,
             idempotentReplay: true,
           }, {
             headers: {

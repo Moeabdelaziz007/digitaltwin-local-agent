@@ -59,5 +59,4 @@ const fallbackEnv = {
   SIDECAR_SHARED_SECRET: process.env.SIDECAR_SHARED_SECRET || 'dev_secret_only',
 } as any;
 
-export const env = parsed.success ? parsed.data : (fallbackEnv as z.infer<typeof envSchema>);
-
+export const env: typeof fallbackEnv = parsed.success ? (parsed.data as any) : fallbackEnv;

@@ -3,27 +3,19 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import pb from '@/lib/pocketbase-client';
+import type { ImprovementProposal } from '@/types/twin';
 import { Check, X, ShieldAlert, History, Diff, Play } from 'lucide-react';
 import { runEvalAction } from './actions';
 import { motion, AnimatePresence } from 'framer-motion';
 
-interface Proposal {
-  id: string;
-  subsystem: string;
-  proposal_type: string;
-  hypothesis: string;
-  proposed_change: any;
-  status: string;
-  created: string;
-}
 
 export default function ImprovementsPage() {
   const { user } = useUser();
-  const [proposals, setProposals] = useState<Proposal[]>([]);
-  const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
+  const [proposals, setProposals] = useState<ImprovementProposal[]>([]);
+  const [selectedProposal, setSelectedProposal] = useState<ImprovementProposal | null>(null);
   const [reason, setReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [evalResult, setEvalResult] = useState<any>(null);
+  const [evalResult, setEvalResult] = useState<{ accuracy: number } | null>(null);
   const [isRunningEval, setIsRunningEval] = useState(false);
 
   useEffect(() => {
@@ -32,11 +24,11 @@ export default function ImprovementsPage() {
 
   async function fetchProposals() {
     try {
-      const records = await pb.collection('improvement_proposals').getFullList({
+      const records = await pb.collection('improvement_proposals').getFullList<ImprovementProposal>({
         filter: 'status = "pending_approval"',
         sort: '-created'
       });
-      setProposals(records as any);
+      setProposals(records);
     } catch (err) {
       console.error('Failed to fetch proposals:', err);
     }
