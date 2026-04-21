@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"go.opentelemetry.io/otel"
@@ -62,7 +63,8 @@ func (e *PocketBaseExporter) saveSpan(ctx context.Context, span sdktrace.ReadOnl
 		"end_time":        span.EndTime().Format(time.RFC3339),
 		"duration_ms":     float64(span.EndTime().Sub(span.StartTime()).Microseconds()) / 1000.0,
 		"component":       "sidecar-go",
-		"attributes_json": attrs,
+		"attributes_json": e.redactAttributes(attrs),
+		"redaction_level": 1,
 	}
 
 	// Session/User info from attributes
@@ -89,6 +91,33 @@ func (e *PocketBaseExporter) saveSpan(ctx context.Context, span sdktrace.ReadOnl
 	}
 
 	return nil
+}
+
+func (e *PocketBaseExporter) redactAttributes(attrs map[string]interface{}) map[string]interface{} {
+	redacted := make(map[string]interface{})
+	piiKeys := []string{"prompt", "content", "fact", "response", "secret", "key", "token", "authorization"}
+
+	for k, v := range attrs {
+		isPII := false
+		lowerK := strings.ToLower(k)
+		for _, pii := range piiKeys {
+			if strings.Contains(lowerK, pii) {
+				isPII = true
+				break
+			}
+		}
+
+		if isPII {
+			if s, ok := v.(string); ok && len(s) > 50 {
+				redacted[k] = fmt.Sprintf("[REDACTED: %d chars]", len(s) )
+			} else {
+				redacted[k] = "[REDACTED]"
+			}
+		} else {
+			redacted[k] = v
+		}
+	}
+	return redacted
 }
 
 /**

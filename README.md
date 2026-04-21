@@ -2,7 +2,7 @@
 
 > A cinematic full-stack AI digital twin with memory, adaptive learning, local LLM support, and immersive Sci-Fi UI. Now hardened with atomic persistence and semantic deduplication.
 
-![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js&logoColor=white)
+![Next.js](https://img.shields.io/badge/Next.js-15/16_Ready-black?style=for-the-badge&logo=next.js&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue?style=for-the-badge&logo=typescript&logoColor=white)
 ![Build](https://img.shields.io/badge/Quality_Gate-Passed-green?style=for-the-badge)
 
@@ -21,6 +21,16 @@ We've recently upgraded the core architecture to move beyond a simple prototype 
 - **Idempotent Conversation Turns**: Every chat cycle is tracked via a `Turn Envelope` (`conversation_turns` collection), preventing race conditions and duplicate writes.
 - **Cryptographic Bridge**: Communication with the Reflection Sidecar is now secured via **HMAC-SHA256 signatures** and timestamped payloads.
 - **SafeFetch Bridge**: Integrated automated retries and exponential backoff for all inter-service communication.
+
+## 🌌 Neural Interface Demo
+
+The DigitalMiniTwin platform features an immersive, motion-driven Sci-Fi interface designed for high-agency interaction.
+
+![Neural Dashboard Mockup](dashboard_neural_mockup.png)
+*Cinematic Dashboard with Glassmorphism and holographic elements.*
+
+![Observability View](observability_traces.png)
+*Real-time trace visualization for agent diagnostics.*
 
 ---
 
@@ -88,7 +98,7 @@ graph TD
 
 | Layer | Technology |
 |---|---|
-| **Frontend Framework** | Next.js 15 (App Router), React 19, TypeScript |
+| **Frontend Framework** | Next.js 15 (Stable) / 16 (Ready), React 19 |
 | **Styling & UI UX** | Tailwind CSS v4, Motion (Framer), Vanilla CSS System |
 | **Verification** | Zod Environment Schema & Custom Performance Gates |
 | **Database** | PocketBase (Memory + Turns + Sessions) |
