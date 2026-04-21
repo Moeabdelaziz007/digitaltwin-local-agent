@@ -8,6 +8,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, Target, Cpu, Activity, Zap, DollarSign } from 'lucide-react';
+import { VentureLabView } from './VentureLabView';
 import { CausalGraph } from './CausalGraph';
 import { ConsensusVerdict, Opportunity } from '@/types/twin';
 

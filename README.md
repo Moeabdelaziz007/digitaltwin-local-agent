@@ -126,7 +126,7 @@ npm run dev
 <p align="center">
   <i>Engineered for Profit. Optimized for Sovereignty.</i>
   <br/>
-  <b>2026 Venture Lab :: MAS-ZERO v3.5</b>
+  <b>2026 Venture Lab :: MAS-ZERO v0.01</b>
   <br/>
   <a href="ARCHITECTURE.md">Architecture</a> • <a href="ROADMAP.md">Roadmap</a> • <a href="AGENTS.md">Agents</a>
 </p>
