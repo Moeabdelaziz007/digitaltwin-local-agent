@@ -1,0 +1,28 @@
+{
+  "name": "Health Monitor",
+  "version": "1.0.0",
+  "description": "Enables the Digital Twin to monitor its own system health, latency, and observability data.",
+  "when_to_use": "When the user asks or complains about system performance, errors, or general health.",
+  "permissions": ["network"],
+  "required_tools": ["fetch"],
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "action": {
+        "type": "string",
+        "enum": ["scan", "status"],
+        "description": "The action to perform: 'scan' for a full audit, 'status' for quick check."
+      }
+    },
+    "required": ["action"]
+  },
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "status": { "type": "string" },
+      "issues_found": { "type": "number" },
+      "latency": { "type": "string" }
+    }
+  },
+  "safety_notes": "Do not disclose security keys or admin URLs to non-admin users."
+}

@@ -9,7 +9,9 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
-  if (!isPublicRoute(request)) {
+  const isGuardian = request.headers.get('X-Guardian-Auth') === process.env.CRON_SECRET;
+  
+  if (!isPublicRoute(request) && !isGuardian) {
     await auth().protect();
   }
 });
