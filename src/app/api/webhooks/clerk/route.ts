@@ -10,6 +10,7 @@ import PocketBase from 'pocketbase';
 import { env } from '@/lib/env';
 
 const POCKETBASE_URL = env.POCKETBASE_URL;
+const asPbUserId = (clerkId: string) => clerkId.trim();
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = env.CLERK_WEBHOOK_SECRET;
@@ -51,47 +52,54 @@ export async function POST(req: Request) {
   pb.autoCancellation(false);
 
   try {
-    if (evt.type === 'user.created') {
+    if (evt.type === 'user.created' || evt.type === 'user.updated') {
       const { id, email_addresses, first_name, last_name } = evt.data;
+      const pbUserId = asPbUserId(id);
       const email = email_addresses?.[0]?.email_address || '';
       const displayName = [first_name, last_name].filter(Boolean).join(' ') || email.split('@')[0];
 
-      // Create a stub profile in PocketBase for the new user
-      // This ensures the onboarding flow has a user_id to work with
-      await pb.collection('user_profiles').create({
-        user_id: id,
-        display_name: displayName,
-        personality_desc: '',
-        tone: 'friendly',
-        context_main: '',
-        context_soul: '',
-        context_guards: '',
-        profile_snapshot: JSON.stringify({ adaptations: {}, top_facts: [], last_updated: '' }),
-        learning_progress: 0,
-        total_conversations: 0,
-        onboarding_complete: false,
-      });
+      try {
+        const existing = await pb.collection('user_profiles').getFirstListItem(`user_id = "${pbUserId}"`);
+        await pb.collection('user_profiles').update(existing.id, {
+          display_name: displayName,
+        });
+      } catch {
+        await pb.collection('user_profiles').create({
+          user_id: pbUserId,
+          display_name: displayName,
+          personality_desc: '',
+          tone: 'friendly',
+          context_main: '',
+          context_soul: '',
+          context_guards: '',
+          profile_snapshot: JSON.stringify({ adaptations: {}, top_facts: [], last_updated: '' }),
+          learning_progress: 0,
+          total_conversations: 0,
+          onboarding_complete: false,
+        });
+      }
 
-      console.log(`[WEBHOOK] Created PB profile for Clerk user: ${id}`);
+      console.log(`[WEBHOOK] Synced PB profile for Clerk user: ${pbUserId}`);
     }
 
     if (evt.type === 'user.deleted') {
       const { id } = evt.data;
       if (id) {
+        const pbUserId = asPbUserId(id);
         // Clean up: delete profile and facts for this user
         try {
-          const profile = await pb.collection('user_profiles').getFirstListItem(`user_id = "${id}"`);
+          const profile = await pb.collection('user_profiles').getFirstListItem(`user_id = "${pbUserId}"`);
           await pb.collection('user_profiles').delete(profile.id);
         } catch { /* Profile might not exist */ }
 
         try {
-          const facts = await pb.collection('facts').getFullList({ filter: `user_id = "${id}"` });
+          const facts = await pb.collection('facts').getFullList({ filter: `user_id = "${pbUserId}"` });
           for (const fact of facts) {
             await pb.collection('facts').delete(fact.id);
           }
         } catch { /* No facts to delete */ }
 
-        console.log(`[WEBHOOK] Cleaned up PB data for deleted Clerk user: ${id}`);
+        console.log(`[WEBHOOK] Cleaned up PB data for deleted Clerk user: ${pbUserId}`);
       }
     }
   } catch (err) {

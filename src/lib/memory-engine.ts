@@ -18,6 +18,7 @@ const DEFAULT_SIMILARITY_THRESHOLD = 0.88;
 const DEFAULT_LEXICAL_OVERLAP = 0.6;
 const DEFAULT_REINFORCEMENT_DELTA = 0.08;
 const DEFAULT_CONFLICT_THRESHOLD = 0.7;
+const asPbUserId = (identity: string) => identity.trim();
 
 // Redundant helper removed, using import instead.
 
@@ -125,13 +126,14 @@ export const MEMORY_TOOLS: OllamaTool[] = [
  * 🧠 EXECUTOR: executeRecallMemory
  */
 export async function executeRecallMemory(userId: string, topic: string): Promise<string> {
+  const pbUserId = asPbUserId(userId);
   return await obs.trace('memory_recall', {
-    attributes: { 'memory.query': topic, 'user_id_hash': userId }
+    attributes: { 'memory.query': topic, 'user_id_hash': pbUserId }
   }, async (span) => {
     const pb = getServerPB();
     try {
       const result = await pb.collection('facts').getList<Fact>(1, 5, {
-        filter: `user_id = "${userId}" && (fact ~ "${topic}" || tags ~ "${topic}")`,
+        filter: `user_id = "${pbUserId}" && (fact ~ "${topic}" || tags ~ "${topic}")`,
         sort: '-confidence'
       });
 
@@ -155,8 +157,9 @@ export async function executeRecallMemory(userId: string, topic: string): Promis
  * 💾 EXECUTOR: executeSaveMemory
  */
 export async function executeSaveMemory(userId: string, fact: string, category: string): Promise<string> {
+  const pbUserId = asPbUserId(userId);
   return await obs.trace('memory_save', {
-    attributes: { 'memory.category': category, 'user_id_hash': userId }
+    attributes: { 'memory.category': category, 'user_id_hash': pbUserId }
   }, async (span) => {
     const pb = getServerPB();
     
@@ -168,7 +171,7 @@ export async function executeSaveMemory(userId: string, fact: string, category: 
 
       // Stage 1: lexical dedup (fingerprint + token overlap)
       const lexicalCandidates = await pb.collection('facts').getFullList<Fact>({
-        filter: `user_id = "${userId}" && category = "${category}" && (status = "active" || status = "reinforced")`,
+        filter: `user_id = "${pbUserId}" && category = "${category}" && (status = "active" || status = "reinforced")`,
         sort: '-updated',
       });
 
@@ -230,7 +233,7 @@ export async function executeSaveMemory(userId: string, fact: string, category: 
           });
 
           await pb.collection('facts').create({
-            user_id: userId,
+            user_id: pbUserId,
             fact,
             category,
             confidence: 0.65,
@@ -243,7 +246,7 @@ export async function executeSaveMemory(userId: string, fact: string, category: 
           });
 
           await pb.collection('fact_revisions').create({
-            user_id: userId,
+            user_id: pbUserId,
             conflict_group_id: conflictGroupId,
             previous_fact_id: lexicalMatch.id,
             previous_fact: getFactText(lexicalMatch),
@@ -259,7 +262,7 @@ export async function executeSaveMemory(userId: string, fact: string, category: 
       }
 
       const newRecord = await pb.collection('facts').create({
-        user_id: userId,
+        user_id: pbUserId,
         fact,
         category,
         confidence: 0.8,
@@ -288,8 +291,9 @@ export async function executeSaveMemory(userId: string, fact: string, category: 
  * Design: Live Ebbinghaus filtering + context ranking.
  */
 export async function buildMemoryContext(userId: string): Promise<string> {
+  const pbUserId = asPbUserId(userId);
   return await obs.trace('memory_build_context', {
-    attributes: { 'user_id_hash': userId }
+    attributes: { 'user_id_hash': pbUserId }
   }, async (span) => {
     const pb = getServerPB();
 
@@ -299,18 +303,18 @@ export async function buildMemoryContext(userId: string): Promise<string> {
     let researchGems: string[] = [];
 
     const [profileRes, messagesRes, factsRes, gemsRes] = await Promise.allSettled([
-      pb.collection('user_profiles').getFirstListItem<UserProfile>(`user_id = "${userId}"`),
+      pb.collection('user_profiles').getFirstListItem<UserProfile>(`user_id = "${pbUserId}"`),
       pb.collection('conversations').getList<ConversationMessage>(1, 15, {
-        filter: `user_id = "${userId}"`,
+        filter: `user_id = "${pbUserId}"`,
         sort: '-created',
       }),
       pb.collection('facts').getFullList<Fact>({
-        filter: `user_id = "${userId}" && confidence > 0.1 && status != "archived"`,
+        filter: `user_id = "${pbUserId}" && confidence > 0.1 && status != "archived"`,
         sort: '-confidence',
         requestKey: null
       }),
       pb.collection('research_gems').getList<ResearchGem>(1, 4, {
-        filter: `user_id = "${userId}" && status = "saved"`,
+        filter: `user_id = "${pbUserId}" && status = "saved"`,
         sort: '-relevance_score'
       })
     ]);
