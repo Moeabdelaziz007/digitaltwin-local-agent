@@ -46,6 +46,7 @@ const (
 	JobBuildGraph JobType = "BUILD_GRAPH"
 	JobTTS        JobType = "TTS_RENDER"
 	JobReviewJSON JobType = "REVIEW_JSON"
+	JobImprove    JobType = "IMPROVE_SELF"
 )
 
 type Job struct {
@@ -290,6 +291,10 @@ func patternAgentWorker(id int, jobs <-chan Job) {
 
 		case JobReviewJSON:
 			log.Printf("[Worker %d] Reviewing JSON structures", id)
+
+		case JobImprove:
+			// Analyze feedback and generate proposals
+			runImprovementJob(job.UserID)
 
 		default:
 			log.Printf("[Worker %d] Unknown Pattern: %s", id, job.Type)

@@ -10,11 +10,13 @@ import { OllamaTool, callOllama, fetchEmbedding } from '@/lib/ollama-client';
 import { env } from '@/lib/env';
 import { obs } from '@/lib/observability/observability-service';
 
-const POCKETBASE_URL = env.POCKETBASE_URL;
-const DEDUP_SIMILARITY_THRESHOLD = Number(process.env.MEMORY_DEDUP_THRESHOLD || 0.88);
-const DEDUP_TOKEN_OVERLAP_THRESHOLD = Number(process.env.MEMORY_LEXICAL_OVERLAP || 0.6);
-const REINFORCEMENT_DELTA = Number(process.env.MEMORY_REINFORCEMENT_DELTA || 0.08);
-const CONFLICT_CONFIDENCE_THRESHOLD = Number(process.env.MEMORY_CONFLICT_THRESHOLD || 0.7);
+import { config } from '@/lib/observability/config-service';
+
+// Fallback defaults if config service fails
+const DEFAULT_SIMILARITY_THRESHOLD = 0.88;
+const DEFAULT_LEXICAL_OVERLAP = 0.6;
+const DEFAULT_REINFORCEMENT_DELTA = 0.08;
+const DEFAULT_CONFLICT_THRESHOLD = 0.7;
 
 // Server-side PocketBase client
 function getServerPB(): PocketBase {
@@ -71,6 +73,7 @@ function getFactText(record: Fact): string {
 }
 
 async function detectContradiction(newFact: string, existingFact: string, category: string): Promise<boolean> {
+  const conflictThreshold = await config.get('MEMORY_CONFLICT_THRESHOLD', DEFAULT_CONFLICT_THRESHOLD);
   try {
     const result = await callOllama(
       `Answer with JSON only: {"contradiction": boolean, "confidence": number}.\n` +
@@ -80,7 +83,7 @@ async function detectContradiction(newFact: string, existingFact: string, catego
     );
 
     const parsed = JSON.parse(result) as { contradiction?: boolean; confidence?: number };
-    return parsed.contradiction === true && (parsed.confidence ?? 0) >= CONFLICT_CONFIDENCE_THRESHOLD;
+    return parsed.contradiction === true && (parsed.confidence ?? 0) >= conflictThreshold;
   } catch {
     return false;
   }
@@ -175,19 +178,29 @@ export async function executeSaveMemory(userId: string, fact: string, category: 
 
       const exactFingerprintMatch = lexicalCandidates.find(f => f.fact_fingerprint === incomingFingerprint);
 
+      // Stage 2: semantic dedup using embedding similarity
+      const [lexicalThreshold] = await Promise.all([
+        config.get('MEMORY_LEXICAL_OVERLAP', DEFAULT_LEXICAL_OVERLAP)
+      ]);
+
       const overlapCandidate = lexicalCandidates
         .map(candidate => {
           const candidateNormalized = normalizeFactText(getFactText(candidate));
           const overlap = tokenOverlapScore(incomingTokens, tokenize(candidateNormalized));
           return { candidate, overlap };
         })
-        .filter(item => item.overlap >= DEDUP_TOKEN_OVERLAP_THRESHOLD)
+        .filter(item => item.overlap >= lexicalThreshold)
         .sort((a, b) => b.overlap - a.overlap)[0]?.candidate;
 
       const lexicalMatch = exactFingerprintMatch || overlapCandidate;
 
-      // Stage 2: semantic dedup using embedding similarity
       if (lexicalMatch) {
+        const [dedupThreshold, lexicalThreshold, reinforcementDelta] = await Promise.all([
+          config.get('MEMORY_DEDUP_THRESHOLD', DEFAULT_SIMILARITY_THRESHOLD),
+          config.get('MEMORY_LEXICAL_OVERLAP', DEFAULT_LEXICAL_OVERLAP),
+          config.get('MEMORY_REINFORCEMENT_DELTA', DEFAULT_REINFORCEMENT_DELTA)
+        ]);
+
         const [newEmbedding, existingEmbedding] = await Promise.all([
           fetchEmbedding(normalizedFact),
           fetchEmbedding(normalizeFactText(getFactText(lexicalMatch))),
@@ -196,8 +209,8 @@ export async function executeSaveMemory(userId: string, fact: string, category: 
         const semanticSimilarity =
           newEmbedding && existingEmbedding ? cosineSimilarity(newEmbedding, existingEmbedding) : 0;
 
-        if (semanticSimilarity >= DEDUP_SIMILARITY_THRESHOLD) {
-          const boostedConfidence = Math.min(1.0, (lexicalMatch.confidence || 0.5) + REINFORCEMENT_DELTA);
+        if (semanticSimilarity >= dedupThreshold) {
+          const boostedConfidence = Math.min(1.0, (lexicalMatch.confidence || 0.5) + reinforcementDelta);
           await pb.collection('facts').update(lexicalMatch.id, {
             reinforced_count: (lexicalMatch.reinforced_count || 0) + 1,
             confidence: parseFloat(boostedConfidence.toFixed(4)),

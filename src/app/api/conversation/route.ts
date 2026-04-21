@@ -124,20 +124,17 @@ export async function GET(request: NextRequest) {
     attributes: {
       'request_type': 'chat_stream',
       'session_id': sessionId,
-      'user_id_hash': userId, // In production we'd hash this
+      'user_id_hash': userId,
     }
   }, async (span) => {
     const pb = getServerPB();
     const systemPrompt = await buildMemoryContext(userId);
     const encoder = new TextEncoder();
 
-    // Create character-by-character stream
     const stream = new ReadableStream({
       async start(controller) {
         let fullReply = "";
-
         try {
-          // Step 1: Stream from LLM
           for await (const token of streamOllama(message, [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: message },
@@ -145,18 +142,14 @@ export async function GET(request: NextRequest) {
             fullReply += token;
             controller.enqueue(encoder.encode(token));
           }
-
-          // Step 2: Finalize stream
           controller.close();
 
-          // 🔥 Fire-and-Forget Persistence (async)
           void (async () => {
             try {
               const turnIndex = await reserveTurnIndex(pb, userId, sessionId);
               const userMessageId = uuidv4();
               const twinMessageId = uuidv4();
 
-              // Create the turn envelope
               const turn = await pb.collection(TURN_COLLECTION).create({
                 user_id: userId,
                 session_id: sessionId,
@@ -166,7 +159,6 @@ export async function GET(request: NextRequest) {
                 response_content: fullReply,
               });
 
-              // Save User message
               await pb.collection('conversations').create({
                 user_id: userId,
                 session_id: sessionId,
@@ -177,7 +169,6 @@ export async function GET(request: NextRequest) {
                 message_id: userMessageId,
               });
 
-              // Save Twin response
               await pb.collection('conversations').create({
                 user_id: userId,
                 session_id: sessionId,
@@ -188,19 +179,16 @@ export async function GET(request: NextRequest) {
                 message_id: twinMessageId,
               });
 
-              // Update turn with links
               await pb.collection(TURN_COLLECTION).update(turn.id, {
                 user_message_id: userMessageId,
                 twin_message_id: twinMessageId,
               });
 
-              // Trigger Reflection if needed
               triggerReflection(userId, sessionId).catch(() => {});
             } catch (e) {
               console.error('[STREAM/SAVE] Persistence error:', e);
             }
           })();
-
         } catch (err) {
           controller.error(err);
         }
@@ -211,6 +199,7 @@ export async function GET(request: NextRequest) {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
         'X-Session-Id': sessionId,
+        'X-Trace-Id': span.spanContext().traceId,
         'Cache-Control': 'no-store',
       },
     });
@@ -269,6 +258,7 @@ export async function POST(request: NextRequest) {
             turnIndex: existingTurn.turn_index,
             messageId: existingTurn.request_message_id || messageId,
             turnId: existingTurn.id,
+            traceId: (existingTurn as any).trace_id || span.spanContext().traceId,
             idempotentReplay: true,
           }, {
             headers: {
@@ -310,6 +300,7 @@ export async function POST(request: NextRequest) {
             turnIndex: turn.turn_index,
             messageId: turn.request_message_id,
             turnId: turn.id,
+            traceId: (turn as any).trace_id || span.spanContext().traceId,
             idempotentReplay: true,
           }, {
             headers: {
@@ -384,6 +375,7 @@ export async function POST(request: NextRequest) {
         turnIndex,
         messageId,
         turnId: turn.id,
+        traceId: span.spanContext().traceId,
         idempotentReplay: false,
       }, {
         headers: {
