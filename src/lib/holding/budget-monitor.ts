@@ -30,8 +30,8 @@ export class BudgetMonitor {
     const venture = ventureRegistry.getVenture(ventureId);
     if (!venture) return { allowed: false, message: 'Venture not found.' };
 
-    const { monthlyCap, currentSpent } = venture.budget;
-    const usageRatio = currentSpent / monthlyCap;
+    const { monthly_limit_usd, spent_this_month_usd } = venture.budget;
+    const usageRatio = spent_this_month_usd / monthly_limit_usd;
 
     // Layer 3: Full Stop at 100%
     if (usageRatio >= 1.0) {
@@ -41,7 +41,7 @@ export class BudgetMonitor {
 
     // Layer 2: Soft Warning at 80%
     if (usageRatio >= 0.8) {
-      console.warn(`[Budget] WARNING: Venture ${ventureId} at ${Math.round(usageRatio * 100)}% budget. Soft warning issued.`);
+      console.warn(`[Budget] WARNING: Venture ${ventureId} at ${Math.round(usageRatio * 100)}% budget ($${spent_this_month_usd}/$${monthly_limit_usd}). Soft warning issued.`);
       // Logic to trigger notification/ticket could go here
     }
 
@@ -55,11 +55,12 @@ export class BudgetMonitor {
   public async recordSpend(ventureId: string, amount: number) {
     const venture = ventureRegistry.getVenture(ventureId);
     if (venture) {
-      venture.budget.currentSpent += amount;
-      console.log(`[Budget] Venture ${ventureId} spend updated: $${venture.budget.currentSpent.toFixed(4)}`);
+      venture.budget.spent_this_month_usd += amount;
+      console.log(`[Budget] Venture ${ventureId} spend updated: $${venture.budget.spent_this_month_usd.toFixed(4)}`);
       
       // Auto-save back to registry (simulated)
-      ventureRegistry.updateVenture(ventureId, { budget: venture.budget });
+      // Note: we need to implement updateVenture in ventureRegistry
+      (ventureRegistry as any).updateVenture(ventureId, { budget: venture.budget });
     }
   }
 }

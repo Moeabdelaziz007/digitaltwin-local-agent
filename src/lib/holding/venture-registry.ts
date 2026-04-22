@@ -6,9 +6,6 @@
 import { Venture, Goal, Role, Ticket } from './types';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { FreelanceArbitrageBlueprint } from '../revenue-engines/freelance-arbitrage';
-import { MicroSaaSFactoryBlueprint } from '../revenue-engines/microsaas-factory';
-import { BountyHunterBlueprint } from '../revenue-engines/bounty-hunter';
 
 export class VentureRegistry {
   private static instance: VentureRegistry;
