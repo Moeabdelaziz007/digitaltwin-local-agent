@@ -30,7 +30,7 @@ describe('ArbitrageAgent', () => {
     const result = await agent.simulateArbitrage('ETH/USDC');
 
     expect(result.math.spreadPercentage).toBeCloseTo(1.0, 1);
-    expect(result.math.grossProfit).toBeCloseTo(10.0, 1); // 1000 * 0.01
+    expect(result.math.grossProfit).toBeCloseTo(100.0, 1); // 10000 * 0.01
     expect(result.math.netProfit).toBeGreaterThan(0);
     expect(result.risk_level).toBe('low');
     expect(fetchSpy).toHaveBeenCalled();
