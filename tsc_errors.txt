@@ -1,0 +1,70 @@
+.next/types/app/layout.ts(2,24): error TS2306: File '/Users/cryptojoker710/Desktop/DegitalTwin/src/app/layout.tsx' is not a module.
+.next/types/app/layout.ts(5,29): error TS2306: File '/Users/cryptojoker710/Desktop/DegitalTwin/src/app/layout.tsx' is not a module.
+.next/types/validator.ts(264,39): error TS2306: File '/Users/cryptojoker710/Desktop/DegitalTwin/src/app/layout.tsx' is not a module.
+src/app/api/conversation/route.ts(20,29): error TS2306: File '/Users/cryptojoker710/Desktop/DegitalTwin/src/lib/pb-server.ts' is not a module.
+src/app/api/skills/deploy/route.ts(2,29): error TS2306: File '/Users/cryptojoker710/Desktop/DegitalTwin/src/lib/pb-server.ts' is not a module.
+src/app/dashboard/page.tsx(12,29): error TS2306: File '/Users/cryptojoker710/Desktop/DegitalTwin/src/components/VoiceBridge.tsx' is not a module.
+src/app/dashboard/page.tsx(13,33): error TS2306: File '/Users/cryptojoker710/Desktop/DegitalTwin/src/components/ParticleNetwork.tsx' is not a module.
+src/app/dashboard/page.tsx(15,31): error TS2306: File '/Users/cryptojoker710/Desktop/DegitalTwin/src/components/LearningToast.tsx' is not a module.
+src/app/dashboard/venture-lab/page.tsx(18,33): error TS2306: File '/Users/cryptojoker710/Desktop/DegitalTwin/src/components/ParticleNetwork.tsx' is not a module.
+src/app/memory-canvas/page.tsx(17,31): error TS2306: File '/Users/cryptojoker710/Desktop/DegitalTwin/src/components/memory-canvas/FactNode.tsx' is not a module.
+src/app/sign-in/[[...sign-in]]/page.tsx(9,6): error TS2559: Type '{ children: Element[]; }' has no properties in common with type 'IntrinsicAttributes'.
+src/app/sign-up/[[...sign-up]]/page.tsx(9,6): error TS2559: Type '{ children: Element[]; }' has no properties in common with type 'IntrinsicAttributes'.
+src/components/dashboard/VentureLabView.tsx(134,19): error TS2322: Type '{} | { nodes: ({ id: string; label: string; node_type: "event"; } | { id: string; label: string; node_type: "decision"; } | { id: string; label: string; node_type: "profit"; })[]; edges: ({ source: string; target: string; relation_type: "causes"; weight: number; } | { ...; })[]; }' is not assignable to type '{ nodes: Partial<CausalNode>[]; edges: Partial<CausalEdge>[]; } | undefined'.
+  Type '{}' is missing the following properties from type '{ nodes: Partial<CausalNode>[]; edges: Partial<CausalEdge>[]; }': nodes, edges
+src/components/dashboard/VentureLabView.tsx(153,56): error TS2339: Property 'map' does not exist on type '{}'.
+src/lib/agents/profit-lab/arbitrage-agent.ts(40,33): error TS2339: Property 'fetchRealPrices' does not exist on type 'ArbitrageAgent'.
+src/lib/agents/profit-lab/arbitrage-agent.ts(50,32): error TS2339: Property 'runMonteCarloSimulation' does not exist on type 'ArbitrageAgent'.
+src/lib/agents/profit-lab/skill-harvester.ts(29,9): error TS2353: Object literal may only specify known properties, and 'earnings' does not exist in type 'AgentSkill'.
+src/lib/agents/profit-lab/venture-sentinel.ts(20,18): error TS2304: Cannot find name 'Opportunity'.
+src/lib/agents/profit-lab/venture-sentinel.ts(21,19): error TS2304: Cannot find name 'VentureStage'.
+src/lib/agents/profit-lab/venture-sentinel.ts(22,19): error TS2304: Cannot find name 'AgentOutput'.
+src/lib/agents/profit-lab/venture-sentinel.ts(23,14): error TS2552: Cannot find name 'VentureSentinelResult'. Did you mean 'VentureSentinelAgent'?
+src/lib/agents/profit-lab/venture-sentinel.ts(38,25): error TS2304: Cannot find name 'VentureStage'.
+src/lib/agents/profit-lab/venture-sentinel.ts(71,32): error TS2304: Cannot find name 'callOllama'.
+src/lib/agents/profit-lab/venture-sentinel.ts(102,48): error TS2304: Cannot find name 'Opportunity'.
+src/lib/agents/profit-lab/venture-sentinel.ts(102,70): error TS2304: Cannot find name 'AgentOutput'.
+src/lib/agents/profit-lab/venture-sentinel.ts(111,56): error TS2304: Cannot find name 'Opportunity'.
+src/lib/agents/profit-lab/venture-sentinel.ts(112,35): error TS2339: Property 'memoryEngine' does not exist on type 'VentureSentinelAgent'.
+src/lib/agents/profit-lab/venture-sentinel.ts(116,38): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/lib/agents/profit-lab/venture-sentinel.ts(120,44): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/lib/agents/profit-lab/venture-sentinel.ts(127,38): error TS2304: Cannot find name 'VentureStage'.
+src/lib/agents/profit-lab/venture-sentinel.ts(127,61): error TS2304: Cannot find name 'AgentOutput'.
+src/lib/agents/profit-lab/venture-sentinel.ts(128,42): error TS2304: Cannot find name 'VentureStage'.
+src/lib/agents/profit-lab/venture-sentinel.ts(141,41): error TS2304: Cannot find name 'Opportunity'.
+src/lib/agents/profit-lab/venture-sentinel.ts(141,63): error TS2304: Cannot find name 'AgentOutput'.
+src/lib/agents/profit-lab/venture-sentinel.ts(147,33): error TS2304: Cannot find name 'VentureStage'.
+src/lib/agents/profit-lab/venture-sentinel.ts(147,48): error TS2304: Cannot find name 'VentureStage'.
+src/lib/agents/profit-lab/venture-sentinel.ts(148,19): error TS2304: Cannot find name 'VentureStage'.
+src/lib/agents/profit-lab/venture-sentinel.ts(153,37): error TS2304: Cannot find name 'VentureStage'.
+src/lib/agents/profit-lab/venture-sentinel.ts(153,52): error TS2304: Cannot find name 'VentureStage'.
+src/lib/agents/profit-lab/venture-sentinel.ts(154,19): error TS2304: Cannot find name 'VentureStage'.
+src/lib/consensus/orchestrator.ts(146,3): error TS2322: Type 'ConsensusVerdict | { final_answer: string; confidence: number; risk: "med" | "low" | "high"; fallback_used: false; timed_out: false; latency_ms: number; disagreement: boolean; ... 15 more ...; fragility_map: {}; }' is not assignable to type 'ConsensusVerdict'.
+  Type '{ final_answer: string; confidence: number; risk: "med" | "low" | "high"; fallback_used: false; timed_out: false; latency_ms: number; disagreement: boolean; planner: AgentProposal; ... 14 more ...; fragility_map: {}; }' is not assignable to type 'ConsensusVerdict'.
+    Types of property 'fragility_map' are incompatible.
+      Type '{}' is not assignable to type 'Record<string, number>'.
+        Index signature for type 'string' is missing in type '{}'.
+src/lib/consensus/orchestrator.ts(149,34): error TS2304: Cannot find name 'PRIVACY_FILTER_PROMPT'.
+src/lib/consensus/orchestrator.ts(243,34): error TS2304: Cannot find name 'FUTURE_MIRROR_PROMPT'.
+src/lib/consensus/orchestrator.ts(323,34): error TS2304: Cannot find name 'NEURAL_HIERARCHY_PROMPT'.
+src/lib/guardian/observability-guardian.ts(1,29): error TS2306: File '/Users/cryptojoker710/Desktop/DegitalTwin/src/lib/pb-server.ts' is not a module.
+src/lib/jobs/jobs-service.ts(1,29): error TS2306: File '/Users/cryptojoker710/Desktop/DegitalTwin/src/lib/pb-server.ts' is not a module.
+src/lib/memory-engine.ts(12,29): error TS2306: File '/Users/cryptojoker710/Desktop/DegitalTwin/src/lib/pb-server.ts' is not a module.
+src/lib/memory-engine.ts(143,40): error TS7006: Parameter 'f' implicitly has an 'any' type.
+src/lib/memory-engine.ts(149,26): error TS7006: Parameter 'f' implicitly has an 'any' type.
+src/lib/memory-engine.ts(178,60): error TS7006: Parameter 'f' implicitly has an 'any' type.
+src/lib/memory-engine.ts(186,14): error TS7006: Parameter 'candidate' implicitly has an 'any' type.
+src/lib/memory-engine.ts(191,17): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/lib/memory-engine.ts(192,16): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/lib/memory-engine.ts(192,19): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/lib/memory-engine.ts(335,36): error TS7006: Parameter 'f' implicitly has an 'any' type.
+src/lib/memory-engine.ts(350,17): error TS7006: Parameter 'fs' implicitly has an 'any' type.
+src/lib/memory-engine.ts(351,16): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/lib/memory-engine.ts(351,19): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/lib/memory-engine.ts(353,14): error TS7006: Parameter 'fs' implicitly has an 'any' type.
+src/lib/memory-engine.ts(362,46): error TS7006: Parameter 'g' implicitly has an 'any' type.
+src/lib/memory/counterfactual.ts(2,29): error TS2306: File '/Users/cryptojoker710/Desktop/DegitalTwin/src/lib/pb-server.ts' is not a module.
+src/lib/memory/counterfactual.ts(46,37): error TS7006: Parameter 'n' implicitly has an 'any' type.
+src/lib/memory/counterfactual.ts(55,55): error TS7006: Parameter 'n' implicitly has an 'any' type.
+src/lib/voice/VoiceProvider.tsx(4,59): error TS2306: File '/Users/cryptojoker710/Desktop/DegitalTwin/src/lib/voice/state-machine.ts' is not a module.
+src/lib/voice/VoiceProvider.tsx(27,42): error TS7006: Parameter 'newState' implicitly has an 'any' type.

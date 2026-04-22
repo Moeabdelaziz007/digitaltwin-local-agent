@@ -57,20 +57,39 @@
 1.  **Executive Layer (The Synapse)**: The neural orchestrator (core-orchestrator).
 2.  **Intelligence Layer (The Crucible)**: 14-agent consensus engine (consensus-engine-v3).
 3.  **Action Layer (The Kinetic Edge)**: The execution sharp-end (action-executor).
-4.  **Simulation Layer (The Future Mirror)**: Monte Carlo "What-if" market simulations (market-simulation-worker).
-5.  **Search Layer (The Prism)**: Market refraction & opportunity scanning (opportunity-scanner).
-6.  **Protection Layer (The Privacy Filter)**: Local RAG gatekeeper with privacy-first scanning (local-rag-gatekeeper).
-7.  **Structure Layer (The Neural Hierarchy)**: Hierarchical task distribution tree (agent-task-tree).
-8.  **Memory Layer (The Chronos Ledger)**: Causal event logging (causal-db-service).
-9.  **Evolution Layer (The Alchemist)**: Recursive self-improvement & MCP tool building (recursive-tool-builder).
-10. **Input Layer (The Companion)**: User persona & digital footprint context.
+4.  **Simulation Layer (The Future Mirror)**: Monte Carlo "What-if" market simulations.
+5.  **Search Layer (The Prism)**: Market refraction & Jina-powered opportunity scanning.
+6.  **Protection Layer (The Privacy Filter)**: Local RAG gatekeeper & Sovereign Shield quality gate.
+7.  **Structure Layer (The Neural Hierarchy)**: Hierarchical task distribution tree.
+8.  **Memory Layer (The Chronos Ledger)**: Causal attribution & MemGPT-style tiered memory.
+9.  **Evolution Layer (The Alchemist)**: Meta-cognitive reflection & recursive skill-scaffolding.
+10. **Input Layer (The Companion)**: User persona & Desktop Bridge context.
+
+***
+
+## 🛡️ Sovereign Upgrades | الترقيات السيادية (v3.5+)
+The system has been hardened with cutting-edge agentic infrastructure:
+
+-   **[The Sovereign Shield]**: A strict quality gate (`npm run verify`) that enforces zero-drift between DB schema and code via auto-generated contracts.
+-   **[Tiered Memory Store]**: Implements MemGPT-style memory (Hot/Warm/Cold) with auto-compaction and LLM-driven summarization to manage infinite context.
+-   **[Opportunity Scanner]**: Real-time signal detection across Upwork, Contra, and IndieHackers using **Jina Reader** refraction.
+-   **[Meta-Cognitive Engine]**: A self-improvement loop that analyzes task outcomes to update skill weights and generate new hypotheses.
+-   **[Causal Attribution]**: Tracks the "Why" behind successes/failures to build a personalized context moat.
+-   **[Desktop Bridge (Sidecar)]**: Screen-aware proactive intelligence using `screenshot-desktop` and zero-cost OCR.
+-   **[Skill Marketplace]**: NPM-style skill packages with semantic versioning and auto-tracking performance stats.
 
 ***
 
 ### 💰 Hidden Revenue Strategies | استراتيجيات الربح المخفية
-*   **The Arbitrage Mirror**: Uses *The Prism* to simulate causal patterns of high-performance On-chain wallets for anticipatory trading.
-*   **Fragility Hunting**: Deploys *The Crucible* to identify weaknesses in Micro-SaaS projects on ProductHunt/Acquire to build "Fixed" versions.
-*   **Memory Monetization**: Automates the synthesis of *Chronos Ledger* research into high-value "Alpha Reports" and newsletters.
+-   **Income Stream 1: [Autonomous Freelance Agent]**: Automated Upwork/Contra job hunting. Uses Jina Reader for signal fetching and Digital Twin voice for proposal generation.
+-   **Income Stream 2: [Content Arbitrage Machine]**: Monitors trending tech keywords, writes SEO-optimized articles with embedded affiliate links (Vercel, GitHub, Notion), and auto-posts to Medium/Hashnode/Dev.to.
+-   **Income Stream 3: [Micro-SaaS Idea Validator + Builder]**: Automatically identifies high-ROI problems, generates a minimal Next.js/API solution, creates a Gumroad listing, and deploys to Vercel.
+-   **Income Stream 4: [GitHub Issue Bounty Hunter]**: Scans for open-source issues with bounties ($50-$500), solves them autonomously using the SWE-agent pattern, and submits PRs.
+-   **Income Stream 5: [Digital Product Factory]**: Audits internal memory for reusable knowledge and packages it into sellable assets (Templates, Prompt Packs, AI Workflows).
+-   **Income Stream 6: [Agent-as-a-Service]**: Monetize the Twin's intelligence by exposing the `opportunity/` and `causal/` engines as a paid API for other developers.
+-   **The Arbitrage Mirror**: Uses *The Prism* to simulate causal patterns of high-performance On-chain wallets.
+-   **Fragility Hunting**: Identify weaknesses in Micro-SaaS projects to build "Fixed" versions.
+-   **Memory Monetization**: Synthesis of *Chronos Ledger* into high-value "Alpha Reports".
 
 ***
 
@@ -139,8 +158,23 @@ The system employs a consensus loop to pressure-test every opportunity. Use the 
 | **Revenue Architect** | Profit Simulation | محاكاة الأرباح |
 | **Distribution Scout** | Growth Loops | حلقات النمو |
 | **CEO Orchestrator** | Final Synthesis | التوليف النهائي |
+| **Sidecar Observer** | Desktop Intelligence | ذكاء سطح المكتب |
 
 </details>
+
+***
+
+## 🏪 The Skill Marketplace | متجر المهارات
+MAS-ZERO treats skills as **Sovereign NPM-style packages**:
+-   **Semantic Versioning**: Track evolution from `v1.0.0` to `v2.1.0`.
+-   **Auto-Publishing**: Skills with >80% success rate automatically enter the internal marketplace.
+-   **Performance Metrics**: Real-time tracking of `totalRuns`, `avgDurationMs`, and `earningsGenerated`.
+
+## 🖥️ Desktop Bridge (Sidecar) | جسر سطح المكتب
+The agent is no longer blind. Using the `sidecar/` module:
+-   **Proactive Observation**: OCR-powered screen analysis via `tesseract.js`.
+-   **Context-Aware Help**: "I see you're looking at a TypeScript error. Want me to fix it?"
+-   **Zero-Cost Engineering**: Pure open-source stack (Screenshot-desktop + Tesseract) running locally.
 
 ***
 

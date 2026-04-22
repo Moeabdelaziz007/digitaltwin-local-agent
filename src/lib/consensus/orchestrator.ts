@@ -25,12 +25,18 @@ import {
   DISTRIBUTION_STRATEGIST_PROMPT,
   SPEC_BLACKSMITH_PROMPT,
   CEO_SYNTHESIZER_PROMPT,
-  FAILURE_ARCHIVIST_PROMPT
+  FAILURE_ARCHIVIST_PROMPT,
+  PRIVACY_FILTER_PROMPT,
+  FUTURE_MIRROR_PROMPT,
+  NEURAL_HIERARCHY_PROMPT
 } from './prompts';
 import { executeSaveMemory, executeRecallMemory } from '@/lib/memory-engine';
 import { VentureSentinelAgent } from '../agents/profit-lab/venture-sentinel';
 import { SynapseOracle } from '../agents/profit-lab/synapse-oracle';
 import { ArbitrageAgent } from '../agents/profit-lab/arbitrage-agent';
+import { opportunityScanner } from '../opportunity/scanner';
+import { tieredMemory } from '../memory/tiered-store';
+import { reflectionLoop } from '../meta-cognitive/reflection-loop';
 
 
 const STAGE_TIMEOUT_MS = 12000;
@@ -147,6 +153,7 @@ async function runVentureLabCycle(input: ConsensusInput, start: number): Promise
       { role: 'user', content: `INPUT_TO_SCRUB: ${input.userMessage}` }
     ]), STAGE_TIMEOUT_MS);
     const scrubbedInput = safeParseProposal(privacyCheckRaw, 'guardian').output;
+    await tieredMemory.add(`Initiating venture cycle for: ${scrubbedInput}`, 'thought');
 
     // --- STAGE 1: EXPLORE (The Prism Refraction) ---
     const [hunterRaw, pastFailures, oracleGems] = await Promise.all([
@@ -335,6 +342,14 @@ async function runVentureLabCycle(input: ConsensusInput, start: number): Promise
       ]);
       await executeSaveMemory(userId, archivistRaw, 'venture_failure');
     }
+
+    // --- META-COGNITIVE REFLECTION ---
+    await reflectionLoop.reflect(input.userMessage, {
+      taskId: `venture_${Date.now()}`,
+      success: ceo.verdict !== 'reject' && ceo.confidence > 0.7,
+      steps: ['Explore', 'Collapse', 'Attack', 'Build', 'Synthesis'],
+      duration: Date.now() - start
+    });
 
     return {
       final_answer: ceo.output,
