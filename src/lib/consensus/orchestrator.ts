@@ -26,6 +26,9 @@ import {
   FAILURE_ARCHIVIST_PROMPT
 } from './prompts';
 import { executeSaveMemory, executeRecallMemory } from '@/lib/memory-engine';
+import { VentureSentinelAgent } from '@/lib/agents/profit-lab/venture-sentinel';
+
+const sentinel = new VentureSentinelAgent();
 
 
 const STAGE_TIMEOUT_MS = 12000;
@@ -139,6 +142,19 @@ async function runVentureLabCycle(input: ConsensusInput, start: number): Promise
     ]), STAGE_TIMEOUT_MS);
     const miner = safeParseProposal(minerRaw, 'scout');
 
+    // --- GATE 1: EXPLORE CHECK ---
+    const gate1 = await sentinel.evaluateStageTransition(
+      { title: input.userMessage } as any, 
+      'Explore', 
+      [hunter, forager, miner]
+    );
+    if (gate1.verdict !== 'PASS') {
+      return createKillSwitchVerdict(
+        `[Sentinel] ${gate1.rollback_reason || 'Explore stage failed quality gate'}`,
+        Date.now() - start
+      );
+    }
+
     // --- STAGE 2: COLLAPSE (Convergence) ---
     const cacheRaw = await runWithTimeout(() => callOllama(input.userMessage, [
       { role: 'system', content: PLAN_CACHE_KEEPER_PROMPT },
@@ -152,6 +168,19 @@ async function runVentureLabCycle(input: ConsensusInput, start: number): Promise
     ]), STAGE_TIMEOUT_MS);
     const conductor = safeParseProposal(conductorRaw, 'workflow_designer');
 
+    // --- GATE 2: COLLAPSE CHECK ---
+    const gate2 = await sentinel.evaluateStageTransition(
+      { title: input.userMessage } as any, 
+      'Collapse', 
+      [cache, conductor]
+    );
+    if (gate2.verdict !== 'PASS') {
+      return createKillSwitchVerdict(
+        `[Sentinel] ${gate2.rollback_reason || 'Collapse stage failed quality gate'}`,
+        Date.now() - start
+      );
+    }
+
     // --- STAGE 3: ATTACK (The Crucible) ---
     const advocateRaw = await runWithTimeout(() => callOllama(input.userMessage, [
       { role: 'system', content: DEVILS_ADVOCATE_PROMPT },
@@ -164,6 +193,19 @@ async function runVentureLabCycle(input: ConsensusInput, start: number): Promise
       { role: 'user', content: `PROPOSAL: ${conductor.output}\nOBJECTIONS: ${advocate.output}` }
     ]), STAGE_TIMEOUT_MS);
     const marketSim = safeParseProposal(marketSimRaw, 'market_simulator');
+
+    // --- GATE 3: ATTACK CHECK ---
+    const gate3 = await sentinel.evaluateStageTransition(
+      { title: input.userMessage } as any, 
+      'Attack', 
+      [advocate, marketSim]
+    );
+    if (gate3.verdict !== 'PASS') {
+      return createKillSwitchVerdict(
+        `[Sentinel] ${gate3.rollback_reason || 'Attack stage failed quality gate'}`,
+        Date.now() - start
+      );
+    }
 
     // --- STAGE 4: BUILD (Triple Simulation) ---
     const buildSimRaw = await runWithTimeout(() => callOllama(input.userMessage, [
@@ -195,6 +237,19 @@ async function runVentureLabCycle(input: ConsensusInput, start: number): Promise
       { role: 'user', content: `OFFER: ${architect.output}\nAFFILIATES: ${affiliate.output}` }
     ]), STAGE_TIMEOUT_MS);
     const distribution = safeParseProposal(distributionRaw, 'distribution');
+
+    // --- GATE 4: BUILD CHECK ---
+    const gate4 = await sentinel.evaluateStageTransition(
+      { title: input.userMessage } as any, 
+      'Build', 
+      [buildSim, revSim, architect, affiliate, distribution]
+    );
+    if (gate4.verdict !== 'PASS') {
+      return createKillSwitchVerdict(
+        `[Sentinel] ${gate4.rollback_reason || 'Build stage failed quality gate'}`,
+        Date.now() - start
+      );
+    }
 
     // --- STAGE 5: SYNTHESIS (Final Consensus) ---
     const blacksmithRaw = await runWithTimeout(() => callOllama(input.userMessage, [

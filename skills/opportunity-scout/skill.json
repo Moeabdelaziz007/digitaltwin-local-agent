@@ -1,0 +1,23 @@
+{
+  "name": "Opportunity Scout",
+  "version": "1.0.0",
+  "description": "Scans market regimes, detects hidden gems, and constructs initial causal graphs for ventures.",
+  "when_to_use": "At the very beginning of the Venture Lab cycle to identify high-potential opportunities.",
+  "permissions": ["memory_read", "memory_write", "network"],
+  "required_tools": ["search_web", "read_url_content"],
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "market_regime": { "type": "string" }
+    }
+  },
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "opportunities": { "type": "array" }
+    }
+  },
+  "safety_notes": "Requires clean data to avoid noise in the venture pipeline.",
+  "revenue_impact": "critical",
+  "next_skills": ["market-researcher", "venture-sentinel"]
+}

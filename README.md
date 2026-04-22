@@ -17,13 +17,13 @@
 </p>
 
 <h1 align="center">
-  Digital Twin Venture Lab
+  MAS-ZERO: The Twin that Works
 </h1>
 
 <p align="center">
-  <i>The Sovereign Engine for Autonomous Profit Orchestration</i>
+  <i>From Mimetic Companion to Autonomous Venture Powerhouse</i>
   <br/>
-  محرك السيادة لتنظيم الأرباح الذاتية
+  من مساعد شخصي إلى قوة مشاريع ذاتية التشغيل
 </p>
 
 ***
@@ -38,20 +38,25 @@
 
 ***
 
-## 🌐 Vision | الرؤية
+## 🌐 Vision | الرؤية: The Twin that Works
 
 <table width="100%">
   <tr>
     <td width="50%" valign="top">
       <h3>English</h3>
-      <p><b>Digital Twin Venture Lab</b> is a local-first autonomous system that transforms raw ideas into validated, revenue-generating ventures. Built for the 2026 economic landscape, it prioritizes <b>Zero-Cost execution</b> and <b>Sovereign Privacy</b>.</p>
+      <p><b>MAS-ZERO: The Twin that Works</b> is a strategic pivot from simple mimicry to autonomous production. It uses your digital footprint (Companion Layer) as a contextual compass while the 14-agent <b>Venture Lab</b> handles the heavy lifting: identifying arbitrage, building Micro-SaaS, and orchestrating revenue.</p>
     </td>
     <td width="50%" valign="top" align="right" dir="rtl">
       <h3>العربية</h3>
-      <p><b>مختبر مشاريع التوأم الرقمي</b> هو نظام ذاتي القيادة يعمل محلياً بالكامل، يقوم بتحويل الأفكار الخام إلى مشاريع مدرة للربح. صُمم للمشهد الاقتصادي لعام 2026، مع التركيز على <b>التنفيذ صفري التكلفة</b> و<b>الخصوصية السيادية</b>.</p>
+      <p><b>ماس-زيرو: التوأم الذي يعمل</b> هو تحول استراتيجي من مجرد المحاكاة إلى الإنتاج الذاتي. يستخدم بصمتك الرقمية (طبقة المرافق) كبوصلة سياقية، بينما يتولى <b>مختبر المشاريع</b> المكون من 14 وكيلاً العمل الشاق: اكتشاف الفرص، بناء المشاريع الصغيرة، وتنظيم الإيرادات.</p>
     </td>
   </tr>
 </table>
+
+### 🏗️ Architectural Hierarchy | التدرج المعماري
+1.  **Executive Layer (Venture Lab)**: The profit engine (14 Agents).
+2.  **Intelligence Layer (MAS-ZERO)**: The Causal & Consensus engine.
+3.  **Input Layer (The Companion)**: Your habits & persona as context.
 
 ***
 

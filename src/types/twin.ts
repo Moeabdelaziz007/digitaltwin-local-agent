@@ -131,6 +131,20 @@ export interface CausalEdge extends PBRecord {
 // ----------------------------------------------------------
 // Profit Lab: Opportunities & Ventures
 // ----------------------------------------------------------
+export type VentureStage = 'Explore' | 'Collapse' | 'Attack' | 'Build' | 'Synthesis';
+
+export interface VentureSentinelResult {
+  verdict: 'PASS' | 'CONCERNS' | 'FAIL';
+  current_stage: VentureStage;
+  next_stage?: VentureStage;
+  blockers: string[];
+  rollback_target?: VentureStage;
+  rollback_reason?: string;
+  required_skills_missing: string[];
+  revenue_readiness_score: number; // 0-100
+  metadata: Record<string, any>;
+}
+
 export interface Opportunity extends PBRecord {
   user_id: string;
   title: string;

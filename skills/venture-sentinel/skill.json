@@ -1,0 +1,25 @@
+{
+  "name": "Venture Sentinel",
+  "version": "1.0.0",
+  "description": "Mandatory quality gate for stage transitions. Calculates revenue readiness and manages recursive refinement.",
+  "when_to_use": "After every major venture stage to verify readiness for the next step.",
+  "permissions": ["memory_read", "memory_write"],
+  "required_tools": [],
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "current_stage": { "type": "string" },
+      "outputs": { "type": "array" }
+    }
+  },
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "verdict": { "type": "string" },
+      "rollback_target": { "type": "string" }
+    }
+  },
+  "safety_notes": "Critical for preventing resource waste on unviable ventures.",
+  "revenue_impact": "critical",
+  "blocks_if_missing": ["Collapse", "Attack", "Build", "Synthesis"]
+}
