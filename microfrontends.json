@@ -1,0 +1,10 @@
+{
+  "$schema": "https://openapi.vercel.sh/microfrontends.json",
+  "applications": {
+    "digital-mini-twin": {
+      "development": {
+        "fallback": "digital-mini-twin.vercel.app"
+      }
+    }
+  }
+}
