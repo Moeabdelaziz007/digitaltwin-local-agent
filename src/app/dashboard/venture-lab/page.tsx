@@ -50,9 +50,10 @@ export default function VentureLabDashboard() {
         .catch(console.error);
     }
   }, [user?.id]);
+  useEffect(() => {
     // Simulate real-time progress
+    const stages = STAGES.map(s => s.id);
     const timer = setInterval(() => {
-      const stages = STAGES.map(s => s.id);
       const nextIdx = (stages.indexOf(activeStage) + 1) % stages.length;
       setActiveStage(stages[nextIdx]);
     }, 8000);

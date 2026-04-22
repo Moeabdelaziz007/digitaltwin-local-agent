@@ -10,9 +10,9 @@
     "lint": "next lint",
     "build": "node scripts/check-env.mjs && next build",
     "start": "next start",
+    "verify": "chmod +x scripts/quality-gate.sh && ./scripts/quality-gate.sh",
     "check:env": "node scripts/check-env.mjs",
     "check:smoke": "node scripts/check-smoke.mjs",
-    "verify": "chmod +x scripts/quality-gate.sh && ./scripts/quality-gate.sh",
     "scan-bugs": "grep -rinE 'console\\.log|TODO|FIXME|localhost|sk_test|pk_test|body\\.userId' src/ || echo 'Zero critical debugging artifacts found!'",
     "test:cron:decay": "curl -H 'Authorization: Bearer test' http://localhost:3000/api/cron/decay",
     "test:cron:snapshot": "curl -H 'Authorization: Bearer test' http://localhost:3000/api/cron/snapshot",
@@ -59,7 +59,7 @@
     "typescript": "^5"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": "22.x"
   },
   "packageManager": "pnpm@10.23.0+sha512.21c4e5698002ade97e4efe8b8b4a89a8de3c85a37919f957e7a0f30f38fbc5bbdd05980ffe29179b2fb6e6e691242e098d945d1601772cad0fef5fb6411e2a4b",
   "pnpm": {
