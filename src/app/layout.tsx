@@ -2,18 +2,11 @@ import type { Metadata, Viewport } from 'next';
 import { ClerkProvider } from '@clerk/nextjs';
 import { dark } from '@clerk/themes';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-sans",
-  subsets: ["latin"],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-});
+// System font fallbacks to bypass network restrictions during build
+const inter = { variable: "--font-sans" };
+const jetbrainsMono = { variable: "--font-mono" };
 
 export const metadata: Metadata = {
   title: "MyDigitalTwin (Zero-Latency)",

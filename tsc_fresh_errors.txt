@@ -1,0 +1,155 @@
+e2e/basic.spec.ts(1,30): error TS2307: Cannot find module '@playwright/test' or its corresponding type declarations.
+e2e/basic.spec.ts(4,67): error TS7031: Binding element 'page' implicitly has an 'any' type.
+e2e/basic.spec.ts(9,50): error TS7031: Binding element 'page' implicitly has an 'any' type.
+e2e/basic.spec.ts(16,59): error TS7031: Binding element 'page' implicitly has an 'any' type.
+e2e/basic.spec.ts(23,63): error TS7031: Binding element 'page' implicitly has an 'any' type.
+playwright.config.ts(1,39): error TS2307: Cannot find module '@playwright/test' or its corresponding type declarations.
+src/__tests__/groq-service.test.ts(1,54): error TS2307: Cannot find module 'vitest' or its corresponding type declarations.
+src/app/admin/observability/page.tsx(47,43): error TS18046: 't' is of type 'unknown'.
+src/app/admin/observability/page.tsx(49,68): error TS18046: 't' is of type 'unknown'.
+src/app/admin/observability/page.tsx(114,30): error TS18046: 't' is of type 'unknown'.
+src/app/admin/observability/page.tsx(116,26): error TS18046: 't' is of type 'unknown'.
+src/app/admin/observability/page.tsx(116,53): error TS18046: 't' is of type 'unknown'.
+src/app/admin/observability/page.tsx(120,75): error TS18046: 't' is of type 'unknown'.
+src/app/admin/observability/page.tsx(121,71): error TS18046: 't' is of type 'unknown'.
+src/app/admin/observability/page.tsx(125,46): error TS18046: 't' is of type 'unknown'.
+src/app/admin/observability/page.tsx(128,37): error TS18046: 't' is of type 'unknown'.
+src/app/admin/observability/page.tsx(131,35): error TS18046: 't' is of type 'unknown'.
+src/app/admin/observability/page.tsx(135,57): error TS18046: 't' is of type 'unknown'.
+src/app/api/browserbase/research/route.ts(61,9): error TS2353: Object literal may only specify known properties, and 'url' does not exist in type '{ keepAlive?: boolean | undefined; }'.
+src/app/api/conversation/route.ts(61,28): error TS18046: 'counter' is of type 'unknown'.
+src/app/api/conversation/route.ts(64,54): error TS18046: 'counter' is of type 'unknown'.
+src/app/api/conversation/route.ts(160,26): error TS18046: 'turn' is of type 'unknown'.
+src/app/api/conversation/route.ts(170,26): error TS18046: 'turn' is of type 'unknown'.
+src/app/api/conversation/route.ts(174,59): error TS18046: 'turn' is of type 'unknown'.
+src/app/api/conversation/route.ts(247,42): error TS2339: Property 'status' does not exist on type '{}'.
+src/app/api/conversation/route.ts(247,88): error TS2339: Property 'response_content' does not exist on type '{}'.
+src/app/api/conversation/route.ts(250,34): error TS2339: Property 'response_content' does not exist on type '{}'.
+src/app/api/conversation/route.ts(250,78): error TS2339: Property 'turn_index' does not exist on type '{}'.
+src/app/api/conversation/route.ts(255,33): error TS2339: Property 'response_content' does not exist on type '{}'.
+src/app/api/conversation/route.ts(257,37): error TS2339: Property 'turn_index' does not exist on type '{}'.
+src/app/api/conversation/route.ts(258,37): error TS2339: Property 'request_message_id' does not exist on type '{}'.
+src/app/api/conversation/route.ts(259,34): error TS2339: Property 'id' does not exist on type '{}'.
+src/app/api/conversation/route.ts(260,35): error TS2339: Property 'trace_id' does not exist on type '{}'.
+src/app/api/conversation/route.ts(294,44): error TS2339: Property 'id' does not exist on type '{}'.
+src/app/api/conversation/route.ts(294,51): error TS18046: 'turn' is of type 'unknown'.
+src/app/api/conversation/route.ts(294,76): error TS2339: Property 'status' does not exist on type '{}'.
+src/app/api/conversation/route.ts(294,123): error TS2339: Property 'response_content' does not exist on type '{}'.
+src/app/api/conversation/route.ts(299,26): error TS2339: Property 'response_content' does not exist on type '{}'.
+src/app/api/conversation/route.ts(299,62): error TS2339: Property 'turn_index' does not exist on type '{}'.
+src/app/api/conversation/route.ts(304,25): error TS2339: Property 'response_content' does not exist on type '{}'.
+src/app/api/conversation/route.ts(306,29): error TS2339: Property 'turn_index' does not exist on type '{}'.
+src/app/api/conversation/route.ts(307,29): error TS2339: Property 'request_message_id' does not exist on type '{}'.
+src/app/api/conversation/route.ts(308,26): error TS2339: Property 'id' does not exist on type '{}'.
+src/app/api/conversation/route.ts(309,27): error TS2339: Property 'trace_id' does not exist on type '{}'.
+src/app/api/conversation/route.ts(327,18): error TS18046: 'turn' is of type 'unknown'.
+src/app/api/conversation/route.ts(402,28): error TS18046: 'turn' is of type 'unknown'.
+src/app/api/conversation/route.ts(406,61): error TS18046: 'turn' is of type 'unknown'.
+src/app/api/conversation/route.ts(409,36): error TS18046: 'userMessageRecord' is of type 'unknown'.
+src/app/api/feedback/route.ts(33,51): error TS18046: 'record' is of type 'unknown'.
+src/app/api/skills/deploy/route.ts(23,55): error TS2339: Property 'getOne' does not exist on type '{ getFullList<T>(options?: Record<string, any> | undefined): Promise<T[]>; getList<T>(page: number, perPage: number, options?: Record<string, any> | undefined): Promise<...>; ... 4 more ...; subscribe<T>(filter: string, callback: (data: { ...; }) => void): Promise<...>; }'.
+src/app/api/webhooks/clerk/route.ts(63,53): error TS18046: 'existing' is of type 'unknown'.
+src/app/api/webhooks/clerk/route.ts(92,55): error TS18046: 'profile' is of type 'unknown'.
+src/app/api/webhooks/clerk/route.ts(98,49): error TS18046: 'fact' is of type 'unknown'.
+src/app/memory-canvas/page.tsx(62,15): error TS18046: 'fact' is of type 'unknown'.
+src/app/memory-canvas/page.tsx(69,20): error TS18046: 'fact' is of type 'unknown'.
+src/app/memory-canvas/page.tsx(70,23): error TS18046: 'fact' is of type 'unknown'.
+src/app/memory-canvas/page.tsx(71,25): error TS18046: 'fact' is of type 'unknown'.
+src/app/memory-canvas/page.tsx(73,22): error TS18046: 'fact' is of type 'unknown'.
+src/app/memory-canvas/page.tsx(74,30): error TS18046: 'fact' is of type 'unknown'.
+src/app/memory-canvas/page.tsx(75,19): error TS18046: 'fact' is of type 'unknown'.
+src/app/memory-canvas/page.tsx(80,15): error TS18046: 'edge' is of type 'unknown'.
+src/app/memory-canvas/page.tsx(81,19): error TS18046: 'edge' is of type 'unknown'.
+src/app/memory-canvas/page.tsx(82,19): error TS18046: 'edge' is of type 'unknown'.
+src/app/memory-canvas/page.tsx(83,18): error TS18046: 'edge' is of type 'unknown'.
+src/app/memory/page.tsx(16,25): error TS2339: Property 'authStore' does not exist on type 'PocketBase'.
+src/app/onboard/page.tsx(90,53): error TS18046: 'existing' is of type 'unknown'.
+src/app/settings/page.tsx(11,8): error TS2339: Property 'authStore' does not exist on type 'PocketBase'.
+src/app/settings/page.tsx(33,56): error TS2339: Property 'authStore' does not exist on type 'PocketBase'.
+src/lib/agents/profit-lab/arbitrage-agent.test.ts(1,54): error TS2307: Cannot find module 'vitest' or its corresponding type declarations.
+src/lib/agents/profit-lab/skill-registry.ts(165,60): error TS2339: Property 'getOne' does not exist on type '{ getFullList<T>(options?: Record<string, any> | undefined): Promise<T[]>; getList<T>(page: number, perPage: number, options?: Record<string, any> | undefined): Promise<...>; ... 4 more ...; subscribe<T>(filter: string, callback: (data: { ...; }) => void): Promise<...>; }'.
+src/lib/browserbase/controller.ts(35,25): error TS2339: Property 'debugUrl' does not exist on type 'SessionCreateResponse'.
+src/lib/browserbase/controller.ts(84,47): error TS2339: Property 'screenshot' does not exist on type 'Sessions'.
+src/lib/browserbase/controller.ts(99,47): error TS2339: Property 'evaluate' does not exist on type 'Sessions'.
+src/lib/browserbase/controller.ts(125,47): error TS2339: Property 'evaluate' does not exist on type 'Sessions'.
+src/lib/causal/extractor.ts(88,12): error TS18046: 'existing' is of type 'unknown'.
+src/lib/causal/extractor.ts(96,12): error TS18046: 'created' is of type 'unknown'.
+src/lib/causal/extractor.ts(121,45): error TS2339: Property 'evidence_count' does not exist on type '{}'.
+src/lib/causal/extractor.ts(122,57): error TS2339: Property 'weight' does not exist on type '{}'.
+src/lib/causal/extractor.ts(126,44): error TS2339: Property 'contradiction_count' does not exist on type '{}'.
+src/lib/causal/extractor.ts(130,65): error TS2339: Property 'id' does not exist on type '{}'.
+src/lib/groq-service.ts(128,33): error TS2504: Type '{ choices: { message: { content: string; }; finish_reason: string | null; }[]; usage: { prompt_tokens: number; completion_tokens: number; total_tokens: number; }; }' must have a '[Symbol.asyncIterator]()' method that returns an async iterator.
+src/lib/guardian/observability-guardian.ts(44,23): error TS18046: 'trace' is of type 'unknown'.
+src/lib/guardian/observability-guardian.ts(47,11): error TS18046: 'trace' is of type 'unknown'.
+src/lib/guardian/observability-guardian.ts(50,22): error TS18046: 'trace' is of type 'unknown'.
+src/lib/guardian/observability-guardian.ts(52,58): error TS18046: 'trace' is of type 'unknown'.
+src/lib/guardian/observability-guardian.ts(53,19): error TS18046: 'trace' is of type 'unknown'.
+src/lib/guardian/observability-guardian.ts(54,22): error TS18046: 'trace' is of type 'unknown'.
+src/lib/guardian/observability-guardian.ts(55,21): error TS18046: 'trace' is of type 'unknown'.
+src/lib/guardian/observability-guardian.ts(60,12): error TS18046: 'trace' is of type 'unknown'.
+src/lib/guardian/observability-guardian.ts(60,36): error TS18046: 'trace' is of type 'unknown'.
+src/lib/guardian/observability-guardian.ts(62,22): error TS18046: 'trace' is of type 'unknown'.
+src/lib/guardian/observability-guardian.ts(64,57): error TS18046: 'trace' is of type 'unknown'.
+src/lib/guardian/observability-guardian.ts(65,19): error TS18046: 'trace' is of type 'unknown'.
+src/lib/guardian/observability-guardian.ts(66,22): error TS18046: 'trace' is of type 'unknown'.
+src/lib/guardian/observability-guardian.ts(67,21): error TS18046: 'trace' is of type 'unknown'.
+src/lib/guardian/observability-guardian.ts(72,12): error TS18046: 'trace' is of type 'unknown'.
+src/lib/guardian/observability-guardian.ts(72,35): error TS18046: 'trace' is of type 'unknown'.
+src/lib/guardian/observability-guardian.ts(74,27): error TS18046: 'trace' is of type 'unknown'.
+src/lib/guardian/observability-guardian.ts(77,19): error TS18046: 'trace' is of type 'unknown'.
+src/lib/guardian/observability-guardian.ts(78,22): error TS18046: 'trace' is of type 'unknown'.
+src/lib/guardian/observability-guardian.ts(79,21): error TS18046: 'trace' is of type 'unknown'.
+src/lib/jobs/jobs-service.ts(63,53): error TS18046: 'record' is of type 'unknown'.
+src/lib/memory-engine.ts(276,101): error TS18046: 'newRecord' is of type 'unknown'.
+src/lib/memory/counterfactual.ts(47,12): error TS18046: 'n' is of type 'unknown'.
+src/lib/memory/counterfactual.ts(49,23): error TS2339: Property 'id' does not exist on type '{}'.
+src/lib/memory/counterfactual.ts(55,69): error TS18046: 'n' is of type 'unknown'.
+src/lib/memory/counterfactual.ts(55,83): error TS18046: 'n' is of type 'unknown'.
+src/lib/memory/counterfactual.ts(59,27): error TS18046: 'edge' is of type 'unknown'.
+src/lib/memory/counterfactual.ts(65,34): error TS2339: Property 'id' does not exist on type '{}'.
+src/lib/memory/counterfactual.ts(67,33): error TS2339: Property 'label' does not exist on type '{}'.
+src/lib/meta-cognitive/loop.ts(45,24): error TS18046: 'existing' is of type 'unknown'.
+src/lib/observability/config-service.ts(60,14): error TS18046: 'record' is of type 'unknown'.
+src/lib/observability/config-service.ts(61,16): error TS18046: 'record' is of type 'unknown'.
+src/lib/observability/config-service.ts(62,18): error TS18046: 'record' is of type 'unknown'.
+src/lib/observability/config-service.ts(64,19): error TS18046: 'record' is of type 'unknown'.
+src/lib/observability/config-service.ts(68,25): error TS18046: 'record' is of type 'unknown'.
+src/lib/observability/config-service.ts(69,14): error TS18046: 'record' is of type 'unknown'.
+src/lib/observability/config-service.ts(94,24): error TS18046: 'record' is of type 'unknown'.
+src/lib/observability/config-service.ts(95,16): error TS18046: 'record' is of type 'unknown'.
+src/lib/observability/config-service.ts(96,18): error TS18046: 'record' is of type 'unknown'.
+src/lib/observability/config-service.ts(97,20): error TS18046: 'record' is of type 'unknown'.
+src/lib/observability/config-service.ts(99,21): error TS18046: 'record' is of type 'unknown'.
+src/lib/observability/config-service.ts(101,22): error TS18046: 'record' is of type 'unknown'.
+src/lib/observability/config-service.ts(101,34): error TS18046: 'record' is of type 'unknown'.
+src/lib/pocketbase-client.ts(16,4): error TS2339: Property 'beforeSend' does not exist on type 'PocketBase'.
+src/lib/pocketbase-client.ts(16,18): error TS7006: Parameter 'url' implicitly has an 'any' type.
+src/lib/pocketbase-client.ts(16,23): error TS7006: Parameter 'options' implicitly has an 'any' type.
+src/lib/skills/content-publisher.ts(49,3): error TS2322: Type '(context: MarketSignalLocal) => Promise<{ status: string; reason: string; topic?: undefined; products?: undefined; timestamp?: undefined; } | { status: string; topic: string; products: string[]; timestamp: number; reason?: undefined; }>' is not assignable to type '(context: MarketSignalLocal) => Promise<ExecutionResult>'.
+  Type 'Promise<{ status: string; reason: string; topic?: undefined; products?: undefined; timestamp?: undefined; } | { status: string; topic: string; products: string[]; timestamp: number; reason?: undefined; }>' is not assignable to type 'Promise<ExecutionResult>'.
+    Type '{ status: string; reason: string; topic?: undefined; products?: undefined; timestamp?: undefined; } | { status: string; topic: string; products: string[]; timestamp: number; reason?: undefined; }' is not assignable to type 'ExecutionResult'.
+      Property 'success' is missing in type '{ status: string; reason: string; topic?: undefined; products?: undefined; timestamp?: undefined; }' but required in type 'ExecutionResult'.
+src/lib/skills/freelance-applicant.ts(3,10): error TS2300: Duplicate identifier 'AgentSkill'.
+src/lib/skills/freelance-applicant.ts(4,10): error TS2300: Duplicate identifier 'UpworkJob'.
+src/lib/skills/freelance-applicant.ts(17,10): error TS2300: Duplicate identifier 'AgentSkill'.
+src/lib/skills/freelance-applicant.ts(17,22): error TS2440: Import declaration conflicts with local declaration of 'DigitalTwinProfile'.
+src/lib/skills/freelance-applicant.ts(17,42): error TS2300: Duplicate identifier 'UpworkJob'.
+src/lib/skills/freelance-applicant.ts(36,3): error TS2322: Type '(context: { job: UpworkJob; profile: DigitalTwinProfile; }) => Promise<{ status: string; proposal: string; jobId: string; timestamp: number; }>' is not assignable to type '(context: { job: UpworkJob; profile: DigitalTwinProfile; }) => Promise<ExecutionResult>'.
+  Type 'Promise<{ status: string; proposal: string; jobId: string; timestamp: number; }>' is not assignable to type 'Promise<ExecutionResult>'.
+    Property 'success' is missing in type '{ status: string; proposal: string; jobId: string; timestamp: number; }' but required in type 'ExecutionResult'.
+src/lib/skills/freelance-applicant.ts(46,30): error TS2339: Property 'voiceStyle' does not exist on type 'DigitalTwinProfile'.
+src/lib/skills/freelance-applicant.ts(54,32): error TS2339: Property 'summary' does not exist on type 'DigitalTwinProfile'.
+src/lib/skills/pr-submitter.ts(2,10): error TS2300: Duplicate identifier 'AgentSkill'.
+src/lib/skills/pr-submitter.ts(17,10): error TS2300: Duplicate identifier 'AgentSkill'.
+src/lib/skills/pr-submitter.ts(17,22): error TS2440: Import declaration conflicts with local declaration of 'BountyIssue'.
+src/lib/skills/pr-submitter.ts(36,3): error TS2322: Type '(context: BountyIssue) => Promise<{ status: string; issueId: string; repo: string; timestamp: number; }>' is not assignable to type '(context: BountyIssue) => Promise<ExecutionResult>'.
+  Type 'Promise<{ status: string; issueId: string; repo: string; timestamp: number; }>' is not assignable to type 'Promise<ExecutionResult>'.
+    Property 'success' is missing in type '{ status: string; issueId: string; repo: string; timestamp: number; }' but required in type 'ExecutionResult'.
+src/lib/skills/pr-submitter.ts(45,34): error TS2339: Property 'description' does not exist on type 'BountyIssue'.
+src/lib/skills/product-factory.ts(3,10): error TS2300: Duplicate identifier 'AgentSkill'.
+src/lib/skills/product-factory.ts(16,10): error TS2300: Duplicate identifier 'AgentSkill'.
+src/lib/skills/product-factory.ts(35,3): error TS2322: Type '(context: Record<string, any>) => Promise<{ status: string; reason: string; productName?: undefined; listingUrl?: undefined; timestamp?: undefined; } | { status: string; productName: string; listingUrl: string; timestamp: number; reason?: undefined; }>' is not assignable to type '(context: Record<string, any>) => Promise<ExecutionResult>'.
+  Type 'Promise<{ status: string; reason: string; productName?: undefined; listingUrl?: undefined; timestamp?: undefined; } | { status: string; productName: string; listingUrl: string; timestamp: number; reason?: undefined; }>' is not assignable to type 'Promise<ExecutionResult>'.
+    Type '{ status: string; reason: string; productName?: undefined; listingUrl?: undefined; timestamp?: undefined; } | { status: string; productName: string; listingUrl: string; timestamp: number; reason?: undefined; }' is not assignable to type 'ExecutionResult'.
+      Property 'success' is missing in type '{ status: string; reason: string; productName?: undefined; listingUrl?: undefined; timestamp?: undefined; }' but required in type 'ExecutionResult'.
+src/lib/skills/registry.test.ts(1,54): error TS2307: Cannot find module 'vitest' or its corresponding type declarations.

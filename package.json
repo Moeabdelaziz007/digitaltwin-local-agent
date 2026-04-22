@@ -8,7 +8,7 @@
     "dev": "next dev --turbopack",
     "typecheck": "tsc --noEmit",
     "lint": "next lint",
-    "generate:types": "npx tsx scripts/generate-contracts.ts",
+    "generate:types": "node scripts/generate-contracts.mjs",
     "prebuild": "npm run generate:types",
     "build": "node scripts/check-env.mjs && npm run generate:types && next build",
     "start": "next start",
