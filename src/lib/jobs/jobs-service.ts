@@ -9,8 +9,8 @@ export interface BackgroundJob {
   type: JobType;
   user_id: string;
   status: JobStatus;
-  payload: any;
-  result?: any;
+  payload: Record<string, unknown>;
+  result?: Record<string, unknown>;
   error?: string;
   created: string;
   updated: string;
@@ -24,7 +24,7 @@ export const jobsService = {
   /**
    * Enqueue a new job
    */
-  async enqueue(userId: string, type: JobType, payload: any = {}): Promise<string> {
+  async enqueue(userId: string, type: JobType, payload: Record<string, unknown> = {}): Promise<string> {
     const pb = getServerPB();
     const jobId = randomUUID();
     

@@ -128,8 +128,9 @@ npm run dev
 <details open>
 <summary><b>Dialectic Multi-Agent Architecture | هندسة الوكلاء المتعددة</b></summary>
 
-The system employs a consensus loop to pressure-test every opportunity:
-يعتمد النظام على حلقة إجماع لاختبار كل فرصة:
+The system employs a consensus loop to pressure-test every opportunity. Use the **[IDEA:]** prefix in any message to force-trigger the **Venture Lab** cycle.
+
+يعتمد النظام على حلقة إجماع لاختبار كل فرصة. استخدم البادئة **[IDEA:]** في أي رسالة لتفعيل دورة **مختبر المشاريع** قسرياً.
 
 | Agent | Role | الدور |
 | :--- | :--- | :--- |

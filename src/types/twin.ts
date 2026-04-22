@@ -38,6 +38,8 @@ export interface UserProfile extends PBRecord {
   learning_progress: number;
   total_conversations: number;
   onboarding_complete: boolean;
+  skills: string[];
+  interests: string[];
 }
 
 // ----------------------------------------------------------
@@ -142,7 +144,7 @@ export interface VentureSentinelResult {
   rollback_reason?: string;
   required_skills_missing: string[];
   revenue_readiness_score: number; // 0-100
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 }
 
 export interface Opportunity extends PBRecord {
@@ -156,6 +158,7 @@ export interface Opportunity extends PBRecord {
   estimated_roi: string;
   speed_to_market: 'fast' | 'med' | 'slow';
   source_signals: string[]; 
+  required_skills?: string[];
   status: 'scouted' | 'validated' | 'rejected' | 'in_backlog';
   causal_node_id?: string;
   causal_graph?: {
@@ -171,7 +174,7 @@ export interface Venture extends PBRecord {
   prd_content?: string;
   architecture_notes?: string;
   repo_path?: string;
-  revenue_model: Record<string, any>;
+  revenue_model: Record<string, unknown>;
   status: 'planning' | 'building' | 'testing' | 'scaling';
   current_phase: string;
 }
@@ -310,6 +313,14 @@ export interface ConsensusInput {
   traceId?: string;
 }
 
+export interface AgentOutput {
+  agentName: string;
+  stage: VentureStage;
+  result: Record<string, unknown>;
+  timestamp: string;
+  confidence: number;
+}
+
 export interface AgentProposal {
   agent: 'planner' | 'critic' | 'guardian' | 'architect' | 'scout' | 'risk_manager' | 'execution' | 'ceo' | 'workflow_designer' | 'creative_designer' | 'market_simulator' | 'revenue_simulator' | 'implementer' | 'cost_controller' | 'persona_drift';
   verdict: 'accept' | 'revise' | 'reject';
@@ -318,7 +329,7 @@ export interface AgentProposal {
   output: string;
   reasoning_summary: string;
   issues: string[];
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface RiskFlags {
