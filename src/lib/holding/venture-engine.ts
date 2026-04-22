@@ -6,6 +6,7 @@ import { SaaSFactorySkill } from '../skills/saas-factory';
 import { ContentMultiplierSkill } from '../skills/content-multiplier';
 import { ProductFactorySkill } from '../skills/product-factory';
 import { AgentServiceSkill } from '../skills/agent-service';
+import { MarketingSpecialistSkill } from '../skills/marketing-specialist';
 
 /**
  * src/lib/holding/venture-engine.ts
@@ -69,6 +70,7 @@ export class VentureEngine {
         case 'content-multiplier': skillInstance = new ContentMultiplierSkill(); break;
         case 'product-factory': skillInstance = new ProductFactorySkill(); break;
         case 'agent-service': skillInstance = new AgentServiceSkill(); break;
+        case 'marketing-specialist': skillInstance = new MarketingSpecialistSkill(); break;
         default: return;
       }
 

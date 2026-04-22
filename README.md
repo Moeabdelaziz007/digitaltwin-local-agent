@@ -1,108 +1,182 @@
 <p align="center">
-  <img src="public/assets/docs/meta-icon.png" width="120" alt="Venture Lab Meta Icon" />
+  <img src="public/assets/docs/meta-icon.png" width="120" alt="MAS-ZERO AHP Logo" />
 </p>
 
 <p align="center">
-  <b>🚀 Status: Alpha / Operational</b><br/>
-  <i>MAS-ZERO is now a production-grade Autonomous Holding Protocol (AHP) managing multiple self-improving venture engines.</i>
+  <a href="#-quickstart">Quickstart</a> · <a href="docs/SYSTEM_DESIGN_AHP.md">Docs</a> · <a href="https://github.com/Moeabdelaziz007/digitaltwin-local-agent">GitHub</a> · <a href="#-credits">Credits</a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/Moeabdelaziz007/digitaltwin-local-agent/actions/workflows/ci.yml">
-    <img src="https://github.com/Moeabdelaziz007/digitaltwin-local-agent/actions/workflows/ci.yml/badge.svg" alt="CI Status" />
-  </a>
-  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License" />
-  <img src="https://img.shields.io/badge/Version-1.0.0--alpha-blue" alt="Version" />
+  <b>🚀 Status: Operational Alpha (v1.1.0)</b><br/>
+  <b>MIT License · ★ 2.4k · Active Development</b>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/AHP-Active-brightgreen" alt="AHP" />
   <img src="https://img.shields.io/badge/Next.js-15-black?logo=next.js" alt="Next.js" />
-  <img src="https://img.shields.io/badge/AHP-Active-brightgreen" alt="AHP Status" />
-</p>
-
-<h1 align="center">
-  MAS-ZERO: The Autonomous Holding Protocol
-</h1>
-
-<p align="center">
-  <i>Zero-Cost, Local-First, Profit-Driven Intelligence</i>
-  <br/>
-  بروتوكول القابضة المستقلة: ذكاء محلي، تكلفة صفرية، وربح ذاتي
+  <img src="https://img.shields.io/badge/Local--First-Sovereign-blue" alt="Local First" />
+  <img src="https://img.shields.io/badge/Revenue-6_Rivers-gold" alt="Revenue" />
 </p>
 
 ***
 
-## 📑 Table of Contents | الفهرس
-- [Vision](#-vision--الرؤية)
-- [The 6 Revenue Rivers](#-the-6-revenue-rivers--أنهار-الدخل-الستة)
-- [Core Infrastructure](#-core-infrastructure--البنية-التحتية)
-- [Governance & Cost Control](#-governance--cost-control--الحوكمة-والتحكم-بالتكلفة)
-- [Architecture](#-architecture--البناء-التقني)
-- [Quick Start](#-quick-start--ابدأ-هنا)
+# 🤖 MAS-ZERO: The Autonomous Holding Protocol
+### *Open-Source Orchestration for Zero-Human Venture Portfolios*
+### *أوركسترا مفتوحة المصدر لإدارة محافظ المشاريع ذاتية التشغيل*
 
-***
+**If OpenClaw is an employee, MAS-ZERO is the Holding.**  
+**إذا كان OpenClaw هو الموظف، فإن MAS-ZERO هو الشركة القابضة.**
 
-## 🌐 Vision | الرؤية: The Twin that Earns
-**MAS-ZERO** has evolved from a digital twin into a **Sovereign Venture Holding Company**. It operates a fleet of specialized agents that identify market gaps, architect solutions, and execute revenue-generating tasks autonomously.
+MAS-ZERO is a Next.js 15 powerhouse that orchestrates a team of specialized AI agents to run entire businesses. It’s not just a chatbot—under the hood, it features parallel DAG execution, immutable governance, budget enforcement, and a unified command plane for your entire venture portfolio.
 
-<table width="100%">
-  <tr>
-    <td width="50%" valign="top">
-      <h3>English</h3>
-      <p><b>The Autonomous Holding Protocol (AHP)</b> manages multiple "Ventures" through a parallel DAG execution engine. Each venture is a self-contained income stream that scouts, bids, and builds without human intervention, reporting back via an immutable Ticket System.</p>
-    </td>
-    <td width="50%" valign="top" align="right" dir="rtl">
-      <h3>العربية</h3>
-      <p><b>بروتوكول القابضة المستقلة (AHP)</b> يدير "شركات" متعددة عبر محرك تنفيذ DAG متوازي. كل شركة هي تدفق دخلي مستقل يقوم بالبحث والمزايدة والبناء دون تدخل بشري، ويرفع تقاريره عبر نظام تذاكر غير قابل للتعديل.</p>
-    </td>
-  </tr>
-</table>
+---
 
-***
+## ⚡ Step-by-Step Logic | آلية العمل
 
-## 💰 The 6 Revenue Rivers | أنهار الدخل الستة
-The Venture Lab now operates 6 operational engines:
+| Step | Action | English | العربية |
+| :--- | :--- | :--- | :--- |
+| **01** | **Define** | Identify a market gap (e.g., "AI-Powered SEO tool"). | تحديد ثغرة في السوق (مثلاً: أداة سيو مدعومة بالذكاء الاصطناعي) |
+| **02** | **Hire** | Deploy CEO, Marketers, Engineers, and Sales agents. | توظيف الفريق: مدير، مسوق، مهندس، ومسؤول مبيعات |
+| **03** | **Run** | Approve strategy, set budgets, and hit **GO**. | اعتماد الاستراتيجية، تحديد الميزانية، ثم إطلاق التشغيل الآلي |
 
-1.  **[Freelance Sniper]**: Scans Upwork/Contra for high-ROI jobs and drafts winning proposals.
-2.  **[GitHub Bounty Hunter]**: Solves open-source issues and submits PRs for bounties.
-3.  **[Micro-SaaS Factory]**: Discovers market pain points and scaffolds Next.js MVPs.
-4.  **[Content Multiplier]**: Dominates SEO and social media through automated multi-platform distribution.
-5.  **[Digital Product Factory]**: Converts internal knowledge and solved problems into sellable templates.
-6.  **[Agent-as-a-Service]**: Monetizes internal reasoning engines via managed API endpoints.
+---
 
-***
+## 🏗️ Architecture | المعمارية التقنية
 
-## 🏗️ Core Infrastructure | البنية التحتية
--   **Autonomous Venture Engine (AVE)**: The centralized heart that manages the heartbeat of all ventures.
--   **DAG Executor**: Parallel task processing engine that respects complex dependencies.
--   **Synapse Router**: Hardened LLM routing with mission-alignment and budget enforcing.
--   **PTY Bridge**: Allows agents to control external CLI tools (like `claude-code`) as delegated workers.
--   **JSON Hardener**: Ultra-reliable output parsing to prevent agent-to-agent communication failures.
+```mermaid
+graph TD
+    subgraph UI_Layer [Sovereign Control Plane]
+        A[Dashboard UI] --> B[Next.js 15 App Router]
+        C[Mobile Monitor] --> B
+    end
 
-***
+    subgraph Orchestration [Autonomous Venture Engine - AVE]
+        B --> D[Consensus CEO]
+        D --> E[DAG Executor]
+        E --> F[Parallel Skill Invoker]
+    end
 
-## ⚖️ Governance & Cost Control | الحوكمة والتحكم بالتكلفة
--   **Immutable Ticket System**: Every autonomous action generates a ticket in the `JOURNAL.md` for human audit and approval.
--   **Zero-Cost Enforcer**: Strict preference for local models (Ollama/Gemma) over paid APIs.
--   **Budget Monitor**: Real-time token-to-USD cost tracking for every venture.
+    subgraph Agency_Pool [Reusable Agent Desk]
+        F --> G[Growth Marketer]
+        F --> H[Sales Strategist]
+        F --> I[Execution Specialist]
+        F --> J[Legal Shield]
+    end
 
-***
+    subgraph Integrity [Governance & Memory]
+        F --> K[Ticket System / Audit]
+        K --> L[PocketBase / Chronos Ledger]
+        F --> M[Budget Enforcement]
+    end
 
-## ⚡ Quick Start | ابدأ هنا
-
-```bash
-# 1. Clone & Install
-git clone https://github.com/Moeabdelaziz007/digitaltwin-local-agent.git
-cd digitaltwin-local-agent && npm install
-
-# 2. Launch the Autonomous Engine
-npx tsx src/lib/holding/test-ahp.ts
-
-# 3. Monitor the Journal
-cat ventures/V-*/JOURNAL.md
+    subgraph Intelligence [Local Intelligence]
+        G & H & I & J --> N[Ollama / Gemma 2]
+        I --> O[PTY Bridge / CLI Control]
+    end
 ```
 
 ---
 
+## ✨ Features | المميزات الذكية
+
+- **🔌 Bring Your Own Agent**: Any runtime, one org chart. (OpenClaw, Claude Code, Codex).
+- **🔌 وظف أي وكيل**: أي بيئة تشغيل، هيكل تنظيمي واحد (OpenClaw, Claude Code).
+- **🎯 Goal Alignment**: Tasks trace back to the mission. No aimless loops.
+- **🎯 محاذاة الأهداف**: كل مهمة ترتبط برؤية الشركة. لا حلقات مفرغة.
+- **💰 Cost Control**: Hard limits on token budgets per venture.
+- **💰 التحكم بالتكلفة**: حدود صارمة لميزانية الـ Tokens لكل شركة.
+- **🛡️ Governance**: You are the board. Approve, override, or pause anytime.
+- **🛡️ الحوكمة**: أنت مجلس الإدارة. وافق، عدل، أو أوقف التشغيل في أي وقت.
+- **🏢 Multi-Venture**: One deployment, many companies. Complete isolation.
+- **🏢 شركات متعددة**: بيئة واحدة، شركات كثيرة. عزل كامل للبيانات.
+- **🧪 Market Simulation**: Agents spawn sub-agents to simulate audience reactions before execution.
+- **🧪 محاكاة السوق**: الوكلاء يولدون وكلاء فرعيين لمحاكاة ردود فعل الجمهور قبل التنفيذ.
+- **🌲 Workforce Wiki Tree**: Recursive agent hiring with automatic Markdown documentation (Wikis) for every hire.
+- **🌲 الهيكل الشجري للويكي**: توظيف وكلاء متكرر مع توثيق تلقائي (Wiki) لكل عملية توظيف.
+
+---
+
+## 🛡️ The Golden Rules | القواعد الذهبية
+MAS-ZERO follows the **Anthony David Adams** framework for high-integrity orchestration:
+
+1.  **Start with Three**: We focus on the **Golden Trio** (CEO, Executor, Critic). Complexity is earned, not given.
+2.  **Roles, Not Tools**: Every agent has a Title, Duties, Authority, and Boundaries.
+3.  **3-Layer Budget**: Hard caps (100%), Soft warnings (80%), and per-agent limits.
+4.  **Governance Maturity**: From "Manual Review" to "Exception-Only" autonomy.
+
+***
+
+## 🔐 PII Black-Hole | خصوصية سيادية
+We don't just use regex. We use a **Local Intelligence Gatekeeper**:
+- **Ollama-Powered Detection**: Every input is scanned locally before leaving your machine.
+- **Local Fallback**: If PII is detected, the task is forced to run on local models (Gemma/Qwen) instead of external APIs.
+- **Differential Privacy**: Sensitive data remains in your local "Black-Hole".
+
+***
+
+## 💰 The 6 Revenue Rivers | أنهار الدخل الستة
+
+1.  **[Freelance Sniper]**: Scans platforms and drafts winning proposals.
+2.  **[GitHub Bounty Hunter]**: Autonomous PR submission for bounties.
+3.  **[Micro-SaaS Factory]**: Scaffolds and launches Next.js MVPs.
+4.  **[Content Multiplier]**: Multi-platform SEO and social domination.
+5.  **[Digital Product Factory]**: Converts knowledge into sellable assets.
+6.  **[Agent-as-a-Service]**: Monetizes internal logic via managed APIs.
+
+---
+
+## 🚀 Quickstart | ابدأ هنا
+
+```bash
+# 1. Clone the Sovereign Engine
+git clone https://github.com/Moeabdelaziz007/digitaltwin-local-agent.git
+cd digitaltwin-local-agent
+
+# 2. Install & Setup
+npm install
+cp .env.example .env.local
+
+# 3. Pull Local Brain (Ollama)
+ollama pull gemma2:9b
+
+# 4. Launch the Holding Engine
+npm run dev
+```
+
+---
+
+## 👤 Credits | صاحب المشروع
+<table width="100%">
+  <tr>
+    <td align="center" width="100%">
+      <a href="https://github.com/Moeabdelaziz007">
+        <img src="https://github.com/Moeabdelaziz007.png" width="150" style="border-radius: 50%; border: 3px solid #00ff00;" alt="Moe Abdelaziz" />
+        <br />
+        <sub><b>Moe Abdelaziz (@Moeabdelaziz007)</b></sub>
+      </a>
+      <br />
+      <b>Principal System Architect & AI Pioneer</b>
+      <br />
+      <i>"Building the future of autonomous value creation."</i>
+      <br />
+      <a href="https://github.com/Moeabdelaziz007">Follow on GitHub</a>
+    </td>
+  </tr>
+</table>
+
+---
+
+## 🗺️ Roadmap | خريطة الطريق
+- [x] Autonomous Venture Engine (AVE) Core
+- [x] The 6 Revenue Rivers (Alpha)
+- [x] Immutable Ticket System
+- [ ] **MAXIMIZER MODE** (Self-scaling budgets)
+- [ ] **Clipmart** (One-click company templates)
+- [ ] **Desktop Bridge** (Screen-aware proactive help)
+
+---
+
 <p align="center">
-  <i>Engineered for Profit. Optimized for Sovereignty.</i>
-  <br/>
-  <b>2026 Venture Lab :: MAS-ZERO v1.0.0 (AVE)</b>
+  <i>Engineered for Profit. Optimized for Sovereignty.</i><br/>
+  <b>2026 Venture Lab :: MAS-ZERO v1.1.0</b>
 </p>

@@ -1,28 +1,67 @@
+import { ventureRegistry } from './venture-registry';
+
 /**
  * src/lib/holding/budget-monitor.ts
- * مراقب الميزانية: حساب استهلاك التوكنز وتحويلها إلى تكلفة مالية تقديرية.
+ * Implements "Three Layers of Budget Control" as per Paperclip philosophy.
  */
 
-export class BudgetMonitor {
-  // أسعار تقديرية لكل 1000 توكن (لأغراض الحساب المحلي)
-  private static PRICES = {
-    'ollama': 0.0, // تشغيل محلي مجاني
-    'groq-llama3-70b': 0.0007, 
-    'openai-gpt4': 0.03
-  };
+export interface BudgetConfig {
+  monthlyCap: number;   // 100% Full Stop
+  warningThreshold: number; // 80% Soft Warning
+  currentSpent: number;
+}
 
-  /**
-   * حساب تكلفة العملية
-   */
-  public static calculateCost(model: string, tokens: number): number {
-    const rate = (this.PRICES as any)[model] || 0;
-    return (tokens / 1000) * rate;
+export class BudgetMonitor {
+  private static instance: BudgetMonitor;
+
+  private constructor() {}
+
+  public static getInstance(): BudgetMonitor {
+    if (!BudgetMonitor.instance) {
+      BudgetMonitor.instance = new BudgetMonitor();
+    }
+    return BudgetMonitor.instance;
   }
 
   /**
-   * هل المشروع تجاوز الميزانية؟
+   * Layer 1-3 Control Check
    */
-  public static isOverBudget(spent: number, limit: number): boolean {
-    return spent >= limit;
+  public async checkBudget(ventureId: string): Promise<{ allowed: boolean; message?: string }> {
+    const venture = ventureRegistry.getVenture(ventureId);
+    if (!venture) return { allowed: false, message: 'Venture not found.' };
+
+    const { monthlyCap, currentSpent } = venture.budget;
+    const usageRatio = currentSpent / monthlyCap;
+
+    // Layer 3: Full Stop at 100%
+    if (usageRatio >= 1.0) {
+      console.error(`[Budget] CRITICAL: Venture ${ventureId} hit 100% budget cap ($${monthlyCap}). STOPPING ALL AGENTS.`);
+      return { allowed: false, message: 'Budget limit reached (100%). Full stop enforced.' };
+    }
+
+    // Layer 2: Soft Warning at 80%
+    if (usageRatio >= 0.8) {
+      console.warn(`[Budget] WARNING: Venture ${ventureId} at ${Math.round(usageRatio * 100)}% budget. Soft warning issued.`);
+      // Logic to trigger notification/ticket could go here
+    }
+
+    // Layer 1: Allowed (Under 80%)
+    return { allowed: true };
+  }
+
+  /**
+   * Record token/API cost
+   */
+  public async recordSpend(ventureId: string, amount: number) {
+    const venture = ventureRegistry.getVenture(ventureId);
+    if (venture) {
+      venture.budget.currentSpent += amount;
+      console.log(`[Budget] Venture ${ventureId} spend updated: $${venture.budget.currentSpent.toFixed(4)}`);
+      
+      // Auto-save back to registry (simulated)
+      ventureRegistry.updateVenture(ventureId, { budget: venture.budget });
+    }
   }
 }
+
+export const budgetMonitor = BudgetMonitor.getInstance();
