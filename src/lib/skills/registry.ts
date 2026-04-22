@@ -12,7 +12,14 @@ export const SkillSchema = z.object({
   required_tools: z.array(z.string()),
   input_schema: z.object({}).passthrough(),
   output_schema: z.object({}).passthrough(),
-  safety_notes: z.string()
+  safety_notes: z.string(),
+  // Digital Twin Venture Lab Upgrades
+  argument_hint: z.string().optional(),
+  invocation_flow: z.array(z.string()).optional(),
+  next_skills: z.array(z.string()).optional(),
+  required_before: z.array(z.string()).optional(),
+  blocks_if_missing: z.array(z.string()).optional(),
+  revenue_impact: z.enum(['critical', 'high', 'medium', 'low']).optional()
 });
 
 export type SkillMetadata = z.infer<typeof SkillSchema>;
