@@ -201,6 +201,9 @@ export default function DashboardPage({ searchParams }: { searchParams: Promise<
             </svg>
             <span className="font-display font-bold text-xs tracking-tighter uppercase">Digital Twin v0.01</span>
           </div>
+          <div className="hidden lg:flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-full">
+            <span className="text-[9px] font-display text-amber-500 uppercase font-bold tracking-widest">⚠️ Pre-Alpha / Prototype</span>
+          </div>
           <div className="flex items-center gap-1.5 px-2 py-0.5 bg-cyan/10 rounded-full">
             <div className="w-1.5 h-1.5 bg-cyan rounded-full animate-pulse" />
             <span className="text-[10px] font-display text-cyan uppercase font-bold tracking-widest">Online</span>
