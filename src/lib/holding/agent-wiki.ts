@@ -21,6 +21,7 @@ export class AgentWiki {
    */
   public updateWiki(node: WorkforceNode) {
     const parent = workforceTree.getNode(node.hiredBy);
+    const reportsTo = workforceTree.getNode(node.reportsTo);
     const content = `
 # Agent Wiki: ${node.title} (${node.id})
 
@@ -29,19 +30,27 @@ export class AgentWiki {
 - **Role Type:** ${node.role}
 - **Status:** ${node.status}
 - **Hired By:** ${parent ? parent.title : 'System'}
-- **Reports To:** ${parent ? parent.title : 'System'}
+- **Reports To:** ${reportsTo ? reportsTo.title : 'System'}
 - **Manages:** ${node.manages.length > 0 ? node.manages.join(', ') : 'None (Individual Contributor)'}
+- **Role Contract:** ${node.wiki.roleDefinition.length > 0 ? node.wiki.roleDefinition.join(' | ') : 'Not defined'}
 
 ## 🎯 Authority | الصلاحيات
 - **Budget Allocated:** $${node.budget.allocated}
 - **Budget Spent:** $${node.budget.spent}
 - **Remaining:** $${node.budget.allocated - node.budget.spent}
+- **Authority Rules:** ${node.wiki.authority.length > 0 ? node.wiki.authority.join(' | ') : 'Standard authority only'}
 
 ## 📊 Performance Metrics | مقاييس الأداء
 - **Total Runs:** ${node.performance.runs}
 - **Success Rate:** ${Math.round(node.performance.successRate * 100)}%
 - **Revenue Generated:** $${node.performance.revenueGenerated} (simulated)
 - **Efficiency Score:** ${this.calculateEfficiency(node)}
+
+## 🧠 Skills | المهارات
+${node.wiki.skills.length > 0 ? node.wiki.skills.map(skill => `- ${skill}`).join('\n') : '- None assigned'}
+
+## 📚 Knowledge Base | قاعدة المعرفة
+${node.wiki.knowledgeBase.length > 0 ? node.wiki.knowledgeBase.map(item => `- ${item}`).join('\n') : '- No linked datasets yet'}
 
 ## 🛡️ Boundaries | الخطوط الحمراء
 - Cannot exceed $${node.budget.allocated} monthly budget.
@@ -51,6 +60,7 @@ export class AgentWiki {
 ## 📝 Audit Log | سجل التدقيق
 - ${node.created_at}: Hired into MAS-ZERO workforce.
 - ${new Date().toISOString()}: Wiki page updated with latest performance data.
+${node.wiki.auditLog.map(entry => `- ${entry}`).join('\n')}
 
 ---
 *Last Updated: ${new Date().toLocaleString()}*
