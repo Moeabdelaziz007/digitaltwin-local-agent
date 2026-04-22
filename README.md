@@ -3,8 +3,8 @@
 </p>
 
 <p align="center">
-  <b>⚠️ Status: Pre-Alpha / Prototype</b><br/>
-  <i>MAS-ZERO is currently an experimental research project. Income-generating features are in the prototype/roadmap stage and not yet production-ready.</i>
+  <b>🚀 Status: Alpha / Operational</b><br/>
+  <i>MAS-ZERO is now a production-grade Autonomous Holding Protocol (AHP) managing multiple self-improving venture engines.</i>
 </p>
 
 <p align="center">
@@ -12,223 +12,97 @@
     <img src="https://github.com/Moeabdelaziz007/digitaltwin-local-agent/actions/workflows/ci.yml/badge.svg" alt="CI Status" />
   </a>
   <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License" />
-  <img src="https://img.shields.io/badge/Version-0.01--alpha-orange" alt="Version" />
+  <img src="https://img.shields.io/badge/Version-1.0.0--alpha-blue" alt="Version" />
   <img src="https://img.shields.io/badge/Next.js-15-black?logo=next.js" alt="Next.js" />
-  <img src="https://img.shields.io/badge/Node-20.x-brightgreen?logo=node.js" alt="Node" />
+  <img src="https://img.shields.io/badge/AHP-Active-brightgreen" alt="AHP Status" />
 </p>
 
 <h1 align="center">
-  MAS-ZERO: The Twin that Works
+  MAS-ZERO: The Autonomous Holding Protocol
 </h1>
 
 <p align="center">
-  <i>From Mimetic Companion to Autonomous Venture Powerhouse</i>
+  <i>Zero-Cost, Local-First, Profit-Driven Intelligence</i>
   <br/>
-  من مساعد شخصي إلى قوة مشاريع ذاتية التشغيل
+  بروتوكول القابضة المستقلة: ذكاء محلي، تكلفة صفرية، وربح ذاتي
 </p>
 
 ***
 
 ## 📑 Table of Contents | الفهرس
 - [Vision](#-vision--الرؤية)
-- [Quick Start](#-quick-start--ابدأ-هنا)
-- [Requirements](#-requirements--المتطلبات)
+- [The 6 Revenue Rivers](#-the-6-revenue-rivers--أنهار-الدخل-الستة)
+- [Core Infrastructure](#-core-infrastructure--البنية-التحتية)
+- [Governance & Cost Control](#-governance--cost-control--الحوكمة-والتحكم-بالتكلفة)
 - [Architecture](#-architecture--البناء-التقني)
-- [MAS-ZERO Engine](#-core-engine-mas-zero--المحرك-الجوهري)
-- [Credits](#-credits--المساهمون)
+- [Quick Start](#-quick-start--ابدأ-هنا)
 
 ***
 
-## 🌐 Vision | الرؤية: The Twin that Works
+## 🌐 Vision | الرؤية: The Twin that Earns
+**MAS-ZERO** has evolved from a digital twin into a **Sovereign Venture Holding Company**. It operates a fleet of specialized agents that identify market gaps, architect solutions, and execute revenue-generating tasks autonomously.
 
 <table width="100%">
   <tr>
     <td width="50%" valign="top">
       <h3>English</h3>
-      <p><b>MAS-ZERO: The Twin that Works</b> is a strategic pivot from simple mimicry to autonomous production. It uses your digital footprint (Companion Layer) as a contextual compass while the 14-agent <b>Venture Lab</b> handles the heavy lifting: identifying arbitrage, building Micro-SaaS, and orchestrating revenue.</p>
+      <p><b>The Autonomous Holding Protocol (AHP)</b> manages multiple "Ventures" through a parallel DAG execution engine. Each venture is a self-contained income stream that scouts, bids, and builds without human intervention, reporting back via an immutable Ticket System.</p>
     </td>
     <td width="50%" valign="top" align="right" dir="rtl">
       <h3>العربية</h3>
-      <p><b>ماس-زيرو: التوأم الذي يعمل</b> هو تحول استراتيجي من مجرد المحاكاة إلى الإنتاج الذاتي. يستخدم بصمتك الرقمية (طبقة المرافق) كبوصلة سياقية، بينما يتولى <b>مختبر المشاريع</b> المكون من 14 وكيلاً العمل الشاق: اكتشاف الفرص، بناء المشاريع الصغيرة، وتنظيم الإيرادات.</p>
+      <p><b>بروتوكول القابضة المستقلة (AHP)</b> يدير "شركات" متعددة عبر محرك تنفيذ DAG متوازي. كل شركة هي تدفق دخلي مستقل يقوم بالبحث والمزايدة والبناء دون تدخل بشري، ويرفع تقاريره عبر نظام تذاكر غير قابل للتعديل.</p>
     </td>
   </tr>
 </table>
 
-### 🏗️ Architectural Hierarchy | التدرج المعماري
-1.  **Executive Layer (The Synapse)**: The neural orchestrator (core-orchestrator).
-2.  **Intelligence Layer (The Crucible)**: 14-agent consensus engine (consensus-engine-v3).
-3.  **Action Layer (The Kinetic Edge)**: The execution sharp-end (action-executor).
-4.  **Simulation Layer (The Future Mirror)**: Monte Carlo "What-if" market simulations.
-5.  **Search Layer (The Prism)**: Market refraction & Jina-powered opportunity scanning.
-6.  **Protection Layer (The Privacy Filter)**: Local RAG gatekeeper & Sovereign Shield quality gate.
-7.  **Structure Layer (The Neural Hierarchy)**: Hierarchical task distribution tree.
-8.  **Memory Layer (The Chronos Ledger)**: Causal attribution & MemGPT-style tiered memory.
-9.  **Evolution Layer (The Alchemist)**: Meta-cognitive reflection & recursive skill-scaffolding.
-10. **Input Layer (The Companion)**: User persona & Desktop Bridge context.
+***
+
+## 💰 The 6 Revenue Rivers | أنهار الدخل الستة
+The Venture Lab now operates 6 operational engines:
+
+1.  **[Freelance Sniper]**: Scans Upwork/Contra for high-ROI jobs and drafts winning proposals.
+2.  **[GitHub Bounty Hunter]**: Solves open-source issues and submits PRs for bounties.
+3.  **[Micro-SaaS Factory]**: Discovers market pain points and scaffolds Next.js MVPs.
+4.  **[Content Multiplier]**: Dominates SEO and social media through automated multi-platform distribution.
+5.  **[Digital Product Factory]**: Converts internal knowledge and solved problems into sellable templates.
+6.  **[Agent-as-a-Service]**: Monetizes internal reasoning engines via managed API endpoints.
 
 ***
 
-## 🛡️ Sovereign Upgrades | الترقيات السيادية (v3.5+)
-The system has been hardened with cutting-edge agentic infrastructure:
-
--   **[The Sovereign Shield]**: A strict quality gate (`npm run verify`) that enforces zero-drift between DB schema and code via auto-generated contracts.
--   **[Tiered Memory Store]**: Implements MemGPT-style memory (Hot/Warm/Cold) with auto-compaction and LLM-driven summarization to manage infinite context.
--   **[Opportunity Scanner]**: Real-time signal detection across Upwork, Contra, and IndieHackers using **Jina Reader** refraction.
--   **[Meta-Cognitive Engine]**: A self-improvement loop that analyzes task outcomes to update skill weights and generate new hypotheses.
--   **[Causal Attribution]**: Tracks the "Why" behind successes/failures to build a personalized context moat.
--   **[Desktop Bridge (Sidecar)]**: Screen-aware proactive intelligence using `screenshot-desktop` and zero-cost OCR.
--   **[Skill Marketplace]**: NPM-style skill packages with semantic versioning and auto-tracking performance stats.
--   **[Automated Refactoring]**: A dual-layer system using `auto-refactor.sh` and `ai-split.ts` (LLM-driven) to intelligently decompose large files and maintain 100% modular health.
--   **[File Size Guard]**: CI-integrated check that warns about files over 300 lines to prevent technical debt.
--   **[Real-World Signal Ingestion]**: Upgraded `market-news` connector using **Jina Reader** to fetch real-time context from Hacker News and tech trends, eliminating mocked data.
--   **[Tiered Module Topology]**: Advanced lazy-loading architecture in `topology-router.ts` that optimizes cold starts and build efficiency by loading modules only on demand.
+## 🏗️ Core Infrastructure | البنية التحتية
+-   **Autonomous Venture Engine (AVE)**: The centralized heart that manages the heartbeat of all ventures.
+-   **DAG Executor**: Parallel task processing engine that respects complex dependencies.
+-   **Synapse Router**: Hardened LLM routing with mission-alignment and budget enforcing.
+-   **PTY Bridge**: Allows agents to control external CLI tools (like `claude-code`) as delegated workers.
+-   **JSON Hardener**: Ultra-reliable output parsing to prevent agent-to-agent communication failures.
 
 ***
 
-### 💰 Venture Lab: Income Roadmap (Experimental) | استراتيجيات الربح (قيد التطوير)
-> [!IMPORTANT]
-> The following strategies represent the **planned capabilities** of the MAS-ZERO engine. They are currently being implemented as modular skills and are NOT yet operational for real-world capital deployment.
-
--   **Stream 1: [Autonomous Freelance Agent]**: Automated Upwork/Contra job hunting prototype.
--   **Stream 2: [Content Arbitrage Machine]**: Automated SEO-writing and cross-posting engine (Testing phase).
--   **Stream 3: [Micro-SaaS Idea Validator]**: Identifying high-ROI problems and generating Next.js scaffolds.
--   **Stream 4: [GitHub Issue Bounty Hunter]**: Autonomous PR submission for open-source bounties (Aspirational).
--   **Stream 5: [Digital Product Factory]**: Knowledge synthesis into templates and workflows.
--   **Stream 6: [Agent-as-a-Service]**: Exposing internal reasoning engines via API.
--   **The Arbitrage Mirror**: Uses *The Prism* to simulate causal patterns of high-performance On-chain wallets.
--   **Fragility Hunting**: Identify weaknesses in Micro-SaaS projects to build "Fixed" versions.
--   **Memory Monetization**: Synthesis of *Chronos Ledger* into high-value "Alpha Reports".
+## ⚖️ Governance & Cost Control | الحوكمة والتحكم بالتكلفة
+-   **Immutable Ticket System**: Every autonomous action generates a ticket in the `JOURNAL.md` for human audit and approval.
+-   **Zero-Cost Enforcer**: Strict preference for local models (Ollama/Gemma) over paid APIs.
+-   **Budget Monitor**: Real-time token-to-USD cost tracking for every venture.
 
 ***
 
 ## ⚡ Quick Start | ابدأ هنا
 
 ```bash
-# 1. Clone the Sovereign Engine
+# 1. Clone & Install
 git clone https://github.com/Moeabdelaziz007/digitaltwin-local-agent.git
-cd digitaltwin-local-agent
+cd digitaltwin-local-agent && npm install
 
-# 2. Install Dependencies
-npm install
+# 2. Launch the Autonomous Engine
+npx tsx src/lib/holding/test-ahp.ts
 
-# 3. Setup Environment
-cp .env.example .env.local
-
-# 4. Pull Local Intelligence (Ollama required)
-ollama pull qwen2.5:3b
-
-# 5. Launch the Lab
-npm run dev
+# 3. Monitor the Journal
+cat ventures/V-*/JOURNAL.md
 ```
 
-***
-
-## 📋 Requirements | المتطلبات
-- **Node.js**: >= 20.11.1
-- **Package Manager**: npm or pnpm
-- **Local LLM Runtime**: [Ollama](https://ollama.ai/)
-- **Database**: PocketBase (embedded)
-- **Auth**: Clerk (configured in .env)
-
-***
-
-## 📐 Architecture | البناء التقني
-
-```mermaid
-graph TD
-    subgraph UI_Layer [Interface & Context]
-        A[User Interface] --> B[Next.js 15 App Router]
-        C[Desktop Bridge / Sidecar] --> B
-    end
-
-    subgraph Orchestration [MAS-ZERO Engine]
-        B --> D[Synapse Orchestrator]
-        D --> E[Consensus Loop / Crucible]
-        E --> F[14 Specialized Agents]
-    end
-
-    subgraph Memory_Layer [Chronos Ledger]
-        D --> G[Tiered Memory Store]
-        G --> H[PocketBase]
-        G --> I[Causal Attribution Graph]
-    end
-
-    subgraph Intelligence [Local Intelligence]
-        F --> J[Ollama / Local LLM]
-        F --> K[Monte Carlo Simulators]
-        F --> L[Jina Reader / Prism]
-    end
-
-    subgraph Execution [Kinetic Edge]
-        F --> M[Action Executors]
-        M --> N[Go Sidecars]
-    end
-```
-
-- **Frontend**: React 19, Framer Motion, Tailwind 4.
-- **Sidecar**: High-performance Go services for atomic actions.
-- **Observability**: OpenTelemetry + Arize Phoenix for tracing.
-
-***
-
-## 🚀 Core Engine: MAS-ZERO | المحرك الجوهري
-
-<details open>
-<summary><b>Dialectic Multi-Agent Architecture | هندسة الوكلاء المتعددة</b></summary>
-
-The system employs a consensus loop to pressure-test every opportunity. Use the **[IDEA:]** prefix in any message to force-trigger the **Venture Lab** cycle.
-
-يعتمد النظام على حلقة إجماع لاختبار كل فرصة. استخدم البادئة **[IDEA:]** في أي رسالة لتفعيل دورة **مختبر المشاريع** قسرياً.
-
-| Agent | Role | الدور |
-| :--- | :--- | :--- |
-| **Meta-Architect** | Workflow Design | تصميم سير العمل |
-| **Devil's Advocate** | Fragility Analysis | تحليل نقاط الضعف |
-| **Revenue Architect** | Profit Simulation | محاكاة الأرباح |
-| **Distribution Scout** | Growth Loops | حلقات النمو |
-| **CEO Orchestrator** | Final Synthesis | التوليف النهائي |
-| **Sidecar Observer** | Desktop Intelligence | ذكاء سطح المكتب |
-
-</details>
-
-***
-
-## 🏪 The Skill Marketplace | متجر المهارات
-MAS-ZERO treats skills as **Sovereign NPM-style packages**:
--   **Semantic Versioning**: Track evolution from `v1.0.0` to `v2.1.0`.
--   **Auto-Publishing**: Skills with >80% success rate automatically enter the internal marketplace.
--   **Performance Metrics**: Real-time tracking of `totalRuns`, `avgDurationMs`, and `earningsGenerated`.
-
-## 🖥️ Desktop Bridge (Sidecar) | جسر سطح المكتب
-The agent is no longer blind. Using the `sidecar/` module:
--   **Proactive Observation**: OCR-powered screen analysis via `tesseract.js`.
--   **Context-Aware Help**: "I see you're looking at a TypeScript error. Want me to fix it?"
--   **Zero-Cost Engineering**: Pure open-source stack (Screenshot-desktop + Tesseract) running locally.
-
-***
-
-## 👤 Credits | المساهمون
-
-<table width="100%">
-  <tr>
-    <td align="center" width="100%">
-      <a href="https://github.com/Moeabdelaziz007">
-        <img src="https://github.com/Moeabdelaziz007.png" width="100" style="border-radius: 50%;" alt="Moe Abdelaziz" />
-        <br />
-        <sub><b>Moe Abdelaziz (@Moeabdelaziz007)</b></sub>
-      </a>
-      <br />
-      Principal AI Engineer & System Architect
-    </td>
-  </tr>
-</table>
-
-***
+---
 
 <p align="center">
   <i>Engineered for Profit. Optimized for Sovereignty.</i>
   <br/>
-  <b>2026 Venture Lab :: MAS-ZERO v0.01</b>
-  <br/>
-  <a href="ARCHITECTURE.md">Architecture</a> • <a href="ROADMAP.md">Roadmap</a> • <a href="AGENTS.md">Agents</a>
+  <b>2026 Venture Lab :: MAS-ZERO v1.0.0 (AVE)</b>
 </p>
