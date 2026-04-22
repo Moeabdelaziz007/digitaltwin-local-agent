@@ -1,0 +1,9 @@
+{
+  "name": "The Accountant",
+  "alias": "cost-controller",
+  "description": "Manages venture budgets and resource allocation.",
+  "version": "1.0.0",
+  "revenue_impact": "high",
+  "required_before": ["impl-agent"],
+  "next_skills": ["impl-agent"]
+}

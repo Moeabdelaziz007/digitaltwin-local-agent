@@ -1,0 +1,9 @@
+{
+  "name": "The Fragility Hunter",
+  "alias": "fragility-mapper",
+  "description": "Exploits weaknesses in existing SaaS projects.",
+  "version": "1.0.0",
+  "revenue_impact": "high",
+  "required_before": ["devil-agent"],
+  "next_skills": ["impl-agent"]
+}

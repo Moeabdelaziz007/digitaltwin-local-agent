@@ -1,0 +1,9 @@
+{
+  "name": "The Alchemist",
+  "alias": "recursive-tool-builder",
+  "description": "Searches for and builds new MCP tools and AI capabilities for the system.",
+  "version": "1.0.0",
+  "revenue_impact": "high",
+  "required_before": [],
+  "next_skills": []
+}

@@ -1,0 +1,9 @@
+{
+  "name": "The Kinetic Edge",
+  "alias": "impl-agent",
+  "description": "Executes technical implementation and code generation.",
+  "version": "1.0.0",
+  "revenue_impact": "critical",
+  "required_before": [],
+  "next_skills": ["validation-agent"]
+}
