@@ -45,6 +45,7 @@
     "livekit-server-sdk": "^2.15.1",
     "lucide-react": "^0.460.0",
     "next": "^15.2.4",
+    "playwright-core": "^1.59.1",
     "pocketbase": "^0.26.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
