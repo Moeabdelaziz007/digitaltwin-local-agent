@@ -37,20 +37,20 @@ export async function simulateWhatIf(input: SimInput): Promise<SimResult | null>
   const maxHops = Math.max(1, Math.min(4, input.maxHops ?? 3));
   const constraints = input.constraints ?? [];
 
-  const nodes = await pb.collection('causal_nodes').getFullList({
+  const nodes = await (pb.collection('causal_nodes') as any).getFullList({
     filter: `user_id = "${input.userId}"`,
-  });
+  }) as any[];
 
   if (nodes.length === 0) return null;
 
-  const matchingStart = nodes.find((n) =>
+  const matchingStart = nodes.find((n: any) =>
     String(n.label || '').toLowerCase().includes(input.change.toLowerCase())
   );
   if (!matchingStart?.id) return null;
 
-  const edges = await pb.collection('causal_edges').getFullList({
+  const edges = await (pb.collection('causal_edges') as any).getFullList({
     filter: `user_id = "${input.userId}"`,
-  });
+  }) as any[];
 
   const nodeById = new Map<string, string>(nodes.map((n) => [String(n.id), String(n.label || 'unknown')]));
   const outgoing = new Map<string, Array<Record<string, unknown>>>();
@@ -150,7 +150,7 @@ export async function simulateWhatIf(input: SimInput): Promise<SimResult | null>
     confidence,
   };
 
-  await pb.collection('sim_runs').create(simulationPayload);
+  await (pb.collection('sim_runs') as any).create(simulationPayload);
 
   return {
     summary,
