@@ -30,37 +30,72 @@ export class BudgetMonitor {
     const venture = ventureRegistry.getVenture(ventureId);
     if (!venture) return { allowed: false, message: 'Venture not found.' };
 
-    const { monthly_limit_usd, spent_this_month_usd } = venture.budget;
+    this.ensureRateLimitResets(venture);
+
+    const { 
+      monthly_limit_usd, spent_this_month_usd,
+      daily_limit_usd, spent_today_usd,
+      hourly_limit_usd, spent_this_hour_usd 
+    } = venture.budget;
+
+    // 1. Monthly Check
+    if (spent_this_month_usd >= monthly_limit_usd) {
+      return { allowed: false, message: `Monthly budget reached ($${monthly_limit_usd}).` };
+    }
+
+    // 2. Daily Check
+    if (daily_limit_usd && (spent_today_usd || 0) >= daily_limit_usd) {
+      return { allowed: false, message: `Daily rate limit reached ($${daily_limit_usd}).` };
+    }
+
+    // 3. Hourly Check
+    if (hourly_limit_usd && (spent_this_hour_usd || 0) >= hourly_limit_usd) {
+      return { allowed: false, message: `Hourly rate limit reached ($${hourly_limit_usd}).` };
+    }
+
+    // Soft Warning at 80% (Monthly)
     const usageRatio = spent_this_month_usd / monthly_limit_usd;
-
-    // Layer 3: Full Stop at 100%
-    if (usageRatio >= 1.0) {
-      console.error(`[Budget] CRITICAL: Venture ${ventureId} hit 100% budget cap ($${monthlyCap}). STOPPING ALL AGENTS.`);
-      return { allowed: false, message: 'Budget limit reached (100%). Full stop enforced.' };
-    }
-
-    // Layer 2: Soft Warning at 80%
     if (usageRatio >= 0.8) {
-      console.warn(`[Budget] WARNING: Venture ${ventureId} at ${Math.round(usageRatio * 100)}% budget ($${spent_this_month_usd}/$${monthly_limit_usd}). Soft warning issued.`);
-      // Logic to trigger notification/ticket could go here
+      console.warn(`[Budget] WARNING: Venture ${ventureId} at ${Math.round(usageRatio * 100)}% monthly budget.`);
     }
 
-    // Layer 1: Allowed (Under 80%)
     return { allowed: true };
   }
 
-  /**
-   * Record token/API cost
-   */
+  private ensureRateLimitResets(venture: any) {
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+    const hourStr = now.toISOString().split(':')[0]; // e.g. 2026-04-22T22
+
+    let modified = false;
+
+    if (venture.budget.last_reset_day !== todayStr) {
+      venture.budget.spent_today_usd = 0;
+      venture.budget.last_reset_day = todayStr;
+      modified = true;
+    }
+
+    if (venture.budget.last_reset_hour !== hourStr) {
+      venture.budget.spent_this_hour_usd = 0;
+      venture.budget.last_reset_hour = hourStr;
+      modified = true;
+    }
+
+    if (modified) {
+      ventureRegistry.updateVenture(venture.id, { budget: venture.budget });
+    }
+  }
+
   public async recordSpend(ventureId: string, amount: number) {
     const venture = ventureRegistry.getVenture(ventureId);
     if (venture) {
       venture.budget.spent_this_month_usd += amount;
-      console.log(`[Budget] Venture ${ventureId} spend updated: $${venture.budget.spent_this_month_usd.toFixed(4)}`);
+      venture.budget.spent_today_usd = (venture.budget.spent_today_usd || 0) + amount;
+      venture.budget.spent_this_hour_usd = (venture.budget.spent_this_hour_usd || 0) + amount;
       
-      // Auto-save back to registry (simulated)
-      // Note: we need to implement updateVenture in ventureRegistry
-      (ventureRegistry as any).updateVenture(ventureId, { budget: venture.budget });
+      console.log(`[Budget] Venture ${ventureId} spend updated. Total Month: $${venture.budget.spent_this_month_usd.toFixed(4)}`);
+      
+      ventureRegistry.updateVenture(ventureId, { budget: venture.budget });
     }
   }
 }
