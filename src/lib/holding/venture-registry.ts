@@ -33,6 +33,13 @@ export class VentureRegistry {
     return Array.from(this.ventures.values());
   }
 
+  public updateVenture(id: string, updates: Partial<Venture>) {
+    const venture = this.ventures.get(id);
+    if (venture) {
+      this.ventures.set(id, { ...venture, ...updates });
+    }
+  }
+
   /**
    * إطلاق محرك دخل جديد كشركة مستقلة
    */

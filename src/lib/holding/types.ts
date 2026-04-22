@@ -10,8 +10,14 @@ export type DepartmentType = 'engineering' | 'revenue' | 'distribution' | 'gover
 export interface Budget {
   monthly_limit_usd: number;
   spent_this_month_usd: number;
+  daily_limit_usd?: number; // سقف يومي
+  spent_today_usd?: number;
+  hourly_limit_usd?: number; // سقف ساعي
+  spent_this_hour_usd?: number;
   token_limit: number;
   spent_tokens: number;
+  last_reset_day?: string; // ISO date
+  last_reset_hour?: string; // ISO timestamp
 }
 
 export interface Goal {
@@ -48,6 +54,7 @@ export interface Venture {
   org_chart: Role[];
   goals: Goal[];
   created_at: string;
+  skills?: string[]; // قائمة بالمهارات المسجلة لهذه الشركة
   metadata: Record<string, any>;
 }
 
