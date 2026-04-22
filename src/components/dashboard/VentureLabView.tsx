@@ -131,7 +131,7 @@ export const VentureLabView: React.FC<VentureLabViewProps> = ({ verdict, onClose
                   Reasoning Chain (Causal Graph)
                 </h4>
                 <CausalGraph 
-                  graph={(verdict.scout?.metadata?.causal_graph as any) || {
+                  graph={(verdict.scout?.metadata?.causal_graph as { nodes: Partial<CausalNode>[]; edges: Partial<CausalEdge>[]; }) || {
                     nodes: [
                       { id: '1', label: 'Market Disruption', node_type: 'event' },
                       { id: '2', label: 'Agentic Solve', node_type: 'decision' },
@@ -150,7 +150,7 @@ export const VentureLabView: React.FC<VentureLabViewProps> = ({ verdict, onClose
               <div className="space-y-3 pt-4">
                 <h4 className="text-[10px] font-mono text-white/30 uppercase">Self-Play Build Trace</h4>
                 <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                  {Array.isArray(verdict.ceo?.metadata?.build_trace) ? verdict.ceo?.metadata?.build_trace.map((step: string, i: number) => (
+                  {Array.isArray(verdict.ceo?.metadata?.build_trace) ? (verdict.ceo?.metadata?.build_trace as string[]).map((step: string, i: number) => (
                     <div key={i} className="shrink-0 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-[9px] font-mono text-white/60">
                       Step {i+1}: {step}
                     </div>

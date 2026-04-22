@@ -16,16 +16,9 @@ const NODE_WIDTH = 120;
 const NODE_HEIGHT = 40;
 
 export const CausalGraph: React.FC<Props> = ({ graph, className }) => {
-  if (!graph || !graph.nodes || graph.nodes.length === 0) {
-    return (
-      <div className={`flex items-center justify-center h-48 border border-white/10 rounded-xl bg-black/20 ${className}`}>
-        <p className="text-white/40 text-sm font-mono uppercase tracking-widest">No Causal Data</p>
-      </div>
-    );
-  }
-
   // Basic layout logic: Categorize nodes into columns
   const columns = useMemo(() => {
+    if (!graph?.nodes) return [];
     const cols: Record<string, Partial<CausalNode>[]> = {
       event: [],
       context: [],
@@ -41,7 +34,7 @@ export const CausalGraph: React.FC<Props> = ({ graph, className }) => {
     });
 
     return Object.entries(cols).filter(([_, nodes]) => nodes.length > 0);
-  }, [graph.nodes]);
+  }, [graph?.nodes]);
 
   // Map nodes to coordinates
   const nodePositions = useMemo(() => {
@@ -62,6 +55,14 @@ export const CausalGraph: React.FC<Props> = ({ graph, className }) => {
 
     return positions;
   }, [columns]);
+
+  if (!graph || !graph.nodes || graph.nodes.length === 0) {
+    return (
+      <div className={`flex items-center justify-center h-48 border border-white/10 rounded-xl bg-black/20 ${className}`}>
+        <p className="text-white/40 text-sm font-mono uppercase tracking-widest">No Causal Data</p>
+      </div>
+    );
+  }
 
   return (
     <div className={`relative overflow-hidden bg-black/40 border border-white/10 rounded-2xl p-4 ${className}`}>

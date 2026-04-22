@@ -121,9 +121,8 @@ export class ArbitrageAgent {
           message_count: 2,
           role_sequence: 'system,user',
           input_chars: strategyPrompt.length,
-          output_chars: strategyResponse.length,
-          latency_ms: latency
-        } as any);
+          output_chars: strategyResponse.length
+        });
 
         return {
           agentName: this.name,
@@ -138,7 +137,7 @@ export class ArbitrageAgent {
             probability
           },
           strategy: strategy.commentary,
-          risk_level: strategy.risk_level as any,
+          risk_level: strategy.risk_level as 'low' | 'med' | 'high',
           is_fallback: isFallback,
           metadata: {
             source: isFallback ? 'local-fallback' : 'llm',
@@ -154,7 +153,7 @@ export class ArbitrageAgent {
     });
   }
 
-  private parseAndValidateStrategy(content: string): { commentary: string, risk_level: string } {
+  private parseAndValidateStrategy(content: string): { commentary: string, risk_level: 'low' | 'med' | 'high' } {
     try {
       const firstBrace = content.indexOf('{');
       const lastBrace = content.lastIndexOf('}');

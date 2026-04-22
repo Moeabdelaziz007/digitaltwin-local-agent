@@ -38,10 +38,19 @@ import { MemoryCanvas } from '@/components/MemoryCanvas';
 import { useUser } from '@clerk/nextjs';
 import pb from '@/lib/pocketbase-client';
 
+interface UserProfile {
+  id: string;
+  user_id: string;
+  skills: string[];
+  interests: string[];
+  bio?: string;
+  name?: string;
+}
+
 export default function VentureLabDashboard() {
   const { user } = useUser();
   const [activeStage, setActiveStage] = useState('Explore');
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     if (user?.id) {
