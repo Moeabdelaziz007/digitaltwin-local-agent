@@ -1,12 +1,10 @@
-import { env } from '@/lib/env';
 import { callOllama } from '@/lib/ollama-client';
 import { obs } from '@/lib/observability/observability-service';
 import { 
   ConsensusInput, 
   ConsensusVerdict, 
   AgentProposal, 
-  RiskFlags,
-  VentureStage
+  RiskFlags
 } from '@/types/twin';
 import { 
   PRIVACY_FILTER_PROMPT,
@@ -20,6 +18,7 @@ import {
   SPEC_BLACKSMITH_PROMPT,
   CEO_SYNTHESIZER_PROMPT
 } from './prompts';
+import { JSONHardener } from '../utils/json-hardener';
 import { executeSaveMemory, executeRecallMemory } from '@/lib/memory-engine';
 import { ollamaBreaker } from './circuit-breaker';
 import { groq } from '../groq-service';
@@ -32,51 +31,18 @@ const DEFAULT_FLAGS: RiskFlags = {
   policy_risk: false,
 };
 
-/**
- * Robustly extracts the first valid JSON object from a potentially noisy string.
- */
-function extractBalancedJSON(raw: string): any {
-  const firstBrace = raw.indexOf('{');
-  if (firstBrace === -1) return { output: raw };
-
-  const lastBrace = raw.lastIndexOf('}');
-  if (lastBrace === -1) return { output: raw };
-
-  const candidate = raw.substring(firstBrace, lastBrace + 1);
-  try {
-    return JSON.parse(candidate);
-  } catch (e) {
-    const clean = raw.replace(/```json\n?|\n?```/g, '').trim();
-    const simpleMatch = clean.match(/\{[\s\S]*\}/);
-    if (simpleMatch) return JSON.parse(simpleMatch[0]);
-    return { output: raw };
-  }
-}
-
 function safeParseProposal(raw: string, agent: string): AgentProposal {
-  try {
-    const parsed = extractBalancedJSON(raw);
-    return {
-      agent: agent as any,
-      verdict: parsed.verdict || 'accept',
-      confidence: parsed.confidence || 0.5,
-      risk: parsed.risk || 'med',
-      output: parsed.output || (typeof parsed === 'string' ? parsed : JSON.stringify(parsed, null, 2)),
-      reasoning_summary: parsed.reasoning_summary || '',
-      issues: parsed.issues || [],
-      metadata: parsed
-    };
-  } catch (e: any) {
-    return {
-      agent: agent as any,
-      verdict: 'revise',
-      confidence: 0.1,
-      risk: 'high',
-      output: raw,
-      reasoning_summary: `Parse failed: ${e.message}`,
-      issues: ['invalid_json']
-    };
-  }
+  const parsed = JSONHardener.extract<any>(raw);
+  return {
+    agent: agent as any,
+    verdict: parsed.verdict || 'accept',
+    confidence: parsed.confidence || 0.5,
+    risk: parsed.risk || 'med',
+    output: parsed.output || (typeof parsed === 'string' ? parsed : JSON.stringify(parsed, null, 2)),
+    reasoning_summary: parsed.reasoning_summary || '',
+    issues: parsed.issues || [],
+    metadata: parsed
+  };
 }
 
 export async function runConsensus(input: ConsensusInput): Promise<ConsensusVerdict> {

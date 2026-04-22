@@ -1,107 +1,76 @@
 /**
  * src/lib/holding/venture-registry.ts
- * سجل الشركات المستقلة: المدير المسؤول عن تخزين واسترجاع بيانات المحفظة الاستثمارية.
+ * سجل مركزي لإدارة الشركات والعمليات المستقلة (AHP)
  */
 
+import { Venture, Goal, Role, Ticket } from './types';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { getServerPB } from '../pb-server';
-import { Venture, Goal, Role, Ticket } from './types';
+import { FreelanceArbitrageBlueprint } from '../revenue-engines/freelance-arbitrage';
+import { MicroSaaSFactoryBlueprint } from '../revenue-engines/microsaas-factory';
+import { BountyHunterBlueprint } from '../revenue-engines/bounty-hunter';
 
 export class VentureRegistry {
-  private pb = getServerPB();
+  private static instance: VentureRegistry;
+  private ventures: Map<string, Venture> = new Map();
 
-  constructor() {}
+  private constructor() {}
 
-  /**
-   * Singleton with globalThis protection for Next.js Hot Reload
-   */
   public static getInstance(): VentureRegistry {
-    const globalAny = globalThis as any;
-    if (!globalAny.ventureRegistryInstance) {
-      globalAny.ventureRegistryInstance = new VentureRegistry();
+    if (!(globalThis as any)._ventureRegistry) {
+      (globalThis as any)._ventureRegistry = new VentureRegistry();
     }
-    return globalAny.ventureRegistryInstance;
+    return (globalThis as any)._ventureRegistry;
+  }
+
+  public registerVenture(venture: Venture) {
+    this.ventures.set(venture.id, venture);
+    this.initVentureStorage(venture.id);
+  }
+
+  public getVenture(id: string): Venture | undefined {
+    return this.ventures.get(id);
+  }
+
+  public listVentures(): Venture[] {
+    return Array.from(this.ventures.values());
   }
 
   /**
-   * إنشاء مشروع (Venture) جديد مع ملفات الذاكرة البشرية (SOUL & JOURNAL)
+   * إطلاق محرك دخل جديد كشركة مستقلة
    */
-  public async createVenture(venture: Partial<Venture>): Promise<Venture> {
-    try {
-      const record = await (this.pb.collection('ventures') as any).create({
-        ...venture,
-        status: 'active',
-        created_at: new Date().toISOString(),
-      });
+  public async launchEngine(engineName: string, niche: string): Promise<Venture> {
+    const id = `V-${Date.now()}`;
+    const mission = `Launch ${engineName} for ${niche}`;
+    
+    // تحديد الأدوار بناءً على المحرك (تبسيطياً حالياً)
+    const orgChart: Role[] = []; 
 
-      // درس OpenClaw: إنشاء ملفات الذاكرة النصية
-      const venturePath = path.join(process.cwd(), 'ventures', record.id);
-      await fs.mkdir(venturePath, { recursive: true });
-      
-      const soulContent = `# SOUL of ${record.name}\n\nVision: ${record.vision}\nCreated: ${record.created_at}\n\n## Identity\nThis venture is a digital autonomous entity...`;
-      await fs.writeFile(path.join(venturePath, 'SOUL.md'), soulContent);
-      await fs.writeFile(path.join(venturePath, 'JOURNAL.md'), `# JOURNAL of ${record.name}\n\nAudit log and daily progress...`);
+    const newVenture: Venture = {
+      id,
+      name: `${engineName} - ${niche}`,
+      vision: mission,
+      mission_statement: mission,
+      status: 'active',
+      budget: { monthly_limit_usd: 100, spent_this_month_usd: 0, token_limit: 100000, spent_tokens: 0 },
+      org_chart: orgChart,
+      goals: [],
+      created_at: new Date().toISOString(),
+      metadata: { engine: engineName }
+    };
 
-      return record as any;
-    } catch (error) {
-      console.error('[VentureRegistry] Failed to create venture:', error);
-      throw error;
-    }
+    this.registerVenture(newVenture);
+    return newVenture;
   }
 
-  /**
-   * استرجاع كافة المشاريع النشطة
-   */
-  public async getActiveVentures(): Promise<Venture[]> {
+  private async initVentureStorage(ventureId: string) {
+    const baseDir = path.join(process.cwd(), 'ventures', ventureId);
     try {
-      const records = await (this.pb.collection('ventures') as any).getFullList({
-        filter: 'status = "active"',
-      });
-      return records as any;
-    } catch (error) {
-      return [];
-    }
-  }
-
-  /**
-   * تحديث هدف معين داخل مشروع
-   */
-  public async updateGoal(ventureId: string, goal: Goal): Promise<void> {
-    try {
-      // منطق التحديث في قاعدة البيانات (سواء كان جدول منفصل أو حقل JSON)
-      console.log(`[VentureRegistry] Updating goal ${goal.id} for venture ${ventureId}`);
-    } catch (error) {
-      console.error('[VentureRegistry] Goal update failed:', error);
-    }
-  }
-
-  /**
-   * إضافة تذكرة (Ticket) جديدة لنظام العمل
-   */
-  public async createTicket(ticket: Partial<Ticket>): Promise<Ticket> {
-    try {
-      const record = await (this.pb.collection('tickets') as any).create({
-        ...ticket,
-        status: 'todo',
-        audit_trail: [`[System] Ticket created at ${new Date().toISOString()}`],
-      });
-      return record as any;
-    } catch (error) {
-      console.error('[VentureRegistry] Ticket creation failed:', error);
-      throw error;
-    }
-  }
-
-  /**
-   * الحصول على الهيكل التنظيمي لشركة
-   */
-  public async getOrgChart(ventureId: string): Promise<Role[]> {
-    try {
-      const venture = await (this.pb.collection('ventures') as any).getOne(ventureId);
-      return venture.org_chart || [];
-    } catch (error) {
-      return [];
+      await fs.mkdir(baseDir, { recursive: true });
+      await fs.writeFile(path.join(baseDir, 'SOUL.md'), '# Venture Soul\nBe profitable.');
+      await fs.writeFile(path.join(baseDir, 'JOURNAL.md'), '# Venture Journal\n- [Init] Venture registered.');
+    } catch (e) {
+      console.warn(`[VentureRegistry] Could not init storage for ${ventureId}`);
     }
   }
 }

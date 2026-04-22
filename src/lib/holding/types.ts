@@ -33,12 +33,16 @@ export interface Role {
   capabilities: string[]; // قائمة بالمهارات (Skills) المسموح بها لهذا الدور
   budget_limit_per_task: number;
   provider_hint?: 'ollama' | 'groq' | 'openai' | 'claude' | 'gemini'; // درس Hermes: تعدد المزودين
+  reporting_to_role_id?: string; // خط التقارير (إلى من يتبع هذا الدور)
 }
+
+export type VentureStage = 'ideation' | 'prototype' | 'mvp' | 'beta' | 'scaling' | 'mature' | 'pivot';
 
 export interface Venture {
   id: string;
   name: string;
   vision: string;
+  mission_statement: string; // الهدف الأسمى (Money Machine Focus)
   status: VentureStatus;
   budget: Budget;
   org_chart: Role[];
@@ -50,12 +54,16 @@ export interface Venture {
 export interface Ticket {
   id: string;
   venture_id: string;
-  title: string;
   assigned_role_id: string;
-  status: 'todo' | 'in_progress' | 'qa' | 'done' | 'blocked';
-  priority: 'critical' | 'high' | 'medium' | 'low';
+  title: string;
   context: string;
-  budget_allocated: number;
+  status: 'pending' | 'in_progress' | 'done' | 'blocked';
   output?: string;
-  audit_trail: string[]; // سجل تاريخي لكل ما حدث في التذكرة
+  created_at: string;
+  updated_at: string;
+  metadata?: {
+    model?: string;
+    tokens?: number;
+    [key: string]: any;
+  };
 }

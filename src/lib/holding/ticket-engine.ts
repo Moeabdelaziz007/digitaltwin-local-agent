@@ -1,68 +1,91 @@
 /**
  * src/lib/holding/ticket-engine.ts
- * محرك التذاكر (Ticket Engine): المسؤول عن دورة حياة المهام وتتبع الميزانية.
+ * محرك التذاكر والمراقبة المالية والمراجعة (Audit)
  */
 
-import { ventureRegistry } from './venture-registry';
-import { Ticket, Venture } from './types';
-import { getRoleById } from './org-chart';
+import { Ticket, Role, Venture } from './types';
+import { promises as fs } from 'fs';
+import path from 'path';
+import { BudgetMonitor } from './budget-monitor';
+import { VentureRegistry } from './venture-registry';
 
 export class TicketEngine {
-  constructor() {}
-
-  public static getInstance(): TicketEngine {
-    const globalAny = globalThis as any;
-    if (!globalAny.ticketEngineInstance) {
-      globalAny.ticketEngineInstance = new TicketEngine();
-    }
-    return globalAny.ticketEngineInstance;
-  }
-
   /**
-   * البدء في تنفيذ تذكرة مع التحقق من الميزانية
+   * إنشاء تذكرة جديدة مع التحقق من التكلفة والأهداف
    */
-  public async checkoutTicket(ticketId: string): Promise<boolean> {
-    try {
-      // 1. استرجاع بيانات التذكرة والمشروع
-      // ملاحظة: هنا سنفترض وجود التذكرة في السجل
-      console.log(`[TicketEngine] Checking out ticket: ${ticketId}`);
-      
-      // 2. التحقق من "حارس التكلفة" (Cost Guard)
-      const canProceed = await this.costGuard(ticketId);
-      if (!canProceed) {
-        console.warn(`[TicketEngine] Ticket ${ticketId} blocked: Budget exceeded or unauthorized.`);
-        return false;
+  public static async createTicket(
+    venture: Venture,
+    role: Role,
+    input: Partial<Ticket>
+  ): Promise<Ticket> {
+    const budgetRequested = input.budget_allocated || 0;
+
+    // 1. Zero-Cost Enforcer: التحقق من سقف ميزانية الدور
+    if (budgetRequested > role.budget_limit_per_task) {
+      if (!role.reporting_to_role_id) {
+        throw new Error(`[CostControl] Budget ${budgetRequested} exceeds role limit and no reporting line defined.`);
       }
-
-      // 3. تحديث حالة التذكرة إلى "قيد التنفيذ"
-      // await ventureRegistry.updateTicketStatus(ticketId, 'in_progress');
-      
-      return true;
-    } catch (error) {
-      console.error('[TicketEngine] Checkout failed:', error);
-      return false;
+      console.log(`[CostControl] Task exceeds ${role.title} limit. Escalating to ${role.reporting_to_role_id}`);
+      // هنا يمكن إضافة منطق الانتظار للموافقة
     }
+
+    const ticket: Ticket = {
+      id: `TKT-${Date.now()}`,
+      venture_id: venture.id,
+      title: input.title || 'Untitled Task',
+      assigned_role_id: role.id,
+      status: 'todo',
+      priority: input.priority || 'medium',
+      context: input.context || '',
+      budget_allocated: budgetRequested,
+      audit_trail: [`[${new Date().toISOString()}] Ticket created by ${role.title}`]
+    };
+
+    // 2. Immutable Audit: التسجيل في Journal
+    await this.logToJournal(venture.id, `NEW TICKET: ${ticket.id} - ${ticket.title} (Budget: ${budgetRequested}$)`);
+
+    return ticket;
   }
 
   /**
-   * حارس التكلفة (Cost Guard): التحقق من الميزانية قبل التنفيذ
+   * تحديث حالة تذكرة وحساب التكلفة المالية
    */
-  private async costGuard(ticketId: string): Promise<boolean> {
-    // منطق التحقق:
-    // 1. هل المشروع لديه ميزانية متبقية كافية؟
-    // 2. هل تكلفة هذه التذكرة تتوافق مع حدود الدور (Role Limit)؟
+  public static async updateTicket(
+    ventureId: string, 
+    ticket: Ticket, 
+    updates: Partial<Ticket>, 
+    logEntry?: string
+  ): Promise<Ticket> {
+    const registry = VentureRegistry.getInstance();
+    const venture = registry.getVenture(ventureId);
     
-    // محاكاة للتحقق الناجح حالياً
-    return true; 
+    // حساب التكلفة إذا تم تقديم بيانات استهلاك
+    if (updates.output && venture) {
+      const tokens = updates.output.length / 4; 
+      const model = ticket.metadata?.model || 'ollama';
+      const cost = BudgetMonitor.calculateCost(model, tokens);
+      
+      venture.budget.spent_this_month_usd += cost;
+      venture.budget.spent_tokens += tokens;
+    }
+
+    Object.assign(ticket, updates);
+    ticket.updated_at = new Date().toISOString();
+
+    if (logEntry) {
+      await this.logToJournal(ventureId, `[Ticket ${ticket.id}] ${logEntry}`);
+    }
+
+    return ticket;
   }
 
-  /**
-   * إتمام التذكرة وتحديث سجل التدقيق
-   */
-  public async completeTicket(ticketId: string, output: string): Promise<void> {
-    console.log(`[TicketEngine] Completing ticket: ${ticketId}`);
-    // تحديث السجل والبيانات النهائية
+  private static async logToJournal(ventureId: string, message: string) {
+    const journalPath = path.join(process.cwd(), 'ventures', ventureId, 'JOURNAL.md');
+    const logEntry = `- [${new Date().toISOString()}] ${message}\n`;
+    try {
+      await fs.appendFile(journalPath, logEntry);
+    } catch (e) {
+      console.warn(`[TicketEngine] Could not write to journal for ${ventureId}`);
+    }
   }
 }
-
-export const ticketEngine = TicketEngine.getInstance();
