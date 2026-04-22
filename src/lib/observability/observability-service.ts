@@ -75,7 +75,7 @@ export class ObservabilityService {
     return tracer.startActiveSpan(name, {
       kind: options.kind || SpanKind.INTERNAL,
       attributes: options.attributes,
-    }, async (span) => {
+    }, async (span): Promise<T> => {
       try {
         const result = await fn(span);
         span.setStatus({ code: SpanStatusCode.OK });
