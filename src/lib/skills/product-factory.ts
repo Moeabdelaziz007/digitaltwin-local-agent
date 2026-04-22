@@ -35,15 +35,14 @@ export const productFactorySkill: AgentSkill & { execute: (context: any) => Prom
     console.log('[ProductFactory] Auditing memory for sellable knowledge...');
     const solvedProblems = await executeRecallMemory('system', 'solved problem code implementation deployment pattern');
 
-    if (!solvedProblems || solvedProblems.length === 0) {
+    if (!solvedProblems || solvedProblems.includes('No relevant facts found')) {
       return { status: 'skipped', reason: 'no_sellable_knowledge_found' };
     }
 
     // 2. Package the best candidate as a product
-    const candidate = solvedProblems[0]; // Take most recent/relevant
     const prompt = `
       You are a Digital Product Expert. Package this technical solution into a sellable $9 Gumroad product:
-      Solution: ${JSON.stringify(candidate)}
+      Solution: ${solvedProblems}
       
       PRODUCT TYPE: Choose from [Prompt Pack, Next.js Template, AI Workflow, Code Snippet]
       
@@ -54,7 +53,7 @@ export const productFactorySkill: AgentSkill & { execute: (context: any) => Prom
       - Minimal Implementation Guide
     `;
 
-    console.log(`[ProductFactory] Packaging knowledge: ${candidate.id || 'recent_solution'}`);
+    console.log(`[ProductFactory] Packaging knowledge...`);
     const productManifest = await callOllama(prompt, [
       { role: 'system', content: 'You are an expert at micro-SaaS and digital product monetization.' }
     ]);

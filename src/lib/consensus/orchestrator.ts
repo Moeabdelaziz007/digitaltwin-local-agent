@@ -36,7 +36,7 @@ import { SynapseOracle } from '../agents/profit-lab/synapse-oracle';
 import { ArbitrageAgent } from '../agents/profit-lab/arbitrage-agent';
 import { opportunityScanner } from '../opportunity/scanner';
 import { tieredMemory } from '../memory/tiered-store';
-import { reflectionLoop } from '../meta-cognitive/reflection-loop';
+import { metaCognitive } from '../meta-cognitive/reflection-loop';
 import { AutoLauncher, OpportunityCard } from '../opportunity/auto-launch';
 
 
@@ -345,7 +345,7 @@ async function runVentureLabCycle(input: ConsensusInput, start: number): Promise
     }
 
     // --- META-COGNITIVE REFLECTION ---
-    await reflectionLoop.reflect(input.userMessage, {
+    await metaCognitive.reflect(input.userMessage, {
       taskId: `venture_${Date.now()}`,
       success: ceo.verdict !== 'reject' && ceo.confidence > 0.7,
       steps: ['Explore', 'Collapse', 'Attack', 'Build', 'Synthesis'],
@@ -375,7 +375,7 @@ async function runVentureLabCycle(input: ConsensusInput, start: number): Promise
       market_simulator: marketSim,
       revenue_simulator: revSim,
       ceo,
-      fragility_map: ceo.metadata?.fragility_map || marketSim.metadata?.fragility_map || {}
+      fragility_map: (ceo.metadata?.fragility_map || marketSim.metadata?.fragility_map || {}) as Record<string, number>
     };
   });
 }

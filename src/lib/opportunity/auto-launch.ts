@@ -61,15 +61,15 @@ export class AutoLauncher {
       const deploymentUrl = `https://${card.id}.vercel.app`;
 
       // 4. Meta-Cognitive Tracking
-      await metaCognitive.reflect({
-        description: `Auto-launched product: ${card.problem_statement}`,
-        type: 'PRODUCT_LAUNCH'
-      } as any, {
-        success: true,
-        output: `Product deployed at ${deploymentUrl}. Listing: ${listingUrl}`,
-        durationMs: 5000,
-        artifacts: [{ type: 'code', path: 'simulated_codegen.ts' }]
-      });
+      await metaCognitive.reflect(
+        `Auto-launched product: ${card.problem_statement}`,
+        {
+          taskId: `launch_${card.id}`,
+          success: true,
+          steps: ['CodeGen', 'GumroadCreation', 'VercelDeployment'],
+          duration: 5000
+        }
+      );
 
       return {
         status: 'launched',

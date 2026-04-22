@@ -59,7 +59,11 @@ export const prSubmitterSkill: AgentSkill & { execute: (context: any) => Promise
     // 3. Track Attempt
     await causal.recordTrace({
       event: 'bounty_attempted',
-      causes: ['issue_matched', 'fix_generated'],
+      outcome: 'success', // Simulated success of generation
+      causes: [
+        { factor: 'issue_matched', impact: 'positive', weight: 0.9 },
+        { factor: 'fix_generated', impact: 'positive', weight: 0.8 }
+      ],
       counterfactual: 'If the agent lacked coding skills, this bounty would be unreachable.',
       confidence: 0.8
     });

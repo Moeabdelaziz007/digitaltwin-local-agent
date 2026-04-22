@@ -36,11 +36,7 @@ export const freelanceApplicantSkill: AgentSkill & { execute: (context: any) => 
 
     // 1. Recall past similar wins using memory engine
     const query = `freelance job proposal ${job.title} ${job.description.substring(0, 50)}`;
-    const relevantPastWork = await executeRecallMemory({
-      query,
-      userId: 'system',
-      limit: 3
-    });
+    const relevantPastWork = await executeRecallMemory('system', query);
 
     // 2. Generate winning proposal
     const prompt = `
