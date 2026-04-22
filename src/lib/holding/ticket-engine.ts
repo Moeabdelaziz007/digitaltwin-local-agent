@@ -38,7 +38,8 @@ export class TicketEngine {
       priority: input.priority || 'medium',
       context: input.context || '',
       budget_allocated: budgetRequested,
-      audit_trail: [`[${new Date().toISOString()}] Ticket created by ${role.title}`]
+      audit_trail: [`[${new Date().toISOString()}] Ticket created by ${role.title}`],
+      created_at: new Date().toISOString()
     };
 
     // 2. Immutable Audit: التسجيل في Journal

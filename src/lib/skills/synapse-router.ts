@@ -1,6 +1,6 @@
 import { callOllama } from '../ollama-client';
 import { skillRegistry } from './registry';
-import { SkillSchema } from './registry';
+import type { SkillListItem } from './registry';
 
 /**
  * src/lib/skills/synapse-router.ts
@@ -12,15 +12,15 @@ export class SynapseRouter {
   /**
    * Find the most relevant skills using Semantic Analysis
    */
-  public static async routeTask(taskDescription: string): Promise<SkillSchema[]> {
+  public static async routeTask(taskDescription: string): Promise<SkillListItem[]> {
     const allSkills = skillRegistry.listSkills();
     
     // Prepare a condensed list of skills for the LLM
     const skillMap = allSkills.map(s => ({
       id: s.id,
-      name: s.metadata.name,
-      description: s.metadata.description,
-      when_to_use: s.metadata.when_to_use
+      name: s.name,
+      description: s.description,
+      when_to_use: s.when_to_use
     }));
 
     const prompt = `
@@ -56,10 +56,10 @@ export class SynapseRouter {
     }
   }
 
-  private static fallbackKeywordMatch(task: string, skills: SkillSchema[]): SkillSchema[] {
+  private static fallbackKeywordMatch(task: string, skills: SkillListItem[]): SkillListItem[] {
     const words = task.toLowerCase().split(' ');
     return skills.filter(skill => {
-      const meta = (skill.metadata.description + ' ' + skill.metadata.name).toLowerCase();
+      const meta = (skill.description + ' ' + skill.name).toLowerCase();
       return words.some(word => word.length > 3 && meta.includes(word));
     });
   }

@@ -142,8 +142,6 @@ registerBuiltInMemoryTools();
 
 export const MEMORY_TOOLS: OllamaTool[] = toolRegistry.getToolDefinitions();
 
-import { tieredMemory, MemoryEntry } from './memory/tiered-store';
-
 /**
  * 🧠 EXECUTOR: executeRecallMemory
  */

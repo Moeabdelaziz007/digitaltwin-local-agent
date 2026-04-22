@@ -145,7 +145,7 @@ export class TieredMemoryStore {
       if (oldestWarm.items.length > 0) {
         await this.archiveToCold(oldestWarm.items as any);
         // Batch delete from warm
-        await Promise.all(oldestWarm.items.map(i => pb.collection('memory_warm').delete(i.id)));
+        await Promise.all((oldestWarm.items as Array<{ id: string }>).map((item) => pb.collection('memory_warm').delete(item.id)));
       }
     } catch (e) {
       console.error('[Memory-Migration] Warm to Cold failed:', e);
