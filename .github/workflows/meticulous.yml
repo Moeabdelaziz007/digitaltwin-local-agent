@@ -22,7 +22,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
           version: 10.23.0
 
@@ -36,7 +36,7 @@ jobs:
 
       - name: Run Meticulous tests
         if: github.event_name == 'pull_request'
-        uses: Meticulous-AI/meticulous-action@v1
+        uses: always-co/meticulous-action@v1
         with:
           api-token: ${{ secrets.METICULOUS_API_TOKEN }}
           # Option 1: If using Vercel preview deployments
@@ -74,7 +74,7 @@ jobs:
           cache: 'pnpm'
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
         with:
           version: 10.23.0
 

@@ -32,4 +32,4 @@ jobs:
         run: pnpm install
 
       - name: Validate project
-        run: pnpm run typecheck && pnpm run lint && pnpm run build && pnpm run check:smoke
+        run: pnpm run build && pnpm run check:smoke

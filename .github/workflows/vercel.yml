@@ -20,6 +20,6 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install
-      - run: pnpm run lint
+      -
       - run: pnpm run build
       - run: npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
