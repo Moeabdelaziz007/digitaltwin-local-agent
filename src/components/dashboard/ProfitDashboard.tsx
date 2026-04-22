@@ -20,6 +20,14 @@ interface ProfitState {
   globalInsights?: Opportunity['causal_graph'];
 }
 
+interface VentureOpportunity {
+  title: string;
+  desc: string;
+  tag: string;
+  score: number;
+  data: any;
+}
+
 export const ProfitDashboard: React.FC = () => {
   const [state, setState] = useState<ProfitState>({
     simulatedProfit: 0,
@@ -39,7 +47,7 @@ export const ProfitDashboard: React.FC = () => {
     }
   });
 
-  const [opportunities, setOpportunities] = useState<any[]>([]);
+  const [opportunities, setOpportunities] = useState<VentureOpportunity[]>([]);
   const [isSimulating, setIsSimulating] = useState(false);
 
   useEffect(() => {
@@ -71,7 +79,7 @@ export const ProfitDashboard: React.FC = () => {
       }
     };
 
-    runInitialSimulation();
+    void runInitialSimulation();
   }, []);
 
   const [selectedVenture, setSelectedVenture] = useState<ConsensusVerdict | null>(null);
