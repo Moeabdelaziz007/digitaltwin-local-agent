@@ -49,13 +49,17 @@ export class VentureEngine {
     const ventures = ventureRegistry.listVentures();
     console.log(`[AVE] Heartbeat: Processing ${ventures.length} ventures...`);
 
-    for (const venture of ventures) {
-      if (venture.status !== 'active') continue;
+    // Parallel execution across all ventures
+    await Promise.all(ventures.map(async (venture) => {
+      if (venture.status !== 'active') return;
 
-      for (const skillId of venture.skills || []) {
-        await this.triggerSkill(skillId, venture);
-      }
-    }
+      // Parallel execution across all skills for this venture
+      const skillPromises = (venture.skills || []).map(skillId => 
+        this.triggerSkill(skillId, venture)
+      );
+      
+      await Promise.all(skillPromises);
+    }));
   }
 
   private async triggerSkill(skillId: string, venture: any) {
