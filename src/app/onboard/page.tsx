@@ -7,7 +7,7 @@ import pb from '@/lib/pocketbase-client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MatrixRain } from '@/components/MatrixRain';
 import { TerminalIntro } from '@/components/TerminalIntro';
-import { Brain, Cpu, Shield, Sparkles, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Brain, Cpu, Shield, Sparkles, ArrowRight, ArrowLeft, Target, Fingerprint } from 'lucide-react';
 
 const STYLE_CHIPS = [
   { id: 'concise', label: 'Short & direct', icon: '⚡' },
@@ -18,6 +18,9 @@ const STYLE_CHIPS = [
   { id: 'friend', label: 'Casual friend', icon: '🤝' }
 ];
 
+const SKILL_SUGGESTIONS = ['Next.js', 'TypeScript', 'Crypto', 'Arbitrage', 'SaaS', 'Marketing', 'Data Analysis', 'Python'];
+const INTEREST_SUGGESTIONS = ['AI', 'Passive Income', 'Cyberpunk', 'Privacy', 'Gaming', 'Finance', 'Open Source'];
+
 export default function OnboardPage() {
   const router = useRouter();
   const { user } = useUser();
@@ -27,6 +30,8 @@ export default function OnboardPage() {
   // Form State
   const [displayName, setDisplayName] = useState("");
   const [goal, setGoal] = useState("");
+  const [skills, setSkills] = useState<string[]>([]);
+  const [interests, setInterests] = useState<string[]>([]);
   const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
   const [extraPrefs, setExtraPrefs] = useState("");
   const [previewDraft, setPreviewDraft] = useState("");
@@ -36,6 +41,9 @@ export default function OnboardPage() {
     if (step === 1) {
       if (displayName.trim().length < 2) return setError("SYSTEM: Name identifier too short.");
       if (goal.trim().length < 3) return setError("SYSTEM: Core objective undefined.");
+    }
+    if (step === 2) {
+      if (skills.length === 0) return setError("SYSTEM: Professional DNA requires at least one skill.");
     }
     setError("");
     setStep(prev => prev + 1);
@@ -52,14 +60,18 @@ export default function OnboardPage() {
     );
   };
 
+  const toggleItem = (item: string, list: string[], setList: (l: string[]) => void) => {
+    setList(list.includes(item) ? list.filter(i => i !== item) : [...list, item]);
+  };
+
   const generatePreview = () => {
     setLoading(true);
     setTimeout(() => {
       setPreviewDraft(
-        `"Initialize protocol for ${displayName}. I will maintain a ${selectedStyles.join(", ") || "balanced"} persona while pursuing the objective: ${goal}."`
+        `"Initialize protocol for ${displayName}. I will maintain a ${selectedStyles.join(", ") || "balanced"} persona while pursuing the objective: ${goal}. Professional DNA: ${skills.join(", ")}."`
       );
       setLoading(false);
-      setStep(3);
+      setStep(4);
     }, 1200);
   };
 
@@ -70,7 +82,7 @@ export default function OnboardPage() {
       if (!clerkUserId) throw new Error("AUTH CRITICAL: SESSION LOST");
 
       const mainMd = `# MyDigitalTwin Core\nUser: ${displayName}\nRole: ${goal}`;
-      const soulMd = `# Identity & Tone\nStyles: ${selectedStyles.join(", ")}\nPrefs: ${extraPrefs}`;
+      const soulMd = `# Identity & Tone\nStyles: ${selectedStyles.join(", ")}\nSkills: ${skills.join(", ")}\nInterests: ${interests.join(", ")}`;
       const guardsMd = `# Boundaries\n- No generic AI talk\n- Maintain sovereign persona`;
 
       try {
@@ -79,6 +91,8 @@ export default function OnboardPage() {
           display_name: displayName.trim(),
           personality_desc: goal.trim(),
           tone: selectedStyles[0] || "friendly",
+          skills,
+          interests,
           context_main: mainMd,
           context_soul: soulMd,
           context_guards: guardsMd,
@@ -90,6 +104,8 @@ export default function OnboardPage() {
           display_name: displayName.trim(),
           personality_desc: goal.trim(),
           tone: selectedStyles[0] || "friendly",
+          skills,
+          interests,
           context_main: mainMd,
           context_soul: soulMd,
           context_guards: guardsMd,
@@ -119,7 +135,7 @@ export default function OnboardPage() {
       >
         {/* Progress Bar */}
         <div className="flex gap-3 mb-12">
-          {[1, 2, 3].map((s) => (
+          {[1, 2, 3, 4].map((s) => (
             <div key={s} className="h-1 flex-1 bg-white/5 rounded-full overflow-hidden">
               <motion.div 
                 initial={false}
@@ -174,7 +190,7 @@ export default function OnboardPage() {
                   <input 
                     value={goal}
                     onChange={(e) => setGoal(e.target.value)}
-                    placeholder="e.g. Memory conservation, coding partner"
+                    placeholder="e.g. Wealth generation, venture scouting"
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20 transition-all font-mono"
                   />
                 </div>
@@ -199,11 +215,82 @@ export default function OnboardPage() {
             >
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-lg bg-cyan/10 flex items-center justify-center text-cyan">
+                  <Fingerprint size={20} />
+                </div>
+                <div>
+                  <h1 className="text-xl font-display font-bold tracking-tight">PROFESSIONAL DNA</h1>
+                  <TerminalIntro text="SCANNING SKILLS & INTERESTS..." />
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.2em] text-cyan/60 mb-4">Core Skills</label>
+                  <div className="flex flex-wrap gap-2">
+                    {SKILL_SUGGESTIONS.map(skill => (
+                      <button 
+                        key={skill}
+                        onClick={() => toggleItem(skill, skills, setSkills)}
+                        className={`px-3 py-1.5 rounded-lg border text-[10px] font-bold transition-all ${
+                          skills.includes(skill) 
+                            ? 'bg-cyan/10 border-cyan text-cyan' 
+                            : 'bg-white/5 border-white/5 text-text-muted hover:border-white/20'
+                        }`}
+                      >
+                        {skill}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.2em] text-cyan/60 mb-4">High-Interest Areas</label>
+                  <div className="flex flex-wrap gap-2">
+                    {INTEREST_SUGGESTIONS.map(interest => (
+                      <button 
+                        key={interest}
+                        onClick={() => toggleItem(interest, interests, setInterests)}
+                        className={`px-3 py-1.5 rounded-lg border text-[10px] font-bold transition-all ${
+                          interests.includes(interest) 
+                            ? 'bg-purple-500/10 border-purple-500 text-purple-400' 
+                            : 'bg-white/5 border-white/5 text-text-muted hover:border-white/20'
+                        }`}
+                      >
+                        {interest}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-4 mt-8">
+                <button onClick={prevStep} className="flex-1 border border-white/10 py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/5 transition-all text-text-muted flex items-center justify-center gap-2">
+                  <ArrowLeft size={14} /> Back
+                </button>
+                <button 
+                  onClick={nextStep}
+                  className="flex-[2] bg-cyan text-bg-void py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all"
+                >
+                  Next Step <ArrowRight size={16} />
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 3 && (
+            <motion.div 
+              key="step3"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="glass p-8 rounded-2xl border border-white/10"
+            >
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-lg bg-cyan/10 flex items-center justify-center text-cyan">
                   <Brain size={20} />
                 </div>
                 <div>
                   <h1 className="text-xl font-display font-bold tracking-tight">BEHAVIOR PROFILE</h1>
-                  <TerminalIntro text="CALIBRATING AUDITORY RESPONSE..." />
+                  <TerminalIntro text="CALIBRATING RESPONSE TONE..." />
                 </div>
               </div>
 
@@ -253,9 +340,9 @@ export default function OnboardPage() {
             </motion.div>
           )}
 
-          {step === 3 && (
+          {step === 4 && (
             <motion.div 
-              key="step3"
+              key="step4"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
@@ -281,7 +368,7 @@ export default function OnboardPage() {
               </div>
 
               <div className="flex gap-4">
-                <button onClick={() => setStep(2)} className="flex-1 border border-white/10 py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/5 transition-all text-text-muted">
+                <button onClick={() => setStep(3)} className="flex-1 border border-white/10 py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/5 transition-all text-text-muted">
                   TUNE
                 </button>
                 <button 

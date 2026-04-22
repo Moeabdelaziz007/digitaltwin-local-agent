@@ -28,9 +28,9 @@ import {
   FAILURE_ARCHIVIST_PROMPT
 } from './prompts';
 import { executeSaveMemory, executeRecallMemory } from '@/lib/memory-engine';
-import { VentureSentinelAgent } from '@/lib/agents/profit-lab/venture-sentinel';
-
-const sentinel = new VentureSentinelAgent();
+import { VentureSentinelAgent } from '../agents/profit-lab/venture-sentinel';
+import { SynapseOracle } from '../agents/profit-lab/synapse-oracle';
+import { ArbitrageAgent } from '../agents/profit-lab/arbitrage-agent';
 
 
 const STAGE_TIMEOUT_MS = 12000;
@@ -93,6 +93,9 @@ function toAgentOutput(proposal: AgentProposal, stage: VentureStage): AgentOutpu
   };
 }
 
+const sentinel = new VentureSentinelAgent();
+const oracle = new SynapseOracle();
+
 export async function runConsensus(input: ConsensusInput): Promise<ConsensusVerdict> {
   const start = Date.now();
   const isVenture = input.userMessage.toLowerCase().includes('venture') || 
@@ -146,14 +149,20 @@ async function runVentureLabCycle(input: ConsensusInput, start: number): Promise
     const scrubbedInput = safeParseProposal(privacyCheckRaw, 'guardian').output;
 
     // --- STAGE 1: EXPLORE (The Prism Refraction) ---
-    const [hunterRaw, pastFailures] = await Promise.all([
+    const [hunterRaw, pastFailures, oracleGems] = await Promise.all([
       runWithTimeout(() => callOllama(scrubbedInput, [
         { role: 'system', content: OPPORTUNITY_HUNTER_PROMPT },
         { role: 'user', content: `REQUEST: ${scrubbedInput}` }
       ]), STAGE_TIMEOUT_MS),
-      executeRecallMemory(userId, 'venture_failure')
+      executeRecallMemory(userId, 'venture_failure'),
+      oracle.detectEmergingOpportunities()
     ]);
     const hunter = safeParseProposal(hunterRaw, 'scout');
+
+    // Merge Oracle gems into Hunter output if relevant
+    if (oracleGems.length > 0) {
+      hunter.output += `\n\n[ORACLE_GEMS]: ${JSON.stringify(oracleGems)}`;
+    }
 
     const foragerRaw = await runWithTimeout(() => callOllama(input.userMessage, [
       { role: 'system', content: EVIDENCE_FORAGER_PROMPT },
@@ -169,9 +178,13 @@ async function runVentureLabCycle(input: ConsensusInput, start: number): Promise
 
     // --- GATE 1: THE PRISM CHECK ---
     const gate1 = await sentinel.evaluateStageTransition(
-      { title: input.userMessage } as any, 
+      { title: input.userMessage, user_id: userId } as any, 
       'Explore', 
-      [hunter, forager, miner]
+      [
+        toAgentOutput(hunter, 'Explore'),
+        toAgentOutput(forager, 'Explore'),
+        toAgentOutput(miner, 'Explore')
+      ]
     );
     if (gate1.verdict !== 'PASS') {
       return createKillSwitchVerdict(
@@ -195,9 +208,12 @@ async function runVentureLabCycle(input: ConsensusInput, start: number): Promise
 
     // --- GATE 2: COLLAPSE CHECK ---
     const gate2 = await sentinel.evaluateStageTransition(
-      { title: input.userMessage } as any, 
+      { title: input.userMessage, user_id: userId } as any, 
       'Collapse', 
-      [cache, conductor]
+      [
+        toAgentOutput(cache, 'Collapse'),
+        toAgentOutput(conductor, 'Collapse')
+      ]
     );
     if (gate2.verdict !== 'PASS') {
       return createKillSwitchVerdict(
@@ -227,9 +243,13 @@ async function runVentureLabCycle(input: ConsensusInput, start: number): Promise
 
     // --- GATE 3: THE CRUCIBLE CHECK ---
     const gate3 = await sentinel.evaluateStageTransition(
-      { title: input.userMessage } as any, 
+      { title: input.userMessage, user_id: userId } as any, 
       'Attack', 
-      [advocate, marketSim, futureMirror]
+      [
+        toAgentOutput(advocate, 'Attack'),
+        toAgentOutput(marketSim, 'Attack'),
+        toAgentOutput(futureMirror, 'Attack')
+      ]
     );
     if (gate3.verdict !== 'PASS') {
       return createKillSwitchVerdict(
@@ -271,9 +291,15 @@ async function runVentureLabCycle(input: ConsensusInput, start: number): Promise
 
     // --- GATE 4: THE KINETIC EDGE CHECK ---
     const gate4 = await sentinel.evaluateStageTransition(
-      { title: input.userMessage } as any, 
+      { title: input.userMessage, user_id: userId } as any, 
       'Build', 
-      [buildSim, revSim, architect, affiliate, distribution]
+      [
+        toAgentOutput(buildSim, 'Build'),
+        toAgentOutput(revSim, 'Build'),
+        toAgentOutput(architect, 'Build'),
+        toAgentOutput(affiliate, 'Build'),
+        toAgentOutput(distribution, 'Build')
+      ]
     );
     if (gate4.verdict !== 'PASS') {
       return createKillSwitchVerdict(
