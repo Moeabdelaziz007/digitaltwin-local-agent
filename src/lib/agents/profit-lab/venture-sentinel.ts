@@ -1,32 +1,76 @@
 import { SkillGapTrainer, TrainingPlan } from './skill-gap-trainer';
 import { RevenueStressTest, StressTestResult } from './revenue-stress-test';
 
+/**
+ * [STAGE-0 SIMULATION STUB]
+ * VentureSentinelAgent: A mathematical gatekeeper for the venture lab.
+ * This agent performs deterministic validation. It is NOT an automated financial execution engine.
+ */
 export class VentureSentinelAgent {
   private name = 'The Synapse (Sentinel)';
-  private version = '1.2.0';
-  private memoryEngine = memoryEngine;
+  private version = '1.2.5 [STUB]';
   private trainer = new SkillGapTrainer();
   private stressTester = new RevenueStressTest();
 
   /**
-   * Evaluates the readiness of a venture to move to the next stage.
+   * Evaluates stage transition based on DETERMINISTIC METRICS.
+   * Logic: Math First, LLM Second (Analysis only).
    */
   public async evaluateStageTransition(
     opportunity: Opportunity,
     currentStage: VentureStage,
     agentOutputs: AgentOutput[]
   ): Promise<VentureSentinelResult & { training_plan?: TrainingPlan[], stress_test?: StressTestResult }> {
-    console.log(`[${this.name}] Evaluating transition from ${currentStage}...`);
-
+    const start = Date.now();
+    
+    // 1. DETERMINISTIC METRICS (Hard Truths)
     const readinessScore = this.calculateReadinessScore(opportunity, agentOutputs);
     const alignmentScore = await this.calculatePersonaAlignment(opportunity);
     const missingSkills = this.detectMissingSkills(currentStage, agentOutputs);
-    const blockers = this.identifyBlockers(opportunity, agentOutputs);
-
-    // Run Stress Test if moving to Synthesis or Attack
+    
     let stressTest: StressTestResult | undefined;
     if (currentStage === 'Attack' || currentStage === 'Build') {
       stressTest = await this.stressTester.runScenarios(opportunity);
+    }
+
+    // 2. DECISION LOGIC (Deterministic Gates - No LLM involved in Pass/Fail)
+    let verdict: 'PASS' | 'CONCERNS' | 'FAIL' = 'PASS';
+    let rollbackTarget: VentureStage | undefined;
+    let rollbackReason: string | undefined;
+
+    if (readinessScore < 40 || alignmentScore < 30) {
+      verdict = 'FAIL';
+      rollbackTarget = 'Explore';
+      rollbackReason = `METRIC_FAILURE: Readiness (${readinessScore}%) or Alignment (${alignmentScore}%) below critical threshold.`;
+    } else if (missingSkills.length > 2 || (stressTest && !stressTest.base.survivability)) {
+      verdict = 'CONCERNS';
+      rollbackTarget = this.getPreviousStage(currentStage);
+      rollbackReason = stressTest && !stressTest.base.survivability 
+        ? "FINANCIAL_FRAGILITY: Failed deterministic stress test." 
+        : "SKILL_GAP: Critical neural deficit detected.";
+    }
+
+    // 3. LLM AS EXPLAINER (Synthesizing the "Why" based on the "What")
+    const explanationContext = {
+      verdict,
+      metrics: { readinessScore, alignmentScore, missing_count: missingSkills.length },
+      stress_test_status: stressTest ? (stressTest.base.survivability ? 'STABLE' : 'FRAGILE') : 'N/A'
+    };
+
+    const nextStage = verdict === 'PASS' ? this.getNextStage(currentStage) : undefined;
+
+    // 4. GENERATE REASONING SUMMARY (Narrative Layer)
+    let reasoningSummary = "";
+    try {
+      const reasoningPrompt = `
+        Summarize the sentinel's verdict for the user:
+        STRICT_METRICS: ${JSON.stringify(explanationContext)}
+        
+        Draft a 1-sentence technical justification for the ${verdict} decision.
+      `;
+      reasoningSummary = await callOllama(reasoningPrompt);
+    } catch {
+      reasoningSummary = rollbackReason || "Transition criteria met.";
     }
 
     // Generate Training Plan if missing skills
@@ -35,34 +79,13 @@ export class VentureSentinelAgent {
       trainingPlan = await this.trainer.generateTrainingPlan(missingSkills);
     }
 
-    let verdict: 'PASS' | 'CONCERNS' | 'FAIL' = 'PASS';
-    let rollbackTarget: VentureStage | undefined;
-    let rollbackReason: string | undefined;
-    let nextStage: VentureStage | undefined;
-
-    if (readinessScore < 40 || alignmentScore < 30) {
-      verdict = 'FAIL';
-      rollbackTarget = 'Explore';
-      rollbackReason = readinessScore < 40 
-        ? `[The Synapse] Revenue Readiness (${readinessScore}) is low. Refracting via The Prism required.`
-        : `[The Synapse] Persona Alignment (${alignmentScore}) is too low. Venture fails User identity sync.`;
-    } else if (missingSkills.length > 2 || (stressTest && !stressTest.base.survivability)) {
-      verdict = 'CONCERNS';
-      rollbackTarget = this.getPreviousStage(currentStage);
-      rollbackReason = stressTest && !stressTest.base.survivability
-        ? `[The Synapse] Financial Fragility detected. Opportunity failed stress tests.`
-        : `[The Synapse] Neural gaps detected. Training Plan generated.`;
-    } else {
-      nextStage = this.getNextStage(currentStage);
-    }
-
     return {
       verdict,
       current_stage: currentStage,
       next_stage: nextStage,
-      blockers,
+      blockers: this.identifyBlockers(opportunity, agentOutputs),
       rollback_target: rollbackTarget,
-      rollback_reason: rollbackReason,
+      rollback_reason: reasoningSummary,
       required_skills_missing: missingSkills,
       revenue_readiness_score: readinessScore,
       training_plan: trainingPlan,
@@ -70,7 +93,8 @@ export class VentureSentinelAgent {
       metadata: {
         evaluated_at: new Date().toISOString(),
         agent_version: this.version,
-        alignment_score: alignmentScore
+        alignment_score: alignmentScore,
+        latency_ms: Date.now() - start
       }
     };
   }
