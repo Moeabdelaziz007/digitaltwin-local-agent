@@ -1,0 +1,94 @@
+name: Meticulous Visual Tests
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  visual-tests:
+    name: Visual Regression Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.23.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        run: pnpm build
+        env:
+          NODE_ENV: production
+
+      - name: Run Meticulous tests
+        if: github.event_name == 'pull_request'
+        uses: Meticulous-AI/meticulous-action@v1
+        with:
+          api-token: ${{ secrets.METICULOUS_API_TOKEN }}
+          # Option 1: If using Vercel preview deployments
+          preview-url: ${{ steps.vercel-deploy.outputs.url }}
+          
+          # Option 2: If using Docker (uncomment below)
+          # docker-image: digital-twin-app
+          
+        env:
+          METICULOUS_RECORDING_TOKEN: ${{ secrets.METICULOUS_RECORDING_TOKEN }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: meticulous-results
+          path: .meticulous/results/
+          retention-days: 30
+
+  # Optional: Deploy to Vercel preview for testing
+  vercel-deploy:
+    name: Deploy Preview
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    outputs:
+      url: ${{ steps.deploy.outputs.url }}
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 10.23.0
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build and deploy to Vercel
+        id: deploy
+        uses: amondnet/vercel-action@v20
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./
+          vercel-args: '--preview'
+          alias-domains: |
+            {{PR_NUMBER}}-digital-twin.axiom-id.vercel.app
