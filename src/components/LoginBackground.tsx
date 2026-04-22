@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 
-export const LoginBackground = () => {
+export const LoginBackground = ({ children }: { children?: React.ReactNode }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -117,9 +117,12 @@ export const LoginBackground = () => {
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 w-full h-full pointer-events-none -z-10 bg-bg-void"
-    />
+    <main className="min-h-screen w-full flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      <canvas
+        ref={canvasRef}
+        className="fixed inset-0 w-full h-full pointer-events-none -z-10 bg-bg-void"
+      />
+      {children}
+    </main>
   );
 };
