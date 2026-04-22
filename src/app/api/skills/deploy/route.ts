@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     const pb = getServerPB();
     
     // 1. Fetch the Draft
-    const draft = await pb.collection("skill_drafts").getOne(draftId);
+    const draft = await pb.collection("skill_drafts").getOne(draftId) as any;
     if (!draft) {
       return NextResponse.json({ error: "Draft not found" }, { status: 404 });
     }
@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     // 3. Write Metadata (skill.json)
     const metadata = {
       name: skillName,
-      ...draft.proposed_metadata
+      ...(draft.proposed_metadata as any)
     };
     await fs.writeFile(
       path.join(skillPath, "skill.json"), 
@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     // 4. Write Instructions (instructions.md)
     await fs.writeFile(
       path.join(skillPath, "instructions.md"), 
-      draft.proposed_instructions, 
+      draft.proposed_instructions as string, 
       "utf-8"
     );
 

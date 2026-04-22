@@ -57,7 +57,7 @@ async function reserveTurnIndex(pb: PocketBase, userId: string, sessionId: strin
   const maxAttempts = 7;
 
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
-    const counter = await getOrCreateSessionCounter(pb, userId, sessionId);
+    const counter = await getOrCreateSessionCounter(pb, userId, sessionId) as any;
     const current = Number(counter.next_turn_index ?? 0);
 
     try {
@@ -149,7 +149,7 @@ export async function GET(request: NextRequest) {
                 status: 'completed',
                 request_message_id: userMessageId,
                 response_content: fullReply,
-              });
+              }) as any;
 
               await pb.collection('conversations').create({
                 user_id: userId,
@@ -243,7 +243,7 @@ export async function POST(request: NextRequest): Promise<Response> {
 
       // Return prior completed response if this request already ran.
       if (normalizedIdempotencyKey) {
-        const existingTurn = await findTurnByIdempotency(pb, userId, sessionId, normalizedIdempotencyKey);
+        const existingTurn = await findTurnByIdempotency(pb, userId, sessionId, normalizedIdempotencyKey) as any;
         if (existingTurn && existingTurn.status === 'completed' && typeof existingTurn.response_content === 'string') {
           const cachedEtag = crypto
             .createHash('md5')
@@ -290,7 +290,7 @@ export async function POST(request: NextRequest): Promise<Response> {
 
       // If this was a race for the same idempotency key, replay winner's response.
       if (normalizedIdempotencyKey) {
-        const duplicateTurn = await findTurnByIdempotency(pb, userId, sessionId, normalizedIdempotencyKey);
+        const duplicateTurn = await findTurnByIdempotency(pb, userId, sessionId, normalizedIdempotencyKey) as any;
         if (duplicateTurn && duplicateTurn.id !== turn.id && duplicateTurn.status === 'completed' && typeof duplicateTurn.response_content === 'string') {
           turn = duplicateTurn;
 
@@ -324,9 +324,9 @@ export async function POST(request: NextRequest): Promise<Response> {
         role: 'user',
         content: message.trim(),
         turn_index: turnIndex,
-        turn_id: turn.id,
+        turn_id: (turn as any).id,
         message_id: messageId,
-      });
+      }) as any;
 
       // Build Memory Context (Ebbinghaus-aware)
       const systemPrompt = await buildMemoryContext(userId);
@@ -393,17 +393,17 @@ export async function POST(request: NextRequest): Promise<Response> {
             void (async () => {
               try {
                 const twinMessageId = uuidv4();
-                await pb.collection('conversations').create({
+                await pb.collection<any>('conversations').create({
                   user_id: userId,
                   session_id: sessionId,
                   role: 'twin',
                   content: fullReply,
                   turn_index: turnIndex,
-                  turn_id: turn.id,
+                  turn_id: (turn as any).id,
                   message_id: twinMessageId,
                 });
 
-                await pb.collection(TURN_COLLECTION).update(turn.id, {
+                await pb.collection<any>(TURN_COLLECTION).update((turn as any).id, {
                   status: 'completed',
                   response_content: fullReply,
                   user_message_id: userMessageRecord.id,
