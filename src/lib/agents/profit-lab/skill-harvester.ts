@@ -24,11 +24,20 @@ export class SkillHarvesterAgent {
       {
         id: `browser-harness-${Date.now()}`,
         name: 'Browser Navigation Skill',
+        version: '1.0.0',
+        author: 'system',
         description: 'Autonomous web interaction using browser-harness patterns.',
-        successRate: 0.5, // Initial experimental rate
-        earnings: 0,
+        successRate: 0.5,
+        totalEarnings: 0,
         lastUsed: new Date().toISOString(),
         status: 'experimental',
+        tags: ['web-interaction', 'discovered'],
+        requiredEnvVars: [],
+        cost: 'free',
+        stats: {
+          totalRuns: 0,
+          avgDurationMs: 0
+        },
         metadata: { source: targetUrl, capability: 'web-interaction' }
       }
     ];

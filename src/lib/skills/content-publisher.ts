@@ -85,7 +85,11 @@ export const contentArbitrageSkill: AgentSkill & { execute: (context: any) => Pr
     // 4. Track in Causal Module
     await causal.recordTrace({
       event: 'content_published',
-      causes: ['trending_topic', 'affiliate_match'],
+      outcome: 'success',
+      causes: [
+        { factor: 'trending_topic', impact: 'positive', weight: 0.8 },
+        { factor: 'affiliate_match', impact: 'positive', weight: 0.9 }
+      ],
       counterfactual: 'If we had not used affiliate links, revenue potential would be 0.',
       confidence: 0.9
     });

@@ -33,11 +33,7 @@ export const productFactorySkill: AgentSkill & { execute: (context: any) => Prom
   execute: async (context: any) => {
     // 1. Audit memory for recent "solved_problem" entries
     console.log('[ProductFactory] Auditing memory for sellable knowledge...');
-    const solvedProblems = await executeRecallMemory({
-      query: 'solved problem code implementation deployment pattern',
-      userId: 'system',
-      limit: 10
-    });
+    const solvedProblems = await executeRecallMemory('system', 'solved problem code implementation deployment pattern');
 
     if (!solvedProblems || solvedProblems.length === 0) {
       return { status: 'skipped', reason: 'no_sellable_knowledge_found' };
