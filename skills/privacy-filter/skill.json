@@ -1,0 +1,9 @@
+{
+  "name": "The Privacy Filter",
+  "alias": "local-rag-gatekeeper",
+  "description": "Shields PII and sensitive data before external processing.",
+  "version": "1.0.0",
+  "revenue_impact": "high",
+  "required_before": ["opportunity-scanner"],
+  "next_skills": ["opportunity-scanner"]
+}

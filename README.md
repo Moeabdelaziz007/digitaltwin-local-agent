@@ -54,9 +54,15 @@
 </table>
 
 ### 🏗️ Architectural Hierarchy | التدرج المعماري
-1.  **Executive Layer (Venture Lab)**: The profit engine (14 Agents).
-2.  **Intelligence Layer (MAS-ZERO)**: The Causal & Consensus engine.
-3.  **Input Layer (The Companion)**: Your habits & persona as context.
+1.  **Executive Layer (The Synapse)**: The neural orchestrator (core-orchestrator).
+2.  **Intelligence Layer (The Crucible)**: 14-agent consensus engine (consensus-engine-v3).
+3.  **Action Layer (The Kinetic Edge)**: The execution sharp-end (action-executor).
+4.  **Simulation Layer (The Future Mirror)**: Monte Carlo "What-if" market simulations (market-simulation-worker).
+5.  **Search Layer (The Prism)**: Market refraction & opportunity scanning (opportunity-scanner).
+6.  **Protection Layer (The Privacy Filter)**: Local RAG gatekeeper with privacy-first scanning (local-rag-gatekeeper).
+7.  **Structure Layer (The Neural Hierarchy)**: Hierarchical task distribution tree (agent-task-tree).
+8.  **Memory Layer (The Chronos Ledger)**: Causal event logging (causal-db-service).
+9.  **Input Layer (The Companion)**: User persona & digital footprint context.
 
 ***
 

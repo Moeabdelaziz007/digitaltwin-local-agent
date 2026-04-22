@@ -1,0 +1,9 @@
+{
+  "name": "The Future Mirror",
+  "alias": "market-simulation-worker",
+  "description": "Monte Carlo simulations for venture risk and projection.",
+  "version": "1.0.0",
+  "revenue_impact": "very-high",
+  "required_before": ["action-executor"],
+  "next_skills": ["action-executor"]
+}
