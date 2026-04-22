@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, dev }) => {
     // Exclude Node.js native modules from client bundle
     if (!isServer) {
       config.resolve.fallback = {
@@ -14,6 +14,12 @@ const nextConfig: NextConfig = {
         http2: false,
       };
     }
+
+    // [FIX] Disable persistent cache in Vercel/CI to prevent 'Unable to snapshot resolve dependencies'
+    if (!dev && process.env.VERCEL) {
+      config.cache = false;
+    }
+
     return config;
   },
   serverExternalPackages: [
@@ -26,7 +32,6 @@ const nextConfig: NextConfig = {
     "@opentelemetry/exporter-trace-otlp-grpc",
     "@opentelemetry/otlp-grpc-exporter-base"
   ],
-  optimizeFonts: false,
 };
 
 export default nextConfig;
