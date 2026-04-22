@@ -54,14 +54,14 @@ export const ProfitDashboard: React.FC = () => {
           ...prev,
           simulatedProfit: res.math.netProfit,
           activeOpportunities: 1,
-          successRate: Math.round(res.confidence * 100)
+          successRate: Math.round(res.math.probability * 100)
         }));
 
         setOpportunities([{
           title: "L2 Cross-Chain Arbitrage (ETH/USDC)",
           desc: res.strategy,
           tag: "Crypto",
-          score: Math.round(res.confidence * 100),
+          score: Math.round(res.math.probability * 100),
           data: res
         }]);
       } catch (e) {

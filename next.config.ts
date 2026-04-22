@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
         child_process: false,
         dns: false,
         http2: false,
+        async_hooks: false,
+        perf_hooks: false,
       };
     }
 
