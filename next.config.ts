@@ -1,6 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // ✅ FIX: Turbopack Build Error - Ignore pocketbase binary file
+  experimental: {
+    turbotrace: {
+      ignore: ['/pocketbase'],
+    },
+  },
+
   webpack: (config, { isServer, dev }) => {
     // Exclude Node.js native modules from client bundle
     if (!isServer) {
