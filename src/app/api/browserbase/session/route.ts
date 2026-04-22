@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       sessionId: session.id,
       status: session.status,
       connectUrl: session.connectUrl,
-      debugUrl: session.debugUrl,
+      seleniumRemoteUrl: session.seleniumRemoteUrl,
     });
   } catch (error) {
     console.error('[BROWSERBASE] Failed to create session:', error);

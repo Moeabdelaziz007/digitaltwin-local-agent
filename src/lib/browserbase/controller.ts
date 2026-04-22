@@ -40,7 +40,6 @@ export class BrowserbaseController {
       browser,
       context,
       page,
-      debugUrl: session.debugUrl,
     };
   }
 
@@ -144,7 +143,10 @@ export class BrowserbaseController {
    */
   async stopSession(sessionId: string) {
     try {
-      await this.bb.sessions.stop(sessionId);
+      // Request session release to end it sooner
+      await this.bb.sessions.update(sessionId, {
+        status: 'REQUEST_RELEASE',
+      });
       return { success: true };
     } catch (error) {
       console.error('[BROWSERBASE] Failed to stop session:', error);
