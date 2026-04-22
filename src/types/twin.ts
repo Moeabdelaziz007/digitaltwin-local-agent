@@ -150,6 +150,7 @@ export interface VentureSentinelResult {
     evaluated_at: string;
     agent_version: string;
     alignment_score: number;
+    latency_ms: number;
   };
 }
 

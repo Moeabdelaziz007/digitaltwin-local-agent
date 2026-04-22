@@ -5,12 +5,10 @@ import {
   SpanKind,
   Attributes
 } from '@opentelemetry/api';
-import * as resources from '@opentelemetry/resources';
-import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
-import { NodeSDK } from '@opentelemetry/sdk-node';
-import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
-import { PocketBaseSpanExporter } from './pb-exporter';
 import { env } from '@/lib/env';
+
+// We isolate Node-only types and imports to prevent client-side bundling errors
+type NodeSDKType = import('@opentelemetry/sdk-node').NodeSDK;
 
 /**
  * ObservabilityService
@@ -18,8 +16,9 @@ import { env } from '@/lib/env';
  */
 export class ObservabilityService {
   private static instance: ObservabilityService;
-  private sdk: NodeSDK | null = null;
+  private sdk: any | null = null;
   private tracerName: string = 'digital-twin-core';
+  private isServer: boolean = typeof window === 'undefined';
 
   private constructor() {
     // Hidden initialization
@@ -35,22 +34,33 @@ export class ObservabilityService {
   /**
    * Initialize the OTel SDK
    */
-  public init() {
-    if (this.sdk) return;
+  public async init() {
+    if (!this.isServer || this.sdk) return;
 
-    const exporter = new PocketBaseSpanExporter(env.POCKETBASE_URL);
-    
-    this.sdk = new NodeSDK({
-      resource: new resources.Resource({
-        [SemanticResourceAttributes.SERVICE_NAME]: 'digital-twin-app',
-        [SemanticResourceAttributes.SERVICE_VERSION]: '1.0.0',
-      }),
-      spanProcessor: new BatchSpanProcessor(exporter),
-      instrumentations: [], // We'll do manual instrumentation for precision
-    });
+    try {
+      // Dynamic imports to prevent Webpack from trying to bundle Node-only modules for the browser
+      const { NodeSDK } = await import('@opentelemetry/sdk-node');
+      const { BatchSpanProcessor } = await import('@opentelemetry/sdk-trace-base');
+      const resources = await import('@opentelemetry/resources');
+      const { SemanticResourceAttributes } = await import('@opentelemetry/semantic-conventions');
+      const { PocketBaseSpanExporter } = await import('./pb-exporter');
 
-    this.sdk.start();
-    console.log('[OBSERVABILITY] OTel SDK Started with PocketBase Exporter');
+      const exporter = new PocketBaseSpanExporter(env.POCKETBASE_URL);
+      
+      this.sdk = new NodeSDK({
+        resource: new resources.Resource({
+          [SemanticResourceAttributes.SERVICE_NAME]: 'digital-twin-app',
+          [SemanticResourceAttributes.SERVICE_VERSION]: '1.0.0',
+        }),
+        spanProcessor: new BatchSpanProcessor(exporter),
+        instrumentations: [],
+      });
+
+      this.sdk.start();
+      console.log('[OBSERVABILITY] OTel SDK Started with PocketBase Exporter (Server-side)');
+    } catch (e) {
+      console.error('[OBSERVABILITY] Failed to initialize OTel SDK:', e);
+    }
   }
 
   /**

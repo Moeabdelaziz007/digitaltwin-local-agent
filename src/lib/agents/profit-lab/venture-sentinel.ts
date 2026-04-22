@@ -1,5 +1,13 @@
 import { SkillGapTrainer, TrainingPlan } from './skill-gap-trainer';
 import { RevenueStressTest, StressTestResult } from './revenue-stress-test';
+import { 
+  Opportunity, 
+  VentureStage, 
+  AgentOutput, 
+  VentureSentinelResult 
+} from '@/types/twin';
+import { callOllama } from '@/lib/ollama-client';
+import * as memoryEngine from '@/lib/memory-engine';
 
 /**
  * [STAGE-0 SIMULATION STUB]
@@ -109,7 +117,7 @@ export class VentureSentinelAgent {
   }
 
   private async calculatePersonaAlignment(opportunity: Opportunity): Promise<number> {
-    const userMemory = await this.memoryEngine.getUserProfile(opportunity.user_id);
+    const userMemory = await memoryEngine.getUserProfile(opportunity.user_id);
     const skills = userMemory?.skills || [];
     const interests = userMemory?.interests || [];
     
