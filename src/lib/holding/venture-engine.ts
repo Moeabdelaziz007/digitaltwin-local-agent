@@ -78,7 +78,15 @@ export class VentureEngine {
         default: return;
       }
 
-      await (skillInstance as any).execute();
+      // Find the best role to execute this skill
+      const role = venture.org_chart.find((r: any) => r.capabilities?.includes(skillId)) || venture.org_chart[0];
+      
+      if (!role) {
+        console.warn(`[AVE] No role found to execute '${skillId}' for venture '${venture.name}'`);
+        return;
+      }
+
+      await (skillInstance as any).execute(venture, role);
     } catch (e) {
       console.error(`[AVE] Failed to execute skill '${skillId}':`, e);
     }

@@ -64,10 +64,13 @@ export interface Ticket {
   assigned_role_id: string;
   title: string;
   context: string;
-  status: 'pending' | 'in_progress' | 'done' | 'blocked';
+  status: 'todo' | 'pending' | 'in_progress' | 'done' | 'blocked';
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  budget_allocated?: number;
   output?: string;
+  audit_trail?: string[];
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
   metadata?: {
     model?: string;
     tokens?: number;

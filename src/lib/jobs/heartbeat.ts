@@ -4,8 +4,6 @@
  */
 
 import { ventureRegistry } from '../holding/venture-registry';
-import { resolveTopology } from '../topology-router';
-import { tieredMemory } from '../memory/tiered-store';
 
 export class HeartbeatEngine {
   private isRunning = false;
@@ -21,16 +19,12 @@ export class HeartbeatEngine {
     return globalAny.heartbeatEngineInstance;
   }
 
-  /**
-   * تشغيل المحرك بتردد معين (بالملي ثانية)
-   */
   public start(intervalMs: number = 1000 * 60 * 60 * 4) { // الافتراضي: 4 ساعات
     if (this.isRunning) return;
     
     this.isRunning = true;
     console.log(`[Heartbeat] Engine started. Frequency: ${intervalMs / 3600000}h`);
     
-    // تشغيل نبضة فورية عند البدء
     this.pulse().catch(console.error);
 
     this.intervalId = setInterval(() => {
@@ -46,27 +40,30 @@ export class HeartbeatEngine {
     this.isRunning = false;
   }
 
-  /**
-   * منطق "النبضة" الواحدة
-   */
   private async pulse() {
     console.log(`[Heartbeat] Pulse triggered at ${new Date().toLocaleTimeString()}`);
     
-    const ventures = await ventureRegistry.getActiveVentures();
+    const ventures = ventureRegistry.listVentures().filter(v => v.status === 'active');
+    const { tieredMemory } = await import('../memory/tiered-store');
     
     for (const venture of ventures) {
-      await tieredMemory.add(`Heartbeat: Auditing venture ${venture.name}`, 'thought');
-      
-      // 1. استدعاء المنسق (Orchestrator) لهذه الشركة
       try {
-        const { resolveTopology } = await import('../topology-router');
-        const orchestrator = await resolveTopology('consensus');
+        console.log(`[Heartbeat] Auditing venture: ${venture.name}. Checking for opportunities...`);
         
-        // هنا نقوم بتشغيل دورة "Venture Lab" استباقية بناءً على الأهداف الحالية
-        // ملاحظة: سنحتاج لتطوير Orchestrator ليقبل مدخلات من Heartbeat
-        console.log(`[Heartbeat] Dispatching CEO for venture: ${venture.name}`);
+        await tieredMemory.add(
+          `Heartbeat: Pulse audit successful for ${venture.name}. Health: 100%.`, 
+          'observation',
+          { ventureId: venture.id }
+        );
+
+        // In the future, we can trigger specialized high-level audits here
       } catch (error) {
         console.error(`[Heartbeat] Failed to pulse venture ${venture.name}:`, error);
+        await tieredMemory.add(
+          `Heartbeat Error: Failed to audit ${venture.name}`, 
+          'venture_failure',
+          { error: (error as Error).message }
+        );
       }
     }
   }

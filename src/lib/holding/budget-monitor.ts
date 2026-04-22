@@ -98,6 +98,17 @@ export class BudgetMonitor {
       ventureRegistry.updateVenture(ventureId, { budget: venture.budget });
     }
   }
+  public static calculateCost(model: string, tokens: number): number {
+    const rates: Record<string, number> = {
+      'ollama': 0, // Local is free
+      'groq': 0.0001,
+      'openai': 0.002,
+      'claude': 0.003,
+      'gemini': 0.0005
+    };
+    const rate = rates[model] || 0.001;
+    return (tokens / 1000) * rate;
+  }
 }
 
 export const budgetMonitor = BudgetMonitor.getInstance();

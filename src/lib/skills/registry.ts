@@ -10,9 +10,9 @@ export const SkillSchema = z.object({
   when_to_use: z.string(),
   permissions: z.array(z.enum(['memory_read', 'memory_write', 'network', 'filesystem'])),
   required_tools: z.array(z.string()),
-  input_schema: z.object({}).passthrough(),
-  output_schema: z.object({}).passthrough(),
-  safety_notes: z.string(),
+  input_schema: z.object({}).passthrough().optional(),
+  output_schema: z.object({}).passthrough().optional(),
+  safety_notes: z.string().optional(),
   // Digital Twin Venture Lab Upgrades
   argument_hint: z.string().optional(),
   invocation_flow: z.array(z.string()).optional(),

@@ -56,7 +56,16 @@ export class VentureRegistry {
       vision: mission,
       mission_statement: mission,
       status: 'active',
-      budget: { monthly_limit_usd: 100, spent_this_month_usd: 0, token_limit: 100000, spent_tokens: 0 },
+      budget: { 
+        monthly_limit_usd: 100, 
+        daily_limit_usd: 10,
+        hourly_limit_usd: 2,
+        spent_this_month_usd: 0, 
+        spent_today_usd: 0,
+        spent_this_hour_usd: 0,
+        token_limit: 100000, 
+        spent_tokens: 0 
+      },
       org_chart: orgChart,
       goals: [],
       skills: [

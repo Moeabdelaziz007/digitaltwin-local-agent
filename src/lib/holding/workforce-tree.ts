@@ -108,6 +108,46 @@ export class WorkforceTree {
     return newNode;
   }
 
+  /**
+   * Recursive Performance Roll-up: Aggregates metrics from bottom-up.
+   */
+  public evaluatePerformance(nodeId: string): { successRate: number; totalRuns: number; revenue: number } {
+    const node = this.nodes[nodeId];
+    if (!node) return { successRate: 0, totalRuns: 0, revenue: 0 };
+
+    if (node.manages.length === 0) {
+      // Leaf agent: return own metrics
+      return {
+        successRate: node.performance.successRate,
+        totalRuns: node.performance.runs,
+        revenue: node.performance.revenueGenerated
+      };
+    }
+
+    // Branch agent: aggregate from subordinates
+    let totalRuns = node.performance.runs;
+    let totalRevenue = node.performance.revenueGenerated;
+    let weightedSuccessSum = node.performance.successRate * node.performance.runs;
+
+    for (const subId of node.manages) {
+      const subPerf = this.evaluatePerformance(subId);
+      totalRuns += subPerf.totalRuns;
+      totalRevenue += subPerf.revenue;
+      weightedSuccessSum += subPerf.successRate * subPerf.totalRuns;
+    }
+
+    const avgSuccessRate = totalRuns > 0 ? weightedSuccessSum / totalRuns : node.performance.successRate;
+
+    // Update node with rolled-up metrics (for visualization/caching)
+    node.performance = {
+      runs: totalRuns,
+      successRate: avgSuccessRate,
+      revenueGenerated: totalRevenue
+    };
+
+    return { successRate: avgSuccessRate, totalRuns, revenue: totalRevenue };
+  }
+
   public getNode(id: string): WorkforceNode | undefined {
     return this.nodes[id];
   }

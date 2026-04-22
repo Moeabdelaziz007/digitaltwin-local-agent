@@ -13,19 +13,10 @@ const pb = new PocketBase(
 // Disable auto-cancellation to prevent interference in concurrent micro-tasks.
 pb.autoCancellation(false);
 
-pb.beforeSend = (url: string, options: any) => {
-  if (typeof window !== 'undefined') {
-    const clerkUserId = (window as any).Clerk?.user?.id?.trim();
-
-    if (clerkUserId) {
-      options.headers = {
-        ...(options.headers || {}),
-        'x_clerk_user_id': clerkUserId,
-      };
-    }
-  }
-
-  return { url, options };
-};
+/* 
+pb.beforeSend was removed in PocketBase 0.20+. 
+If global headers are needed, they should be passed to individual collection calls 
+or by wrapping the pb.send method if strictly necessary.
+*/
 
 export default pb;
