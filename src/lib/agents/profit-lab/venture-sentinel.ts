@@ -28,7 +28,7 @@ export class VentureSentinelAgent {
     opportunity: Opportunity,
     currentStage: VentureStage,
     agentOutputs: AgentOutput[]
-  ): Promise<VentureSentinelResult & { training_plan?: TrainingPlan[], stress_test?: StressTestResult }> {
+  ): Promise<VentureSentinelResult> {
     const start = Date.now();
     
     // 1. DETERMINISTIC METRICS (Hard Truths)

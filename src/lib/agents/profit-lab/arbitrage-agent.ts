@@ -7,7 +7,7 @@
  */
 
 import { callOllama } from '@/lib/ollama-client';
-import { observabilityService as obs } from '@/lib/observability/observability-service';
+import { obs } from '@/lib/observability/observability-service';
 
 // --- CONFIGURATION CONSTANTS ---
 const DEFAULT_TRADE_SIZE = 10000;
@@ -34,6 +34,7 @@ export interface ArbitrageResult {
     source: 'llm' | 'local-fallback';
     retries?: number;
     latency_ms: number;
+    sentiment?: string;
   };
   timestamp: string;
 }
