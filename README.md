@@ -62,7 +62,15 @@
 6.  **Protection Layer (The Privacy Filter)**: Local RAG gatekeeper with privacy-first scanning (local-rag-gatekeeper).
 7.  **Structure Layer (The Neural Hierarchy)**: Hierarchical task distribution tree (agent-task-tree).
 8.  **Memory Layer (The Chronos Ledger)**: Causal event logging (causal-db-service).
-9.  **Input Layer (The Companion)**: User persona & digital footprint context.
+9.  **Evolution Layer (The Alchemist)**: Recursive self-improvement & MCP tool building (recursive-tool-builder).
+10. **Input Layer (The Companion)**: User persona & digital footprint context.
+
+***
+
+### 💰 Hidden Revenue Strategies | استراتيجيات الربح المخفية
+*   **The Arbitrage Mirror**: Uses *The Prism* to simulate causal patterns of high-performance On-chain wallets for anticipatory trading.
+*   **Fragility Hunting**: Deploys *The Crucible* to identify weaknesses in Micro-SaaS projects on ProductHunt/Acquire to build "Fixed" versions.
+*   **Memory Monetization**: Automates the synthesis of *Chronos Ledger* research into high-value "Alpha Reports" and newsletters.
 
 ***
 

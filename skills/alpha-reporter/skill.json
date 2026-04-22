@@ -1,0 +1,9 @@
+{
+  "name": "The Alpha Reporter",
+  "alias": "alpha-reporter",
+  "description": "Monetizes Chronos Ledger research into reports.",
+  "version": "1.0.0",
+  "revenue_impact": "medium",
+  "required_before": [],
+  "next_skills": []
+}

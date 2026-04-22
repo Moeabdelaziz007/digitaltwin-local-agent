@@ -1,0 +1,9 @@
+{
+  "name": "The Blacksmith",
+  "alias": "spec-agent",
+  "description": "Forges high-fidelity technical specifications from venture concepts.",
+  "version": "1.0.0",
+  "revenue_impact": "high",
+  "required_before": ["impl-agent"],
+  "next_skills": ["impl-agent"]
+}

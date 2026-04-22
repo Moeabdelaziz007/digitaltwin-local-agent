@@ -1,0 +1,9 @@
+{
+  "name": "The Arbitrage Mirror",
+  "alias": "market-researcher",
+  "description": "Simulates successful wallet/trader causal patterns.",
+  "version": "1.0.0",
+  "revenue_impact": "very-high",
+  "required_before": ["opportunity-scanner"],
+  "next_skills": []
+}

@@ -1,0 +1,9 @@
+{
+  "name": "The Architect",
+  "alias": "arch-agent",
+  "description": "Designs system architectures and scalable data models.",
+  "version": "1.0.0",
+  "revenue_impact": "medium",
+  "required_before": ["impl-agent"],
+  "next_skills": ["impl-agent"]
+}
