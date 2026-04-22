@@ -144,7 +144,13 @@ export interface VentureSentinelResult {
   rollback_reason?: string;
   required_skills_missing: string[];
   revenue_readiness_score: number; // 0-100
-  metadata: Record<string, unknown>;
+  training_plan?: any[];
+  stress_test?: any;
+  metadata: {
+    evaluated_at: string;
+    agent_version: string;
+    alignment_score: number;
+  };
 }
 
 export interface Opportunity extends PBRecord {

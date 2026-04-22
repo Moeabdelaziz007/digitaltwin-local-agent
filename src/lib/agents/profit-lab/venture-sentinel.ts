@@ -1,44 +1,57 @@
-import { VentureStage, VentureSentinelResult, Opportunity, AgentOutput } from '@/types/twin';
-import * as memoryEngine from '@/lib/memory-engine';
+import { SkillGapTrainer, TrainingPlan } from './skill-gap-trainer';
+import { RevenueStressTest, StressTestResult } from './revenue-stress-test';
 
 export class VentureSentinelAgent {
   private name = 'The Synapse (Sentinel)';
-  private version = '1.1.0';
+  private version = '1.2.0';
   private memoryEngine = memoryEngine;
+  private trainer = new SkillGapTrainer();
+  private stressTester = new RevenueStressTest();
 
   /**
    * Evaluates the readiness of a venture to move to the next stage.
-   * Implements Recursive Refinement (Rollback) logic.
    */
   public async evaluateStageTransition(
     opportunity: Opportunity,
     currentStage: VentureStage,
     agentOutputs: AgentOutput[]
-  ): Promise<VentureSentinelResult> {
+  ): Promise<VentureSentinelResult & { training_plan?: TrainingPlan[], stress_test?: StressTestResult }> {
     console.log(`[${this.name}] Evaluating transition from ${currentStage}...`);
 
-    // Logic for calculating Revenue Readiness Score & Persona Alignment
     const readinessScore = this.calculateReadinessScore(opportunity, agentOutputs);
     const alignmentScore = await this.calculatePersonaAlignment(opportunity);
     const missingSkills = this.detectMissingSkills(currentStage, agentOutputs);
     const blockers = this.identifyBlockers(opportunity, agentOutputs);
+
+    // Run Stress Test if moving to Synthesis or Attack
+    let stressTest: StressTestResult | undefined;
+    if (currentStage === 'Attack' || currentStage === 'Build') {
+      stressTest = await this.stressTester.runScenarios(opportunity);
+    }
+
+    // Generate Training Plan if missing skills
+    let trainingPlan: TrainingPlan[] | undefined;
+    if (missingSkills.length > 0) {
+      trainingPlan = await this.trainer.generateTrainingPlan(missingSkills);
+    }
 
     let verdict: 'PASS' | 'CONCERNS' | 'FAIL' = 'PASS';
     let rollbackTarget: VentureStage | undefined;
     let rollbackReason: string | undefined;
     let nextStage: VentureStage | undefined;
 
-    // Threshold Logic for Recursive Refinement (Neural Integration)
     if (readinessScore < 40 || alignmentScore < 30) {
       verdict = 'FAIL';
       rollbackTarget = 'Explore';
       rollbackReason = readinessScore < 40 
-        ? `[The Synapse] Revenue Readiness (${readinessScore}) is critically low. Refracting via The Prism required.`
+        ? `[The Synapse] Revenue Readiness (${readinessScore}) is low. Refracting via The Prism required.`
         : `[The Synapse] Persona Alignment (${alignmentScore}) is too low. Venture fails User identity sync.`;
-    } else if (missingSkills.length > 2 || blockers.length > 0) {
+    } else if (missingSkills.length > 2 || (stressTest && !stressTest.base.survivability)) {
       verdict = 'CONCERNS';
       rollbackTarget = this.getPreviousStage(currentStage);
-      rollbackReason = `[The Synapse] Neural gaps detected. Missing skills or blockers in the Kinetic path.`;
+      rollbackReason = stressTest && !stressTest.base.survivability
+        ? `[The Synapse] Financial Fragility detected. Opportunity failed stress tests.`
+        : `[The Synapse] Neural gaps detected. Training Plan generated.`;
     } else {
       nextStage = this.getNextStage(currentStage);
     }
@@ -52,6 +65,8 @@ export class VentureSentinelAgent {
       rollback_reason: rollbackReason,
       required_skills_missing: missingSkills,
       revenue_readiness_score: readinessScore,
+      training_plan: trainingPlan,
+      stress_test: stressTest,
       metadata: {
         evaluated_at: new Date().toISOString(),
         agent_version: this.version,
@@ -86,8 +101,17 @@ export class VentureSentinelAgent {
   }
 
   private detectMissingSkills(stage: VentureStage, outputs: AgentOutput[]): string[] {
-    // Placeholder for actual skill gap detection logic
-    return [];
+    const requiredSkillsPerStage: Record<VentureStage, string[]> = {
+      'Explore':   ['market-research', 'competitor-analysis'],
+      'Collapse':  ['financial-modeling', 'risk-assessment'],
+      'Attack':    ['gtm-strategy', 'pricing-model'],
+      'Build':     ['mvp-development', 'technical-architecture'],
+      'Synthesis': ['scaling-plan', 'investor-deck']
+    };
+    
+    const required = requiredSkillsPerStage[stage] || [];
+    const completed = outputs.map(o => o.agentName);
+    return required.filter(skill => !completed.includes(skill));
   }
 
   private identifyBlockers(opportunity: Opportunity, outputs: AgentOutput[]): string[] {
