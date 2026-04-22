@@ -8,7 +8,7 @@ export const SkillSchema = z.object({
   version: z.string(),
   description: z.string(),
   when_to_use: z.string(),
-  permissions: z.array(z.enum(['memory_read', 'memory_write', 'network', 'filesystem'])),
+  permissions: z.array(z.string()),
   required_tools: z.array(z.string()),
   input_schema: z.object({}).passthrough().optional(),
   output_schema: z.object({}).passthrough().optional(),
@@ -32,6 +32,10 @@ export interface Skill {
   enabled: boolean;
 }
 
+export interface SkillListItem extends SkillMetadata {
+  id: string;
+}
+
 export class SkillRegistry {
   private static instance: SkillRegistry;
   private skills: Map<string, Skill> = new Map();
@@ -49,7 +53,7 @@ export class SkillRegistry {
   /**
    * تسجيل مهارة جديدة ديناميكياً (مستوردة مثلاً)
    */
-  public registerSkill(skill: Partial<Skill> & { id: string }): void {
+  public registerSkill(skill: { id: string; metadata?: Partial<SkillMetadata>; instructions?: string; examples?: string[] }): void {
     const fullSkill: Skill = {
       metadata: {
         name: skill.metadata?.name || skill.id,
@@ -154,11 +158,15 @@ ${active.map(s => `
 `;
   }
 
-  public listSkills(): SkillSchema[] {
+  public listSkills(): SkillListItem[] {
     return Array.from(this.skills.entries()).map(([id, skill]) => ({
       id,
       ...skill.metadata
     }));
+  }
+
+  public getActiveSkills(): Skill[] {
+    return Array.from(this.skills.values()).filter((skill) => skill.enabled);
   }
 
   /**

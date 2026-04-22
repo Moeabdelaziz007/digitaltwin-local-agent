@@ -6,14 +6,19 @@ import { Browserbase } from '@browserbasehq/sdk';
  * Creates and manages cloud browser sessions for web automation
  */
 
-const bb = new Browserbase({
-  apiKey: process.env.BROWSERBASE_API_KEY!,
-});
+function getBrowserbaseClient(): Browserbase {
+  const apiKey = process.env.BROWSERBASE_API_KEY;
+  if (!apiKey) {
+    throw new Error('BROWSERBASE_API_KEY is not configured');
+  }
+  return new Browserbase({ apiKey });
+}
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { projectId, keepAlive, proxy } = body;
+    const bb = getBrowserbaseClient();
 
     // Create a new browser session
     const session = await bb.sessions.create({
@@ -43,6 +48,7 @@ export async function GET(request: Request) {
   const sessionId = searchParams.get('sessionId');
 
   try {
+    const bb = getBrowserbaseClient();
     if (sessionId) {
       // Get specific session details
       const session = await bb.sessions.retrieve(sessionId);
@@ -71,6 +77,7 @@ export async function DELETE(request: Request) {
   try {
     const body = await request.json();
     const { sessionId } = body;
+    const bb = getBrowserbaseClient();
 
     if (!sessionId) {
       return NextResponse.json(

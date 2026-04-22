@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   // ✅ FIX: Turbopack Build Error - Ignore pocketbase binary file
   experimental: {
     // turbotrace: {

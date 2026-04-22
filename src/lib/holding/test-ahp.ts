@@ -42,7 +42,8 @@ async function testAHPCycle() {
     priority: 'high',
     context: 'Design the technical architecture for syncing local notes with a distributed vector database.',
     budget_allocated: 5.0,
-    audit_trail: ['Created by Test Runner']
+    audit_trail: ['Created by Test Runner'],
+    created_at: new Date().toISOString()
   };
 
   try {

@@ -100,5 +100,5 @@ export class ToolRegistry {
 }
 
 const globalForTools = globalThis as unknown as { toolRegistry?: ToolRegistry };
-export const toolRegistry = globalForTools.toolRegistry ?? new ToolRegistry();
+export const toolRegistry = globalForTools.toolRegistry ?? ToolRegistry.getInstance();
 if (!globalForTools.toolRegistry) globalForTools.toolRegistry = toolRegistry;

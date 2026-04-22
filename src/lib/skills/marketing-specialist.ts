@@ -1,7 +1,8 @@
 import { callOllama } from '../ollama-client';
 import { skillRegistry } from './registry';
 import { TicketEngine } from '../holding/ticket-engine';
-import { Venture, Role, ExecutionResult } from '../holding/types';
+import { Venture, Role } from '../holding/types';
+import { ExecutionResult } from './types';
 
 /**
  * src/lib/skills/marketing-specialist.ts
@@ -48,7 +49,7 @@ export class MarketingSpecialistSkill {
 
     return { 
       success: true, 
-      output: `Campaign orchestrated after market simulation for ${params.ventureName}.`,
+      output: `Campaign orchestrated after market simulation for ${vName}.`,
       ticketId: ticket.id 
     };
   }

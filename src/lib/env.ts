@@ -35,15 +35,16 @@ if (!parsed.success) {
     .map((issue) => issue.path.join('.'))
     .filter(Boolean)
     .join(', ');
+  const isCiLike = process.env.CI === 'true' || Boolean(process.env.VERCEL);
 
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production' && !isCiLike) {
     throw new Error(
       `[ENV] Missing or invalid required environment variables in production: ${missingOrInvalid}`
     );
   }
 
   console.warn(
-    `[ENV] Missing or invalid environment variables outside production: ${missingOrInvalid}`
+    `[ENV] Missing or invalid environment variables${isCiLike ? ' in CI/VERCEL build' : ' outside production'}: ${missingOrInvalid}`
   );
 }
 

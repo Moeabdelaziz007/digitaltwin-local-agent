@@ -17,20 +17,20 @@ export async function executeTool(
 
   if (!tool) {
     const errorMessage = `[ToolGateway] Tool not found: ${toolName}`;
-    obs.log?.('warn', errorMessage);
+    console.warn(errorMessage);
     throw new Error(errorMessage);
   }
 
   if (!authorizeToolExecution(tool.permissions ?? [], grantedPermissions)) {
     const errorMessage = `[ToolGateway] Permission denied for tool ${toolName}`;
-    obs.log?.('warn', errorMessage);
+    console.warn(errorMessage);
     throw new Error(errorMessage);
   }
 
   const executor = toolRegistry.getExecutor(toolName);
   if (!executor) {
     const errorMessage = `[ToolGateway] No executor registered for tool ${toolName}`;
-    obs.log?.('warn', errorMessage);
+    console.warn(errorMessage);
     throw new Error(errorMessage);
   }
 

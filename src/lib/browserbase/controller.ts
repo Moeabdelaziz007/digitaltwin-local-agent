@@ -6,14 +6,33 @@ import { Browserbase } from '@browserbasehq/sdk';
  */
 
 export class BrowserbaseController {
-  private bb: Browserbase;
-  private projectId: string;
+  private bb: Browserbase | null = null;
+  private projectId: string | null = null;
 
   constructor() {
-    this.bb = new Browserbase({
-      apiKey: process.env.BROWSERBASE_API_KEY!,
-    });
-    this.projectId = process.env.BROWSERBASE_PROJECT_ID!;
+    // Lazy initialization to avoid build-time crashes when env vars are injected only at runtime.
+  }
+
+  private getClient(): Browserbase {
+    if (!this.bb) {
+      const apiKey = process.env.BROWSERBASE_API_KEY;
+      if (!apiKey) {
+        throw new Error('BROWSERBASE_API_KEY is missing');
+      }
+      this.bb = new Browserbase({ apiKey });
+    }
+    return this.bb;
+  }
+
+  private getProjectId(): string {
+    if (!this.projectId) {
+      const projectId = process.env.BROWSERBASE_PROJECT_ID;
+      if (!projectId) {
+        throw new Error('BROWSERBASE_PROJECT_ID is missing');
+      }
+      this.projectId = projectId;
+    }
+    return this.projectId;
   }
 
   /**
@@ -23,8 +42,9 @@ export class BrowserbaseController {
     keepAlive?: boolean;
     proxy?: boolean;
   }) {
-    const session = await this.bb.sessions.create({
-      projectId: this.projectId,
+    const bb = this.getClient();
+    const session = await bb.sessions.create({
+      projectId: this.getProjectId(),
       keepAlive: options?.keepAlive || false,
       proxies: options?.proxy ? true : undefined,
     });
@@ -81,7 +101,7 @@ export class BrowserbaseController {
   async screenshot(url: string, options?: { fullPage?: boolean }) {
     return this.executeTask(async (sessionId: string) => {
       // Use Browserbase REST API for screenshot
-      const response = await (this.bb.sessions as any).screenshot(sessionId, {
+      const response = await (this.getClient().sessions as any).screenshot(sessionId, {
         url,
         fullPage: options?.fullPage || false,
         type: 'png',
@@ -96,7 +116,7 @@ export class BrowserbaseController {
   async extractContent(url: string, selector?: string) {
     return this.executeTask(async (sessionId: string) => {
       // Use Browserbase REST API for content extraction
-      const response = await (this.bb.sessions as any).evaluate(sessionId, {
+      const response = await (this.getClient().sessions as any).evaluate(sessionId, {
         url,
         script: selector 
           ? `document.querySelector('${selector}')?.textContent || ''`
@@ -122,7 +142,7 @@ export class BrowserbaseController {
         return page.url();
       `;
       
-      const response = await (this.bb.sessions as any).evaluate(sessionId, {
+      const response = await (this.getClient().sessions as any).evaluate(sessionId, {
         url,
         script,
       });
@@ -136,7 +156,7 @@ export class BrowserbaseController {
   async stopSession(sessionId: string) {
     try {
       // Request session release to end it sooner
-      await (this.bb.sessions as any).update(sessionId, {
+      await (this.getClient().sessions as any).update(sessionId, {
         status: 'REQUEST_RELEASE',
       });
       return { success: true };
@@ -150,14 +170,14 @@ export class BrowserbaseController {
    * List all active sessions
    */
   async listSessions() {
-    return await this.bb.sessions.list();
+    return await this.getClient().sessions.list();
   }
 
   /**
    * Get session details
    */
   async getSession(sessionId: string) {
-    return await this.bb.sessions.retrieve(sessionId);
+    return await this.getClient().sessions.retrieve(sessionId);
   }
 }
 
