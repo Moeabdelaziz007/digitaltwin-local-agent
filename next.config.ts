@@ -22,6 +22,12 @@ const nextConfig: NextConfig = {
       config.cache = false;
     }
 
+    // [FIX] Force Turbopack to use npm pocketbase package instead of binary file
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'pocketbase': require.resolve('pocketbase'),
+    };
+
     return config;
   },
   serverExternalPackages: [
