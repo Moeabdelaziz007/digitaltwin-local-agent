@@ -5,7 +5,9 @@ import {
   ConsensusInput, 
   ConsensusVerdict, 
   AgentProposal, 
-  RiskFlags 
+  RiskFlags,
+  AgentOutput,
+  VentureStage
 } from '@/types/twin';
 import { 
   PLANNER_PROMPT, 
@@ -76,12 +78,28 @@ function safeParseProposal(raw: string, agent: string): AgentProposal {
   }
 }
 
+function toAgentOutput(proposal: AgentProposal, stage: VentureStage): AgentOutput {
+  return {
+    agentName: proposal.agent,
+    stage,
+    result: {
+      output: proposal.output,
+      confidence: proposal.confidence,
+      risk: proposal.risk,
+      issues: proposal.issues
+    },
+    timestamp: new Date().toISOString(),
+    confidence: proposal.confidence
+  };
+}
+
 export async function runConsensus(input: ConsensusInput): Promise<ConsensusVerdict> {
   const start = Date.now();
   const isVenture = input.userMessage.toLowerCase().includes('venture') || 
                     input.userMessage.toLowerCase().includes('profit') ||
                     input.userMessage.toLowerCase().includes('alpha') ||
-                    input.userMessage.toLowerCase().includes('revenue');
+                    input.userMessage.toLowerCase().includes('revenue') ||
+                    input.userMessage.includes('[IDEA:]');
 
   if (isVenture) {
     return await runVentureLabCycle(input, start);

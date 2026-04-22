@@ -419,6 +419,19 @@ ${recentMessages.length > 0
   });
 }
 
+/**
+ * 👤 CAPABILITY: USER_PROFILE_ACCESS
+ */
+export async function getUserProfile(userId?: string): Promise<UserProfile | null> {
+  const pbUserId = asPbUserId(userId || 'system');
+  const pb = getServerPB();
+  try {
+    return await pb.collection('user_profiles').getFirstListItem<UserProfile>(`user_id = "${pbUserId}"`);
+  } catch {
+    return null;
+  }
+}
+
 function buildFallbackPrompt(): string {
   return `You are MyDigitalTwin. The user hasn't completed onboarding yet.
 Be warm, curious, and gently guide them to tell you about themselves.`;

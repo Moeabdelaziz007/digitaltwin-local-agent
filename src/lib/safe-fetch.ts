@@ -103,7 +103,7 @@ function logSafeFetchFailure(url: string, error: SafeFetchError, opts: SafeFetch
       disagreementRate: 0,
       hallucinationFlagRate: 1, 
     });
-  } catch (e) {
+  } catch {
     // Silent fail
   }
 }

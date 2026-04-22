@@ -1,8 +1,10 @@
-import { VentureStage, VentureSentinelResult, Opportunity } from '@/types/twin';
+import { VentureStage, VentureSentinelResult, Opportunity, AgentOutput } from '@/types/twin';
+import * as memoryEngine from '@/lib/memory-engine';
 
 export class VentureSentinelAgent {
   private name = 'The Synapse (Sentinel)';
   private version = '1.1.0';
+  private memoryEngine = memoryEngine;
 
   /**
    * Evaluates the readiness of a venture to move to the next stage.
@@ -11,13 +13,13 @@ export class VentureSentinelAgent {
   public async evaluateStageTransition(
     opportunity: Opportunity,
     currentStage: VentureStage,
-    agentOutputs: any[]
+    agentOutputs: AgentOutput[]
   ): Promise<VentureSentinelResult> {
     console.log(`[${this.name}] Evaluating transition from ${currentStage}...`);
 
     // Logic for calculating Revenue Readiness Score & Persona Alignment
     const readinessScore = this.calculateReadinessScore(opportunity, agentOutputs);
-    const alignmentScore = this.calculatePersonaAlignment(opportunity);
+    const alignmentScore = await this.calculatePersonaAlignment(opportunity);
     const missingSkills = this.detectMissingSkills(currentStage, agentOutputs);
     const blockers = this.identifyBlockers(opportunity, agentOutputs);
 
@@ -52,12 +54,13 @@ export class VentureSentinelAgent {
       revenue_readiness_score: readinessScore,
       metadata: {
         evaluated_at: new Date().toISOString(),
-        agent_version: this.version
+        agent_version: this.version,
+        alignment_score: alignmentScore
       }
     };
   }
 
-  private calculateReadinessScore(opportunity: Opportunity, outputs: any[]): number {
+  private calculateReadinessScore(opportunity: Opportunity, outputs: AgentOutput[]): number {
     // Initial heuristic: combine confidence, sentiment, and output depth
     const baseScore = (opportunity.score || 50);
     const confidenceBoost = (opportunity.confidence || 0.5) * 20;
@@ -66,19 +69,28 @@ export class VentureSentinelAgent {
     return Math.min(100, Math.max(0, baseScore + confidenceBoost + sentimentBoost - (outputs.length < 3 ? 15 : 0)));
   }
 
-  private calculatePersonaAlignment(opportunity: Opportunity): number {
-    // Expert Level Logic: In a real run, this would compare venture category
-    // with User's 'Companion' interests/skills stored in memory.
-    // For now, we simulate this alignment.
-    return 85; // Mocking high alignment for the demo
+  private async calculatePersonaAlignment(opportunity: Opportunity): Promise<number> {
+    const userMemory = await this.memoryEngine.getUserProfile(opportunity.user_id);
+    const skills = userMemory?.skills || [];
+    const interests = userMemory?.interests || [];
+    
+    const skillMatch = skills.filter(s => 
+      opportunity.required_skills?.includes(s)
+    ).length;
+    
+    const interestMatch = interests.filter(i => 
+      opportunity.category?.toLowerCase().includes(i.toLowerCase())
+    ).length;
+    
+    return Math.min(100, (skillMatch * 20) + (interestMatch * 15) + 30);
   }
 
-  private detectMissingSkills(stage: VentureStage, outputs: any[]): string[] {
+  private detectMissingSkills(stage: VentureStage, outputs: AgentOutput[]): string[] {
     // Placeholder for actual skill gap detection logic
     return [];
   }
 
-  private identifyBlockers(opportunity: Opportunity, outputs: any[]): string[] {
+  private identifyBlockers(opportunity: Opportunity, outputs: AgentOutput[]): string[] {
     const blockers: string[] = [];
     if (opportunity.status === 'rejected') blockers.push('Opportunity is marked as rejected');
     return blockers;

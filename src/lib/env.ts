@@ -64,6 +64,6 @@ const fallbackEnv = {
   ADMIN_USER_ID: process.env.ADMIN_USER_ID || '',
   PB_ADMIN_EMAIL: process.env.PB_ADMIN_EMAIL || '',
   PB_ADMIN_PASSWORD: process.env.PB_ADMIN_PASSWORD || '',
-} satisfies Record<string, any>;
+} satisfies Record<string, string | number | boolean>;
 
-export const env: typeof fallbackEnv = parsed.success ? (parsed.data as unknown as typeof fallbackEnv) : fallbackEnv;
+export const env = (parsed.success ? parsed.data : fallbackEnv) as z.infer<typeof envSchema>;
