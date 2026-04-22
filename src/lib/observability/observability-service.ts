@@ -48,33 +48,16 @@ export class ObservabilityService {
         console.log('[BRAINTRUST] Initialized');
       }
 
-      // Dynamic imports to prevent Webpack from trying to bundle Node-only modules for the browser
-      const { NodeSDK } = await import('@opentelemetry/sdk-node');
-      const { BatchSpanProcessor } = await import('@opentelemetry/sdk-trace-base');
-      const resources = await import('@opentelemetry/resources');
-      const { SemanticResourceAttributes } = await import('@opentelemetry/semantic-conventions');
-      const { PocketBaseSpanExporter } = await import('./pb-exporter');
-
-      const exporter = new PocketBaseSpanExporter(env.POCKETBASE_URL);
-      
-      this.sdk = new NodeSDK({
-        resource: new resources.Resource({
-          [SemanticResourceAttributes.SERVICE_NAME]: 'digital-twin-app',
-          [SemanticResourceAttributes.SERVICE_VERSION]: '1.0.0',
-        }),
-        spanProcessor: new BatchSpanProcessor(exporter),
-        instrumentations: [],
-      });
-
-      this.sdk.start();
-      
-      // Register OTel flush with Braintrust to ensure traces are sent
-      if (process.env.BRAINTRUST_API_KEY) {
-        registerOtelFlush(this.sdk);
-        console.log('[BRAINTRUST] OTel flush registered');
+      // Initialize Braintrust only (skip OTel SDK for Vercel compatibility)
+      if (process.env.BRAINTRUST_API_KEY && process.env.BRAINTRUST_PROJECT_ID) {
+        init({
+          apiKey: process.env.BRAINTRUST_API_KEY,
+          projectName: process.env.BRAINTRUST_PROJECT_ID,
+        });
+        console.log('[BRAINTRUST] Initialized (OTel SDK skipped for Vercel compatibility)');
       }
       
-      console.log('[OBSERVABILITY] OTel SDK Started with PocketBase Exporter + Braintrust Drain (Server-side)');
+      console.log('[OBSERVABILITY] OTel SDK initialization skipped for Vercel compatibility');
     } catch (e) {
       console.error('[OBSERVABILITY] Failed to initialize OTel SDK:', e);
     }

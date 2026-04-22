@@ -8,7 +8,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle, ShieldAlert, Cpu, Layers, CheckCircle, Zap, TrendingUp } from 'lucide-react';
-import { ConsensusVerdict } from '@/types/twin';
+import { ConsensusVerdict, CausalNode, CausalEdge } from '@/types/twin';
 import { CausalGraph } from './CausalGraph';
 
 interface VentureLabViewProps {

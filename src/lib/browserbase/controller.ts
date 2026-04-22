@@ -1,9 +1,8 @@
 import { Browserbase } from '@browserbasehq/sdk';
-import { chromium } from 'playwright-core';
 
 /**
  * BrowserbaseController
- * High-level wrapper for browser automation using Browserbase + Playwright
+ * High-level wrapper for browser automation using Browserbase REST API (no Playwright binary)
  */
 
 export class BrowserbaseController {
@@ -18,7 +17,7 @@ export class BrowserbaseController {
   }
 
   /**
-   * Create a new browser session and connect with Playwright
+   * Create a new browser session using REST API
    */
   async createSession(options?: {
     keepAlive?: boolean;
@@ -30,41 +29,29 @@ export class BrowserbaseController {
       proxies: options?.proxy ? true : undefined,
     });
 
-    // Connect Playwright to the session
-    const browser = await chromium.connectOverCDP(session.connectUrl!);
-    const context = browser.contexts()[0];
-    const page = context.pages()[0] || (await context.newPage());
-
     return {
       sessionId: session.id,
-      browser,
-      context,
-      page,
+      connectUrl: session.connectUrl,
+      debugUrl: session.debugUrl,
     };
   }
 
   /**
-   * Execute a browser automation task
+   * Execute a browser automation task using REST API
    */
   async executeTask(
-    taskFn: (page: any) => Promise<any>,
+    taskFn: (sessionId: string) => Promise<any>,
     options?: {
-      url?: string;
       keepAlive?: boolean;
     }
   ) {
-    const { sessionId, browser, page, debugUrl } = await this.createSession({
+    const { sessionId, debugUrl } = await this.createSession({
       keepAlive: options?.keepAlive,
     });
 
     try {
-      // Navigate to URL if provided
-      if (options?.url) {
-        await page.goto(options.url, { waitUntil: 'networkidle' });
-      }
-
-      // Execute the task
-      const result = await taskFn(page);
+      // Execute the task using REST API
+      const result = await taskFn(sessionId);
 
       return {
         success: true,
@@ -81,61 +68,66 @@ export class BrowserbaseController {
         debugUrl,
       };
     } finally {
-      // Close browser if not keeping alive
+      // Stop session if not keeping alive
       if (!options?.keepAlive) {
-        await browser.close();
+        await this.stopSession(sessionId);
       }
     }
   }
 
   /**
-   * Take a screenshot of a webpage
+   * Take a screenshot of a webpage using REST API
    */
   async screenshot(url: string, options?: { fullPage?: boolean }) {
-    return this.executeTask(async (page: any) => {
-      await page.goto(url, { waitUntil: 'networkidle' });
-      const screenshot = await page.screenshot({
+    return this.executeTask(async (sessionId: string) => {
+      // Use Browserbase REST API for screenshot
+      const response = await this.bb.sessions.screenshot(sessionId, {
+        url,
         fullPage: options?.fullPage || false,
         type: 'png',
       });
-      return screenshot.toString('base64');
-    }, { url });
+      return response.screenshot;
+    }, { keepAlive: false });
   }
 
   /**
-   * Extract content from a webpage
+   * Extract content from a webpage using REST API
    */
   async extractContent(url: string, selector?: string) {
-    return this.executeTask(async (page: any) => {
-      await page.goto(url, { waitUntil: 'networkidle' });
-      
-      if (selector) {
-        return await page.$eval(selector, (el: any) => el.textContent);
-      }
-      
-      return await page.evaluate(() => document.body.innerText);
-    }, { url });
+    return this.executeTask(async (sessionId: string) => {
+      // Use Browserbase REST API for content extraction
+      const response = await this.bb.sessions.evaluate(sessionId, {
+        url,
+        script: selector 
+          ? `document.querySelector('${selector}')?.textContent || ''`
+          : 'document.body.innerText',
+      });
+      return response.result;
+    }, { keepAlive: false });
   }
 
   /**
-   * Fill a form and submit
+   * Fill a form and submit using REST API
    */
   async submitForm(url: string, formData: Record<string, string>, submitSelector?: string) {
-    return this.executeTask(async (page: any) => {
-      await page.goto(url, { waitUntil: 'networkidle' });
+    return this.executeTask(async (sessionId: string) => {
+      // Use Browserbase REST API for form submission
+      const script = `
+        await page.goto('${url}');
+        ${Object.entries(formData).map(([selector, value]) => 
+          `await page.fill('${selector}', '${value}');`
+        ).join('\n')}
+        await page.click('${submitSelector || "button[type='submit']"}');
+        await page.waitForNavigation();
+        return page.url();
+      `;
       
-      // Fill form fields
-      for (const [selector, value] of Object.entries(formData)) {
-        await page.fill(selector, value);
-      }
-      
-      // Click submit button
-      const submitBtn = submitSelector || 'button[type="submit"]';
-      await page.click(submitBtn);
-      await page.waitForNavigation({ waitUntil: 'networkidle' });
-      
-      return page.url();
-    }, { url });
+      const response = await this.bb.sessions.evaluate(sessionId, {
+        url,
+        script,
+      });
+      return response.result;
+    }, { keepAlive: false });
   }
 
   /**

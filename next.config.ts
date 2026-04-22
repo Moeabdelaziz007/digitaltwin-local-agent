@@ -3,9 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // ✅ FIX: Turbopack Build Error - Ignore pocketbase binary file
   experimental: {
-    turbotrace: {
-      ignore: ['/pocketbase'],
-    },
+    // turbotrace: {
+    //   ignore: ['/pocketbase'],
+    // },
   },
 
   webpack: (config, { isServer, dev }) => {
