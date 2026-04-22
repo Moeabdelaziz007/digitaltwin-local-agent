@@ -57,3 +57,7 @@ export class VoiceController implements VoiceSM {
     this.metrics = {};
   }
 }
+
+// Singleton instance
+export const voiceController = new VoiceController();
+export default voiceController;

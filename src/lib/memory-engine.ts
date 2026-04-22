@@ -140,13 +140,13 @@ export async function executeRecallMemory(userId: string, topic: string): Promis
       obs.recordMemoryStats(span, {
         operation_type: 'retrieval',
         candidates_count: result.items.length,
-        selected_ids: result.items.map(f => f.id).join(','),
+        selected_ids: result.items.map((f: Fact) => f.id).join(','),
       });
 
       if (result.items.length === 0) return "No relevant facts found for this topic.";
 
       return `Found ${result.items.length} facts:\n` +
-        result.items.map(f => `- ${getFactText(f)} (category: ${f.category})`).join('\n');
+        result.items.map((f: Fact) => `- ${getFactText(f)} (category: ${f.category})`).join('\n');
     } catch {
       return "Failed to recall memory due to internal error.";
     }
@@ -175,7 +175,7 @@ export async function executeSaveMemory(userId: string, fact: string, category: 
         sort: '-updated',
       });
 
-      const exactFingerprintMatch = lexicalCandidates.find(f => f.fact_fingerprint === incomingFingerprint);
+      const exactFingerprintMatch = lexicalCandidates.find((f: Fact) => f.fact_fingerprint === incomingFingerprint);
 
       // Stage 2: semantic dedup using embedding similarity
       const [lexicalThreshold] = await Promise.all([
@@ -183,13 +183,13 @@ export async function executeSaveMemory(userId: string, fact: string, category: 
       ]);
 
       const overlapCandidate = lexicalCandidates
-        .map(candidate => {
+        .map((candidate: Fact) => {
           const candidateNormalized = normalizeFactText(getFactText(candidate));
           const overlap = tokenOverlapScore(incomingTokens, tokenize(candidateNormalized));
           return { candidate, overlap };
         })
-        .filter(item => item.overlap >= lexicalThreshold)
-        .sort((a, b) => b.overlap - a.overlap)[0]?.candidate;
+        .filter((item: { candidate: Fact; overlap: number }) => item.overlap >= lexicalThreshold)
+        .sort((a: { candidate: Fact; overlap: number }, b: { candidate: Fact; overlap: number }) => b.overlap - a.overlap)[0]?.candidate;
 
       const lexicalMatch = exactFingerprintMatch || overlapCandidate;
 
@@ -332,7 +332,7 @@ export async function buildMemoryContext(userId: string): Promise<string> {
     if (factsRes.status === 'fulfilled') {
       const facts = factsRes.value;
       const nowTs = Date.now();
-      const factScores = facts.map(f => {
+      const factScores = facts.map((f: Fact) => {
         const factText = getFactText(f);
         const referenceDate = new Date(f.last_reinforced_at || f.updated).getTime();
         const days = (nowTs - referenceDate) / 86400000;
@@ -347,10 +347,10 @@ export async function buildMemoryContext(userId: string): Promise<string> {
       });
 
       decayFilteredFacts = factScores
-        .filter(fs => fs.liveScore > 0.25)
-        .sort((a, b) => b.liveScore - a.liveScore)
+        .filter((fs: { fact: string; liveScore: number }) => fs.liveScore > 0.25)
+        .sort((a: { fact: string; liveScore: number }, b: { fact: string; liveScore: number }) => b.liveScore - a.liveScore)
         .slice(0, 8)
-        .map(fs => fs.fact);
+        .map((fs: { fact: string; liveScore: number }) => fs.fact);
       
       obs.recordMemoryStats(span, { operation_type: 'scoring', candidates_count: facts.length, selected_ids: decayFilteredFacts.length.toString() });
     } else {
@@ -359,7 +359,7 @@ export async function buildMemoryContext(userId: string): Promise<string> {
 
     // 🔥 STAGE 4: Research Gems
     if (gemsRes.status === 'fulfilled') {
-      researchGems = gemsRes.value.items.map(g => `[GEM]: ${g.title} - ${g.implementation_notes}`);
+      researchGems = gemsRes.value.items.map((g: ResearchGem) => `[GEM]: ${g.title} - ${g.implementation_notes}`);
     }
 
     const snapshot: ProfileSnapshot = typeof profile.profile_snapshot === 'string'

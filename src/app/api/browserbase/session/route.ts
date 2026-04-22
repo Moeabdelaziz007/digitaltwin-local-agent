@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     const session = await bb.sessions.create({
       projectId: projectId || process.env.BROWSERBASE_PROJECT_ID!,
       keepAlive: keepAlive || false,
-      proxy: proxy || false,
+      proxies: proxy ? true : undefined,
     });
 
     return NextResponse.json({
