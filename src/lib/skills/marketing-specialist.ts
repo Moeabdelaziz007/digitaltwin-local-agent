@@ -80,7 +80,7 @@ skillRegistry.registerSkill({
     permissions: ['network', 'social_api_access'],
     required_tools: ['ollama', 'jina-reader'],
     category: 'growth',
-    revenue_impact: 'high-long-term'
+    revenue_impact: 'medium'
   },
   instructions: 'Analyze trends, draft viral content, and propose distribution channels.'
 });

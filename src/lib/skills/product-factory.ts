@@ -1,7 +1,7 @@
 import { callOllama } from '../ollama-client';
 import { executeRecallMemory } from '../memory-engine';
 import { skillRegistry } from './registry';
-import { ExecutionResult } from '@/types/agent-skills';
+import { ExecutionResult } from './types';
 import { ticketEngine } from '../holding/ticket-engine';
 
 /**
@@ -78,7 +78,7 @@ skillRegistry.registerSkill({
     permissions: ['memory_read', 'network'],
     required_tools: ['ollama', 'gumroad-api'],
     category: 'revenue',
-    revenue_impact: 'medium-high'
+    revenue_impact: 'medium'
   },
   instructions: 'Audit internal memory, identify high-value patterns, and package them as products for review.'
 });

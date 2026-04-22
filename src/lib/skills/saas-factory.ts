@@ -1,6 +1,6 @@
 import { callOllama } from '../ollama-client';
 import { skillRegistry } from './registry';
-import { ExecutionResult } from '@/types/agent-skills';
+import { ExecutionResult } from './types';
 import { ticketEngine } from '../holding/ticket-engine';
 
 /**
@@ -79,7 +79,7 @@ skillRegistry.registerSkill({
     permissions: ['network', 'filesystem_write'],
     required_tools: ['ollama', 'nextjs-cli'],
     category: 'revenue',
-    revenue_impact: 'very-high'
+    revenue_impact: 'medium'
   },
   instructions: 'Identify pain points, architect simple solutions, and scaffold MVPs for review.'
 });

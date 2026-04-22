@@ -1,6 +1,6 @@
 import { callOllama } from '../ollama-client';
 import { skillRegistry } from './registry';
-import { ExecutionResult } from '@/types/agent-skills';
+import { ExecutionResult } from './types';
 import { ticketEngine } from '../holding/ticket-engine';
 
 /**
@@ -79,7 +79,7 @@ skillRegistry.registerSkill({
     permissions: ['network', 'github_api'],
     required_tools: ['ollama', 'github-cli'],
     category: 'revenue',
-    revenue_impact: 'medium-high'
+    revenue_impact: 'medium'
   },
   instructions: 'Find high-value GitHub issues, analyze the codebase, and draft Pull Requests for approval.'
 });

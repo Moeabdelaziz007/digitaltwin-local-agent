@@ -1,6 +1,6 @@
 import { callOllama } from '../ollama-client';
 import { skillRegistry } from './registry';
-import { BountyIssue, ExecutionResult } from '@/types/agent-skills';
+import { BountyIssue, ExecutionResult } from './types';
 
 /**
  * src/lib/skills/pr-submitter.ts
@@ -40,7 +40,7 @@ skillRegistry.registerSkill({
     permissions: ['filesystem', 'network'],
     required_tools: ['ollama', 'github-cli'],
     category: 'revenue',
-    revenue_impact: 'high'
+    revenue_impact: 'medium'
   },
   instructions: prSubmitterSkill.instructions
 });

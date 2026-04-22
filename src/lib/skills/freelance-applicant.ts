@@ -1,6 +1,6 @@
 import { callOllama } from '../ollama-client';
 import { executeRecallMemory } from '../memory-engine';
-import { UpworkJob, ExecutionResult } from '@/types/agent-skills';
+import { UpworkJob, ExecutionResult } from './types';
 import { skillRegistry } from './registry';
 
 /**
@@ -50,7 +50,7 @@ skillRegistry.registerSkill({
     permissions: ['memory_read', 'network'],
     required_tools: ['ollama'],
     category: 'revenue',
-    revenue_impact: 'high'
+    revenue_impact: 'medium'
   },
   instructions: freelanceApplicantSkill.instructions
 });

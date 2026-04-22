@@ -1,6 +1,6 @@
 import { callOllama } from '../ollama-client';
 import { skillRegistry } from './registry';
-import { ExecutionResult } from '@/types/agent-skills';
+import { ExecutionResult } from './types';
 
 /**
  * src/lib/skills/content-publisher.ts

@@ -1,6 +1,6 @@
 import { callOllama } from '../ollama-client';
 import { skillRegistry } from './registry';
-import { ExecutionResult } from '@/types/agent-skills';
+import { ExecutionResult } from './types';
 import { ticketEngine } from '../holding/ticket-engine';
 
 /**
@@ -79,7 +79,7 @@ skillRegistry.registerSkill({
     permissions: ['network', 'api_gateway_manage'],
     required_tools: ['ollama', 'stripe-api-sim'],
     category: 'revenue',
-    revenue_impact: 'high-scale'
+    revenue_impact: 'medium'
   },
   instructions: 'Monitor API consumption, optimize performance, and propose monetization strategies.'
 });

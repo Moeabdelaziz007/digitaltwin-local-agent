@@ -1,6 +1,6 @@
 import { callOllama } from '../ollama-client';
 import { skillRegistry } from './registry';
-import { ExecutionResult } from '@/types/agent-skills';
+import { ExecutionResult } from './types';
 import { ticketEngine } from '../holding/ticket-engine';
 
 /**
@@ -89,7 +89,7 @@ skillRegistry.registerSkill({
     permissions: ['network', 'browser'],
     required_tools: ['jina-reader', 'ollama'],
     category: 'revenue',
-    revenue_impact: 'high'
+    revenue_impact: 'medium'
   },
   instructions: 'Identify, score, and draft proposals for high-ticket freelance jobs.'
 });
