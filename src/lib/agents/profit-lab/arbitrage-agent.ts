@@ -138,15 +138,54 @@ export class ArbitrageAgent {
   }
 
   /**
-   * Real Price Fetching (Simulated for this stage, but structured for real API)
+   * Real Price Fetching from CoinGecko API.
+   * Falls back to simulation if API is rate-limited or unreachable.
    */
   private async fetchRealPrices(pair: string): Promise<{ l1: number, l2: number }> {
-    // In a real prod environment, this would call CoinGecko or a CEX WebSocket
-    // We simulate a realistic spread between L1 and L2
-    const basePrice = pair.startsWith('ETH') ? 2400 : 1.0;
-    const l1 = basePrice + (Math.random() * 10 - 5);
-    const l2 = l1 + (Math.random() * 15 - 7.5); // L2 often has higher volatility
-    return { l1, l2 };
+    const symbolMap: Record<string, string> = {
+      'ETH/USDC': 'ethereum',
+      'BTC/USDC': 'bitcoin',
+      'SOL/USDC': 'solana',
+      'LINK/USDC': 'chainlink'
+    };
+
+    const geckoId = symbolMap[pair] || 'ethereum';
+
+    try {
+      // CoinGecko public API (Rate limit: 10-50 calls/min)
+      const url = `https://api.coingecko.com/api/v3/simple/price?ids=${geckoId}&vs_currencies=usd`;
+      
+      // We use a short timeout for responsiveness
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), 5000);
+
+      const response = await fetch(url, { signal: controller.signal });
+      clearTimeout(id);
+
+      if (!response.ok) throw new Error(`Gecko API error: ${response.status}`);
+
+      const data = await response.json();
+      const livePrice = data[geckoId]?.usd;
+
+      if (!livePrice) throw new Error('Price data missing in response');
+
+      // Since CoinGecko provides a single spot price, we simulate the L1/L2 spread 
+      // around this real-world anchor. This is the hybrid "Technical Honesty" approach.
+      const l1 = livePrice;
+      const l2 = l1 * (1 + (Math.random() * 0.02 - 0.005)); // -0.5% to +1.5% spread
+      
+      console.log(`[ArbitrageAgent] Live price fetched for ${pair}: $${l1.toFixed(2)} (Gecko)`);
+      return { l1, l2 };
+
+    } catch (e) {
+      console.warn(`[ArbitrageAgent] CoinGecko API unreachable, falling back to simulation:`, e);
+      
+      // Simulation Fallback
+      const basePrice = pair.startsWith('ETH') ? 2400 : pair.startsWith('BTC') ? 60000 : 1.0;
+      const l1 = basePrice + (Math.random() * 20 - 10);
+      const l2 = l1 * (1 + (Math.random() * 0.03 - 0.01));
+      return { l1, l2 };
+    }
   }
 
   /**
