@@ -104,4 +104,4 @@ export class ReflectionLoop {
   }
 }
 
-export const reflectionLoop = ReflectionLoop.getInstance();
+export const metaCognitive = ReflectionLoop.getInstance();

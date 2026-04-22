@@ -7,6 +7,13 @@
  */
 
 import { callOllama } from '@/lib/ollama-client';
+import { observabilityService as obs } from '@/lib/observability/observability-service';
+
+// --- CONFIGURATION CONSTANTS ---
+const DEFAULT_TRADE_SIZE = 10000;
+const FLASH_LOAN_FEE_BPS = 9; // 0.09%
+const BASE_GAS_ESTIMATE = 35;
+const MAX_LLM_RETRIES = 2;
 
 export interface ArbitrageResult {
   agentName: string;
@@ -22,6 +29,12 @@ export interface ArbitrageResult {
   };
   strategy: string;
   risk_level: 'low' | 'med' | 'high';
+  is_fallback: boolean;
+  metadata: {
+    source: 'llm' | 'local-fallback';
+    retries?: number;
+    latency_ms: number;
+  };
   timestamp: string;
 }
 
@@ -35,77 +48,109 @@ export class ArbitrageAgent {
   public async simulateArbitrage(pair: string = 'ETH/USDC'): Promise<ArbitrageResult> {
     const startTimestamp = Date.now();
     
-    try {
-      // 1. DATA ACQUISITION
-      const prices = await this.fetchRealPrices(pair);
-      
-      // 2. DETERMINISTIC COMPUTATION (The Source of Truth)
-      const tradeSize = 10000; 
-      const spread = Math.abs(prices.l1 - prices.l2);
-      const spreadPercentage = (spread / Math.min(prices.l1, prices.l2)) * 100;
-      const flashLoanFee = tradeSize * 0.0009;
-      const estimatedGas = 35; 
-      const grossProfit = (tradeSize * (spreadPercentage / 100));
-      const netProfit = grossProfit - flashLoanFee - estimatedGas;
-      const probability = this.runMonteCarloSimulation(netProfit);
-
-      // 3. CONTEXTUAL ANALYSIS (LLM only for qualitative synthesis)
-      const context = {
-        pair,
-        metrics: {
-          l1: prices.l1.toFixed(2),
-          l2: prices.l2.toFixed(2),
-          spread_pct: spreadPercentage.toFixed(4),
-          net_profit: netProfit.toFixed(2),
-          success_prob: (probability * 100).toFixed(1)
-        }
-      };
-
-      const strategyPrompt = `
-        [SYSTEM: FINANCIAL_ANALYST]
-        Analyze the following verified arbitrage metrics:
-        ${JSON.stringify(context, null, 2)}
-
-        Task: Provide an execution strategy focusing ONLY on liquidity depth and mev-protection.
-        Format: JSON { "commentary": "string", "risk_level": "low" | "med" | "high" }
-      `;
-      
-      let strategyResponse: string;
+    return await obs.trace('arbitrage_simulation', { attributes: { 'trade.pair': pair } }, async (span) => {
       try {
-        strategyResponse = await callOllama(strategyPrompt);
-      } catch (e) {
-        console.warn(`[ArbitrageAgent] LLM analysis failed, using fallback strategy:`, e);
-        strategyResponse = JSON.stringify({
-          commentary: "Strategy synthesis failed. Manual oversight required for execution.",
-          risk_level: "high"
-        });
+        // 1. DATA ACQUISITION
+        const prices = await this.fetchRealPrices(pair);
+        
+        // 2. DETERMINISTIC COMPUTATION (The Source of Truth)
+        const tradeSize = DEFAULT_TRADE_SIZE; 
+        const spread = Math.abs(prices.l1 - prices.l2);
+        const spreadPercentage = (spread / Math.min(prices.l1, prices.l2)) * 100;
+        const flashLoanFee = tradeSize * (FLASH_LOAN_FEE_BPS / 10000);
+        const estimatedGas = BASE_GAS_ESTIMATE; 
+        const grossProfit = (tradeSize * (spreadPercentage / 100));
+        const netProfit = grossProfit - flashLoanFee - estimatedGas;
+        const probability = this.runMonteCarloSimulation(netProfit);
+
+        // 3. CONTEXTUAL ANALYSIS (LLM only for qualitative synthesis)
+        const context = {
+          pair,
+          metrics: {
+            l1: prices.l1.toFixed(2),
+            l2: prices.l2.toFixed(2),
+            spread_pct: spreadPercentage.toFixed(4),
+            net_profit: netProfit.toFixed(2),
+            success_prob: (probability * 100).toFixed(1)
+          }
+        };
+
+        const strategyPrompt = `
+          [SYSTEM: FINANCIAL_ANALYST]
+          Analyze the following verified arbitrage metrics:
+          ${JSON.stringify(context, null, 2)}
+
+          Task: Provide an execution strategy focusing ONLY on liquidity depth and mev-protection.
+          Format: JSON { "commentary": "string", "risk_level": "low" | "med" | "high" }
+        `;
+        
+        let strategyResponse: string = '';
+        let isFallback = false;
+        let retries = 0;
+
+        try {
+          // LLM Execution with Retry Pattern
+          for (retries = 0; retries <= MAX_LLM_RETRIES; retries++) {
+            try {
+              strategyResponse = await callOllama(strategyPrompt);
+              // Simple validation that we got a JSON-like response
+              if (strategyResponse.includes('{')) break;
+            } catch (retryErr) {
+              if (retries === MAX_LLM_RETRIES) throw retryErr;
+              console.warn(`[ArbitrageAgent] LLM Retry ${retries + 1}/${MAX_LLM_RETRIES} due to error:`, retryErr);
+              await new Promise(resolve => setTimeout(resolve, 500 * (retries + 1))); // Exponential backoff
+            }
+          }
+        } catch (e) {
+          isFallback = true;
+          console.error(`[ArbitrageAgent] LLM analysis exhausted retries, using local fallback.`, e);
+          strategyResponse = JSON.stringify({
+            commentary: "Strategy synthesis failed after retries. Local safety protocols triggered. Manual oversight required.",
+            risk_level: "high",
+            _source: "local-fallback"
+          });
+        }
+        
+        const strategy = this.parseAndValidateStrategy(strategyResponse);
+        const latency = Date.now() - startTimestamp;
+
+        // Structured Telemetry via OTel
+        obs.recordLlmStats(span, {
+          model_name: 'ollama/llama3',
+          message_count: 2,
+          role_sequence: 'system,user',
+          input_chars: strategyPrompt.length,
+          output_chars: strategyResponse.length,
+          latency_ms: latency
+        } as any);
+
+        return {
+          agentName: this.name,
+          pair,
+          prices,
+          math: {
+            spreadPercentage,
+            flashLoanFee,
+            estimatedGas,
+            grossProfit,
+            netProfit,
+            probability
+          },
+          strategy: strategy.commentary,
+          risk_level: strategy.risk_level as any,
+          is_fallback: isFallback,
+          metadata: {
+            source: isFallback ? 'local-fallback' : 'llm',
+            retries,
+            latency_ms: latency
+          },
+          timestamp: new Date().toISOString()
+        };
+      } catch (error) {
+        console.error(`[ArbitrageAgent] Operation failed at ${new Date().toISOString()}:`, error);
+        throw error;
       }
-      
-      const strategy = this.parseAndValidateStrategy(strategyResponse);
-
-      // 4. STRUCTURED TELEMETRY (Professional Logging)
-      console.log(`[ArbitrageAgent] Analysis complete. Pair: ${pair}, Net: $${netProfit.toFixed(2)}, Risk: ${strategy.risk_level}, Latency: ${Date.now() - startTimestamp}ms`);
-
-      return {
-        agentName: this.name,
-        pair,
-        prices,
-        math: {
-          spreadPercentage,
-          flashLoanFee,
-          estimatedGas,
-          grossProfit,
-          netProfit,
-          probability
-        },
-        strategy: strategy.commentary,
-        risk_level: strategy.risk_level as any,
-        timestamp: new Date().toISOString()
-      };
-    } catch (error) {
-      console.error(`[ArbitrageAgent] Operation failed at ${new Date().toISOString()}:`, error);
-      throw error;
-    }
+    });
   }
 
   private parseAndValidateStrategy(content: string): { commentary: string, risk_level: string } {
