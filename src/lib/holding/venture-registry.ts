@@ -3,6 +3,8 @@
  * سجل الشركات المستقلة: المدير المسؤول عن تخزين واسترجاع بيانات المحفظة الاستثمارية.
  */
 
+import { promises as fs } from 'fs';
+import path from 'path';
 import { getServerPB } from '../pb-server';
 import { Venture, Goal, Role, Ticket } from './types';
 
@@ -23,7 +25,7 @@ export class VentureRegistry {
   }
 
   /**
-   * إنشاء مشروع (Venture) جديد
+   * إنشاء مشروع (Venture) جديد مع ملفات الذاكرة البشرية (SOUL & JOURNAL)
    */
   public async createVenture(venture: Partial<Venture>): Promise<Venture> {
     try {
@@ -32,6 +34,15 @@ export class VentureRegistry {
         status: 'active',
         created_at: new Date().toISOString(),
       });
+
+      // درس OpenClaw: إنشاء ملفات الذاكرة النصية
+      const venturePath = path.join(process.cwd(), 'ventures', record.id);
+      await fs.mkdir(venturePath, { recursive: true });
+      
+      const soulContent = `# SOUL of ${record.name}\n\nVision: ${record.vision}\nCreated: ${record.created_at}\n\n## Identity\nThis venture is a digital autonomous entity...`;
+      await fs.writeFile(path.join(venturePath, 'SOUL.md'), soulContent);
+      await fs.writeFile(path.join(venturePath, 'JOURNAL.md'), `# JOURNAL of ${record.name}\n\nAudit log and daily progress...`);
+
       return record as any;
     } catch (error) {
       console.error('[VentureRegistry] Failed to create venture:', error);

@@ -32,6 +32,7 @@ export interface Role {
   department: DepartmentType;
   capabilities: string[]; // قائمة بالمهارات (Skills) المسموح بها لهذا الدور
   budget_limit_per_task: number;
+  provider_hint?: 'ollama' | 'groq' | 'openai' | 'claude' | 'gemini'; // درس Hermes: تعدد المزودين
 }
 
 export interface Venture {
