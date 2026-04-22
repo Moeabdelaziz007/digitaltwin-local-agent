@@ -37,6 +37,7 @@ import { ArbitrageAgent } from '../agents/profit-lab/arbitrage-agent';
 import { opportunityScanner } from '../opportunity/scanner';
 import { tieredMemory } from '../memory/tiered-store';
 import { reflectionLoop } from '../meta-cognitive/reflection-loop';
+import { AutoLauncher, OpportunityCard } from '../opportunity/auto-launch';
 
 
 const STAGE_TIMEOUT_MS = 12000;
