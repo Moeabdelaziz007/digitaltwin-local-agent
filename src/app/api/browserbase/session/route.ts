@@ -80,7 +80,9 @@ export async function DELETE(request: Request) {
     }
 
     // Stop the session
-    await bb.sessions.stop(sessionId);
+    await bb.sessions.update(sessionId, {
+      status: 'REQUEST_RELEASE',
+    });
 
     return NextResponse.json({
       success: true,
