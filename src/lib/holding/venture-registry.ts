@@ -55,6 +55,15 @@ export class VentureRegistry {
       budget: { monthly_limit_usd: 100, spent_this_month_usd: 0, token_limit: 100000, spent_tokens: 0 },
       org_chart: orgChart,
       goals: [],
+      skills: [
+        engineName === 'Freelance Arbitrage' ? 'freelance-arbitrage' : 
+        engineName === 'Bounty Hunter' ? 'bounty-hunter' : 
+        engineName === 'SaaS Factory' ? 'saas-factory' : 
+        engineName === 'Content Multiplier' ? 'content-multiplier' : 
+        engineName === 'Product Factory' ? 'product-factory' : 
+        engineName === 'Agent Service' ? 'agent-service' : 
+        'default'
+      ],
       created_at: new Date().toISOString(),
       metadata: { engine: engineName }
     };
