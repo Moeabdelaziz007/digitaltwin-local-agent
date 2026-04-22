@@ -162,7 +162,7 @@ export class SkillRegistry {
     // If not in local memory, try to fetch from PB (or initialize)
     if (!skill) {
       try {
-        const record = await pb.collection('agent_skills').getOne(skillId);
+        const record = await (pb.collection('agent_skills') as any).getOne(skillId);
         skill = record as unknown as AgentSkill;
       } catch {
         return; // Skill unknown

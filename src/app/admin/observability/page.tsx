@@ -40,7 +40,7 @@ export default async function ObservabilityAdmin({ searchParams }: { searchParam
   // For now we allow authenticated users to see trial observability
   
   const { filter: filterType } = await searchParams;
-  const traces = await getTraceSummaries(filterType);
+  const traces = (await getTraceSummaries(filterType)) as any[];
 
   // Dynamic Stats Calculation
   const totalTraces = traces.length;

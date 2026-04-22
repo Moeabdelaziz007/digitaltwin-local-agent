@@ -84,7 +84,7 @@ async function upsertNode(pb: PocketBase, userId: string, node: CausalNodeInput)
   try {
     const existing = await pb.collection('causal_nodes').getFirstListItem(
       `user_id = "${userId}" && normalized_label = "${normalized.replace(/"/g, '\\"')}" && node_type = "${node.node_type}"`
-    );
+    ) as any;
     return existing.id;
   } catch {
     const created = await pb.collection('causal_nodes').create({
@@ -92,7 +92,7 @@ async function upsertNode(pb: PocketBase, userId: string, node: CausalNodeInput)
       label: node.label,
       normalized_label: normalized,
       node_type: node.node_type,
-    });
+    }) as any;
     return created.id;
   }
 }
@@ -112,7 +112,7 @@ export async function persistCausalTriples(
       try {
         existingEdge = await pb.collection('causal_edges').getFirstListItem(
           `user_id = "${userId}" && fingerprint = "${fingerprint}"`
-        );
+        ) as any;
       } catch {
         existingEdge = null;
       }

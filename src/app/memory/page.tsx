@@ -13,15 +13,15 @@ export default function MemoryPage() {
 
   useEffect(() => {
     async function load() {
-      const userId = pb.authStore.record?.id;
+      const userId = ((pb as any).authStore.record as any)?.id;
       if (!userId) { router.push('/'); return; }
 
       try {
-        const p = await pb.collection('user_profiles').getFirstListItem<UserProfile>(`user_id = "${userId}"`);
+        const p = await (pb.collection('user_profiles') as any).getFirstListItem(`user_id = "${userId}"`);
         setProfile(p);
         
         // Paginating facts to avoid massive payload on slow connections
-        const factsResult = await pb.collection('facts').getList<Fact>(1, 30, {
+        const factsResult = await (pb.collection('facts') as any).getList(1, 30, {
           filter: `user_id = "${userId}"`,
           sort: '-confidence,-reinforced_count',
         });
@@ -68,6 +68,7 @@ export default function MemoryPage() {
         <div>
           <h1 className="text-2xl font-semibold">Twin Memory</h1>
           <p className="text-sm mt-1" style={{ color: 'hsl(var(--muted-foreground))' }}>Everything your twin has learned.</p>
+          <p className="text-sm font-medium">{((pb as any).authStore.record as any)?.email}</p>
         </div>
 
         {/* ── Stats Card ── */}

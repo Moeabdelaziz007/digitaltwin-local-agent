@@ -54,7 +54,7 @@ class ConfigService {
 
     // Cache expired or missing - fetch from PB
     try {
-      const record = await this.pb.collection('app_config').getFirstListItem(`key="${key}" && is_active=true`);
+      const record = await this.pb.collection('app_config').getFirstListItem(`key="${key}" && is_active=true`) as any;
       
       const entry: ConfigEntry = {
         key: record.key,
@@ -87,7 +87,7 @@ class ConfigService {
     try {
       const records = await this.pb.collection('app_config').getFullList({
         filter: 'is_active = true'
-      });
+      }) as any[];
 
       const now = Date.now();
       for (const record of records) {

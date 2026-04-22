@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     pb.autoCancellation(false);
 
     // Create feedback record
-    const record = await pb.collection('feedback').create({
+    const record = await (pb.collection('feedback') as any).create({
       user_id: userId,
       trace_id: traceId,
       rating: rating,

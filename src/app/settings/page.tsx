@@ -8,7 +8,7 @@ export default function SettingsPage() {
   const router = useRouter();
 
   function handleLogout() {
-    pb.authStore.clear();
+    ((pb as any).authStore as any).clear();
     router.push('/');
   }
 
@@ -30,7 +30,7 @@ export default function SettingsPage() {
             <h2 className="text-sm font-medium text-primitive-text-muted uppercase tracking-wider mb-4">Account</h2>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium">{pb.authStore.record?.email}</p>
+                <p className="text-sm font-medium">{((pb as any).authStore.record as any)?.email}</p>
                 <p className="text-xs text-primitive-text-muted">Logged in as digital twin parent</p>
               </div>
               <button 

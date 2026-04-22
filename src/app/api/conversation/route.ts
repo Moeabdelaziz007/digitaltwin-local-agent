@@ -272,7 +272,7 @@ export async function POST(request: NextRequest): Promise<Response> {
       const turnIndex = await reserveTurnIndex(pb, userId, sessionId);
 
       // Create the turn envelope first.
-      let turn;
+      let turn: any;
       try {
         turn = await pb.collection(TURN_COLLECTION).create({
           user_id: userId,
@@ -393,7 +393,7 @@ export async function POST(request: NextRequest): Promise<Response> {
             void (async () => {
               try {
                 const twinMessageId = uuidv4();
-                await pb.collection<any>('conversations').create({
+                await (pb.collection('conversations') as any).create({
                   user_id: userId,
                   session_id: sessionId,
                   role: 'twin',
@@ -403,7 +403,7 @@ export async function POST(request: NextRequest): Promise<Response> {
                   message_id: twinMessageId,
                 });
 
-                await pb.collection<any>(TURN_COLLECTION).update((turn as any).id, {
+                await (pb.collection(TURN_COLLECTION) as any).update((turn as any).id, {
                   status: 'completed',
                   response_content: fullReply,
                   user_message_id: userMessageRecord.id,

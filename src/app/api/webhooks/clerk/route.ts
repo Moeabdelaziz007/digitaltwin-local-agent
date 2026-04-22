@@ -59,7 +59,7 @@ export async function POST(req: Request) {
       const displayName = [first_name, last_name].filter(Boolean).join(' ') || email.split('@')[0];
 
       try {
-        const existing = await pb.collection('user_profiles').getFirstListItem(`user_id = "${pbUserId}"`);
+        const existing = await pb.collection('user_profiles').getFirstListItem(`user_id = "${pbUserId}"`) as any;
         await pb.collection('user_profiles').update(existing.id, {
           display_name: displayName,
         });
@@ -88,12 +88,12 @@ export async function POST(req: Request) {
         const pbUserId = asPbUserId(id);
         // Clean up: delete profile and facts for this user
         try {
-          const profile = await pb.collection('user_profiles').getFirstListItem(`user_id = "${pbUserId}"`);
+          const profile = await pb.collection('user_profiles').getFirstListItem(`user_id = "${pbUserId}"`) as any;
           await pb.collection('user_profiles').delete(profile.id);
         } catch { /* Profile might not exist */ }
 
         try {
-          const facts = await pb.collection('facts').getFullList({ filter: `user_id = "${pbUserId}"` });
+          const facts = await pb.collection('facts').getFullList({ filter: `user_id = "${pbUserId}"` }) as any[];
           for (const fact of facts) {
             await pb.collection('facts').delete(fact.id);
           }

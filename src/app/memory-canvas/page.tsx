@@ -52,11 +52,11 @@ export default function MemoryCanvasPage() {
         const factsRes = await pb.collection("facts").getFullList({
           filter: `user_id = "${userId}" && is_active = true`,
           sort: "-created",
-        });
+        }) as any[];
 
         const edgesRes = await pb.collection("memory_edges").getFullList({
           filter: `user_id = "${userId}"`,
-        });
+        }) as any[];
 
         const newNodes: Node[] = factsRes.map((fact, index) => ({
           id: fact.id,

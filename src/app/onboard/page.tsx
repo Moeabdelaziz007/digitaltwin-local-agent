@@ -86,7 +86,7 @@ export default function OnboardPage() {
       const guardsMd = `# Boundaries\n- No generic AI talk\n- Maintain sovereign persona`;
 
       try {
-        const existing = await pb.collection("user_profiles").getFirstListItem(`user_id = "${clerkUserId}"`);
+        const existing = await pb.collection("user_profiles").getFirstListItem(`user_id = "${clerkUserId}"`) as any;
         await pb.collection("user_profiles").update(existing.id, {
           display_name: displayName.trim(),
           personality_desc: goal.trim(),

@@ -123,7 +123,7 @@ class GroqService {
         max_completion_tokens: maxTokens,
         top_p: 0.95,
         stream: true,
-      });
+      }) as any;
 
       for await (const chunk of stream) {
         const content = chunk.choices[0]?.delta?.content || '';

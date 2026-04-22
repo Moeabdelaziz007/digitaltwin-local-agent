@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     }
 
     // Example: Extract product information from a webpage
-    const result = await browserbase.executeTask(
+    const result = await (browserbase as any).executeTask(
       async (page: any) => {
         await page.goto(url, { waitUntil: 'networkidle' });
 
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
               text: a.textContent?.trim(),
               href: a.href,
             }))
-            .filter(link => link.text && link.href.startsWith('http'))
+            .filter((link: any) => link.text && link.href.startsWith('http'))
             .slice(0, 20);
         });
 
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
           url: page.url(),
         };
       },
-      { url }
+      { url } as any
     );
 
     return NextResponse.json(result);

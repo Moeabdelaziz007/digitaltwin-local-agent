@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     const pb = getServerPB();
     
     // 1. Fetch the Draft
-    const draft = await pb.collection("skill_drafts").getOne(draftId) as any;
+    const draft = await (pb.collection("skill_drafts") as any).getOne(draftId);
     if (!draft) {
       return NextResponse.json({ error: "Draft not found" }, { status: 404 });
     }

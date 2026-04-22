@@ -59,8 +59,8 @@ export const jobsService = {
   async updateStatus(jobId: string, status: JobStatus, updates: Partial<BackgroundJob> = {}) {
     const pb = getServerPB();
     try {
-      const record = await pb.collection('background_jobs').getFirstListItem(`job_id="${jobId}"`);
-      await pb.collection('background_jobs').update(record.id, {
+      const record = await pb.collection('background_jobs').getFirstListItem(`job_id="${jobId}"`) as any;
+      await pb.collection('background_jobs').update((record as any).id, {
         status,
         ...updates,
       });

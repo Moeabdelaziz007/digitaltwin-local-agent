@@ -34,20 +34,20 @@ export class ObservabilityGuardian {
     const traces = await this.pb.collection('traces').getFullList({
       filter: `start_time >= "${yesterday}"`,
       sort: '-start_time',
-    });
+    }) as any[];
 
     const issues: GuardianIssue[] = [];
     let totalLatency = 0;
     let errorCount = 0;
 
-    for (const trace of traces) {
-      totalLatency += trace.duration_ms;
+    for (const trace of traces as any[]) {
+      totalLatency += (trace.duration_ms as number);
       
       // Detection: Failure
       if (trace.status !== '1') {
         errorCount++;
         issues.push({
-          id: `err-${trace.id}`,
+          id: `err-${trace.id as string}`,
           type: 'ERROR',
           message: `Trace execution failed with status ${trace.status}`,
           source: trace.name,

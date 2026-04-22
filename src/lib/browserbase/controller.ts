@@ -31,8 +31,8 @@ export class BrowserbaseController {
 
     return {
       sessionId: session.id,
-      connectUrl: session.connectUrl,
-      debugUrl: session.debugUrl,
+      connectUrl: (session as any).connectUrl,
+      debugUrl: (session as any).debugUrl,
     };
   }
 
@@ -81,7 +81,7 @@ export class BrowserbaseController {
   async screenshot(url: string, options?: { fullPage?: boolean }) {
     return this.executeTask(async (sessionId: string) => {
       // Use Browserbase REST API for screenshot
-      const response = await this.bb.sessions.screenshot(sessionId, {
+      const response = await (this.bb.sessions as any).screenshot(sessionId, {
         url,
         fullPage: options?.fullPage || false,
         type: 'png',
@@ -96,7 +96,7 @@ export class BrowserbaseController {
   async extractContent(url: string, selector?: string) {
     return this.executeTask(async (sessionId: string) => {
       // Use Browserbase REST API for content extraction
-      const response = await this.bb.sessions.evaluate(sessionId, {
+      const response = await (this.bb.sessions as any).evaluate(sessionId, {
         url,
         script: selector 
           ? `document.querySelector('${selector}')?.textContent || ''`
@@ -122,7 +122,7 @@ export class BrowserbaseController {
         return page.url();
       `;
       
-      const response = await this.bb.sessions.evaluate(sessionId, {
+      const response = await (this.bb.sessions as any).evaluate(sessionId, {
         url,
         script,
       });
@@ -136,7 +136,7 @@ export class BrowserbaseController {
   async stopSession(sessionId: string) {
     try {
       // Request session release to end it sooner
-      await this.bb.sessions.update(sessionId, {
+      await (this.bb.sessions as any).update(sessionId, {
         status: 'REQUEST_RELEASE',
       });
       return { success: true };

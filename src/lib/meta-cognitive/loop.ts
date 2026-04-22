@@ -41,7 +41,7 @@ export async function runMetaCognitiveCycle(userId: string, input: ExtractorInpu
         try {
           const existing = await pb.collection('opportunities').getFirstListItem(
             `user_id="${userId}" && opportunity_id="${opp.id}"`
-          );
+          ) as any;
           existingId = existing.id;
         } catch {
           // Not found

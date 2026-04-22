@@ -132,7 +132,7 @@ export async function executeRecallMemory(userId: string, topic: string): Promis
   }, async (span) => {
     const pb = getServerPB();
     try {
-      const result = await pb.collection('facts').getList<Fact>(1, 5, {
+      const result = await (pb.collection('facts') as any).getList(1, 5, {
         filter: `user_id = "${pbUserId}" && (fact ~ "${topic}" || tags ~ "${topic}")`,
         sort: '-confidence'
       });
@@ -170,7 +170,7 @@ export async function executeSaveMemory(userId: string, fact: string, category: 
       const incomingTokens = tokenize(normalizedFact);
 
       // Stage 1: lexical dedup (fingerprint + token overlap)
-      const lexicalCandidates = await pb.collection('facts').getFullList<Fact>({
+      const lexicalCandidates = await (pb.collection('facts') as any).getFullList({
         filter: `user_id = "${pbUserId}" && category = "${category}" && (status = "active" || status = "reinforced")`,
         sort: '-updated',
       });
@@ -261,7 +261,7 @@ export async function executeSaveMemory(userId: string, fact: string, category: 
         }
       }
 
-      const newRecord = await pb.collection('facts').create({
+      const newRecord = await (pb.collection('facts') as any).create({
         user_id: pbUserId,
         fact,
         category,
@@ -303,17 +303,17 @@ export async function buildMemoryContext(userId: string): Promise<string> {
     let researchGems: string[] = [];
 
     const [profileRes, messagesRes, factsRes, gemsRes] = await Promise.allSettled([
-      pb.collection('user_profiles').getFirstListItem<UserProfile>(`user_id = "${pbUserId}"`),
-      pb.collection('conversations').getList<ConversationMessage>(1, 15, {
+      (pb.collection('user_profiles') as any).getFirstListItem(`user_id = "${pbUserId}"`),
+      (pb.collection('conversations') as any).getList(1, 15, {
         filter: `user_id = "${pbUserId}"`,
         sort: '-created',
       }),
-      pb.collection('facts').getFullList<Fact>({
+      (pb.collection('facts') as any).getFullList({
         filter: `user_id = "${pbUserId}" && confidence > 0.1 && status != "archived"`,
         sort: '-confidence',
         requestKey: null
       }),
-      pb.collection('research_gems').getList<ResearchGem>(1, 4, {
+      (pb.collection('research_gems') as any).getList(1, 4, {
         filter: `user_id = "${pbUserId}" && status = "saved"`,
         sort: '-relevance_score'
       })
@@ -426,7 +426,7 @@ export async function getUserProfile(userId?: string): Promise<UserProfile | nul
   const pbUserId = asPbUserId(userId || 'system');
   const pb = getServerPB();
   try {
-    return await pb.collection('user_profiles').getFirstListItem<UserProfile>(`user_id = "${pbUserId}"`);
+    return await (pb.collection('user_profiles') as any).getFirstListItem(`user_id = "${pbUserId}"`);
   } catch {
     return null;
   }
