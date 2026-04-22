@@ -1,6 +1,8 @@
 /**
- * /src/lib/agents/profit-lab/arbitrage-agent.ts
- * Specialized agent for detecting and analyzing crypto arbitrage opportunities.
+ * [STAGE-0 SIMULATION STUB]
+ * ArbitrageAgent: A specialized agent for detecting and analyzing crypto arbitrage opportunities.
+ * This is a simulation engine for storytelling and UI demonstration. 
+ * It is NOT intended for automated high-frequency trading or MEV execution.
  * Uses deterministic math for calculations and LLM for strategic analysis.
  */
 
@@ -31,41 +33,48 @@ export class ArbitrageAgent {
    * Deterministic math is handled in TypeScript.
    */
   public async simulateArbitrage(pair: string = 'ETH/USDC'): Promise<ArbitrageResult> {
-    console.log(`[${this.name}] DETECTING REAL OPPORTUNITY: ${pair}`);
-
+    const startTimestamp = Date.now();
+    
     try {
-      // 1. FETCH REAL DATA (Deterministic Source)
+      // 1. DATA ACQUISITION
       const prices = await this.fetchRealPrices(pair);
       
-      // 2. DETERMINISTIC MATH (TypeScript Engine - NO LLM ROLEPLAY)
-      const tradeSize = 1000; // $1000 base simulation
+      // 2. DETERMINISTIC COMPUTATION (The Source of Truth)
+      const tradeSize = 1000; 
       const spread = Math.abs(prices.l1 - prices.l2);
       const spreadPercentage = (spread / Math.min(prices.l1, prices.l2)) * 100;
-      
-      const flashLoanFee = tradeSize * 0.0009; // 0.09% Aave fee
-      const estimatedGas = 35; // Standard L2 execution gas in USD
-      
+      const flashLoanFee = tradeSize * 0.0009;
+      const estimatedGas = 35; 
       const grossProfit = (tradeSize * (spreadPercentage / 100));
       const netProfit = grossProfit - flashLoanFee - estimatedGas;
-      
-      // 3. MONTE CARLO RISK ASSESSMENT (TypeScript)
       const probability = this.runMonteCarloSimulation(netProfit);
 
-      // 4. LLM STRATEGIC COMMENTARY (LLM as ANALYST, not CALCULATOR)
-      const strategyPrompt = `
-        Analyze this REAL arbitrage data for ${pair}:
-        L1 Price: $${prices.l1.toFixed(2)}
-        L2 Price: $${prices.l2.toFixed(2)}
-        Spread: ${spreadPercentage.toFixed(4)}%
-        Net Profit: $${netProfit.toFixed(2)}
-        Success Probability: ${(probability * 100).toFixed(1)}%
+      // 3. CONTEXTUAL ANALYSIS (LLM only for qualitative synthesis)
+      const context = {
+        pair,
+        metrics: {
+          l1: prices.l1.toFixed(2),
+          l2: prices.l2.toFixed(2),
+          spread_pct: spreadPercentage.toFixed(4),
+          net_profit: netProfit.toFixed(2),
+          success_prob: (probability * 100).toFixed(1)
+        }
+      };
 
-        Provide a 2-sentence execution strategy focusing on liquidity risks and front-run protection.
-        Format: JSON { "commentary": "...", "risk_level": "low|med|high" }
+      const strategyPrompt = `
+        [SYSTEM: FINANCIAL_ANALYST]
+        Analyze the following verified arbitrage metrics:
+        ${JSON.stringify(context, null, 2)}
+
+        Task: Provide an execution strategy focusing ONLY on liquidity depth and mev-protection.
+        Format: JSON { "commentary": "string", "risk_level": "low" | "med" | "high" }
       `;
       
       const strategyResponse = await callOllama(strategyPrompt);
-      const strategy = this.parseStrategy(strategyResponse);
+      const strategy = this.parseAndValidateStrategy(strategyResponse);
+
+      // 4. STRUCTURED TELEMETRY (Professional Logging)
+      console.log(`[ArbitrageAgent] Analysis complete. Pair: ${pair}, Net: $${netProfit.toFixed(2)}, Risk: ${strategy.risk_level}, Latency: ${Date.now() - startTimestamp}ms`);
 
       return {
         agentName: this.name,
@@ -84,46 +93,39 @@ export class ArbitrageAgent {
         timestamp: new Date().toISOString()
       };
     } catch (error) {
-      console.error(`[${this.name}] Execution failed:`, error);
+      console.error(`[ArbitrageAgent] Operation failed at ${new Date().toISOString()}:`, error);
       throw error;
     }
   }
 
-  private async fetchRealPrices(pair: string): Promise<{l1: number, l2: number}> {
+  private parseAndValidateStrategy(content: string): { commentary: string, risk_level: string } {
     try {
-      const token = pair.split('/')[0].toLowerCase();
-      // Simplified: Using Coingecko for base price and simulating L2 lag
-      const res = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${token}&vs_currencies=usd`);
-      const data = await res.json();
-      const price = data[token]?.usd || 3500;
+      // Robust JSON extraction
+      const firstBrace = content.indexOf('{');
+      const lastBrace = content.lastIndexOf('}');
+      if (firstBrace === -1 || lastBrace === -1) throw new Error('No JSON payload found');
       
-      return { 
-        l1: price, 
-        l2: price * (1 - (Math.random() * 0.005)) // 0.5% max lag simulation
+      const jsonStr = content.substring(firstBrace, lastBrace + 1);
+      const parsed = JSON.parse(jsonStr);
+
+      // Strict Schema Validation
+      if (typeof parsed.commentary !== 'string' || parsed.commentary.length < 5) {
+        throw new Error('Invalid commentary field');
+      }
+      const validRisks = ['low', 'med', 'high'];
+      if (!validRisks.includes(parsed.risk_level)) {
+        parsed.risk_level = 'high'; // Default to safe failure
+      }
+
+      return {
+        commentary: parsed.commentary,
+        risk_level: parsed.risk_level
       };
     } catch (e) {
-      return { l1: 3500, l2: 3485 }; // Fallback
-    }
-  }
-
-  private runMonteCarloSimulation(baseProfit: number, iterations = 1000): number {
-    if (baseProfit <= 0) return 0;
-    const results = Array.from({ length: iterations }, () => {
-      const slippage = 1 - (Math.random() * 0.003); // 0-0.3% slippage
-      const gasFee = 20 + Math.random() * 30; // gas variable
-      return (baseProfit * slippage) - gasFee;
-    });
-    
-    const profitable = results.filter(r => r > 0);
-    return profitable.length / iterations;
-  }
-
-  private parseStrategy(content: string): { commentary: string, risk_level: string } {
-    try {
-      const match = content.match(/\{[\s\S]*\}/);
-      return JSON.parse(match ? match[0] : '{"commentary": "Manual review required", "risk_level": "high"}');
-    } catch {
-      return { commentary: content, risk_level: 'high' };
+      return { 
+        commentary: "Strategy synthesis failed. Manual oversight required for execution.", 
+        risk_level: "high" 
+      };
     }
   }
 }

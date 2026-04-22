@@ -36,9 +36,22 @@ export class SkillGapTrainer {
 
   private parsePlans(content: string): TrainingPlan[] {
     try {
-      const match = content.match(/\[[\s\S]*\]/);
-      return JSON.parse(match ? match[0] : '[]');
-    } catch {
+      const firstBracket = content.indexOf('[');
+      const lastBracket = content.lastIndexOf(']');
+      if (firstBracket === -1 || lastBracket === -1) return [];
+      
+      const jsonStr = content.substring(firstBracket, lastBracket + 1);
+      const parsed = JSON.parse(jsonStr);
+
+      if (!Array.isArray(parsed)) return [];
+
+      return parsed.map(plan => ({
+        skill: String(plan.skill || 'Unknown Skill'),
+        tasks: Array.isArray(plan.tasks) ? plan.tasks.slice(0, 3).map(String) : [],
+        estimated_time: String(plan.estimated_time || '1h')
+      })).filter(p => p.tasks.length > 0);
+    } catch (e) {
+      console.error('[SkillGapTrainer] Parsing failed:', e);
       return [];
     }
   }
