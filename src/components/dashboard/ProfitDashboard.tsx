@@ -22,10 +22,10 @@ interface ProfitState {
 
 export const ProfitDashboard: React.FC = () => {
   const [state, setState] = useState<ProfitState>({
-    simulatedProfit: 12450.75,
-    activeOpportunities: 3,
-    successRate: 92.4,
-    systemHealth: 98,
+    simulatedProfit: 0,
+    activeOpportunities: 0,
+    successRate: 0,
+    systemHealth: 100,
     globalInsights: {
       nodes: [
         { id: 'g1', label: 'Low Ops Cost', node_type: 'event' },
@@ -38,6 +38,41 @@ export const ProfitDashboard: React.FC = () => {
       ]
     }
   });
+
+  const [opportunities, setOpportunities] = useState<any[]>([]);
+  const [isSimulating, setIsSimulating] = useState(false);
+
+  useEffect(() => {
+    // Initial simulation trigger
+    const runInitialSimulation = async () => {
+      setIsSimulating(true);
+      try {
+        const { arbitrageAgent } = await import('@/lib/agents/profit-lab/arbitrage-agent');
+        const res = await arbitrageAgent.simulateArbitrage('ETH/USDC');
+        
+        setState(prev => ({
+          ...prev,
+          simulatedProfit: res.math.netProfit,
+          activeOpportunities: 1,
+          successRate: Math.round(res.confidence * 100)
+        }));
+
+        setOpportunities([{
+          title: "L2 Cross-Chain Arbitrage (ETH/USDC)",
+          desc: res.strategy,
+          tag: "Crypto",
+          score: Math.round(res.confidence * 100),
+          data: res
+        }]);
+      } catch (e) {
+        console.error("Simulation failed", e);
+      } finally {
+        setIsSimulating(false);
+      }
+    };
+
+    runInitialSimulation();
+  }, []);
 
   const [selectedVenture, setSelectedVenture] = useState<ConsensusVerdict | null>(null);
 
@@ -77,18 +112,21 @@ export const ProfitDashboard: React.FC = () => {
       </AnimatePresence>
 
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
-            Autonomous Venture Lab
-          </h2>
-          <p className="text-white/50 text-sm mt-1">Real-time profit orchestration & causal intelligence</p>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <svg width="20" height="20" viewBox="0 0 100 100" className="text-cyan-400">
+              <path d="M50 5 L90 25 L90 75 L50 95 L10 75 L10 25 Z" fill="none" stroke="currentColor" strokeWidth="8" />
+            </svg>
+            <span className="font-display font-bold text-xs tracking-tighter uppercase">Digital Twin v0.01</span>
+          </div>
+          <div className="hidden lg:flex items-center gap-2 px-3 py-1 bg-amber-500/10 border border-amber-500/20 rounded-full">
+            <span className="text-[9px] font-display text-amber-500 uppercase font-bold tracking-widest">⚠️ Pre-Alpha / Prototype</span>
+          </div>
+          <div className="flex items-center gap-1.5 px-2 py-0.5 bg-cyan-500/10 rounded-full">
+            <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full animate-pulse" />
+            <span className="text-[10px] font-display text-cyan-400 uppercase font-bold tracking-widest">Online</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
-          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-          <span className="text-emerald-500 text-xs font-mono uppercase tracking-widest">Active</span>
-        </div>
-      </div>
 
       {/* Main Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -119,24 +157,40 @@ export const ProfitDashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-4">
           <h3 className="text-lg font-semibold flex items-center gap-2">
-            <Zap size={18} className="text-yellow-400" />
+            <Zap size={18} className={`text-yellow-400 ${isSimulating ? 'animate-pulse' : ''}`} />
             Live Opportunity Stream
+            {isSimulating && <span className="text-[10px] text-cyan-400 font-mono animate-pulse">Scanning...</span>}
           </h3>
           <div className="space-y-3">
-            <OpportunityItem 
-              title="L2 Cross-Chain Arbitrage (ETH/USDC)" 
-              desc="Discrepancy detected between Base and Arbitrum. Net profit potential: $450/trade."
-              tag="Crypto"
-              score={94}
-              onClick={openMockReport}
-            />
-            <OpportunityItem 
-              title="Micro-SaaS Agentic Bridge" 
-              desc="Market gap for local-first AI automation in legal tech. Builder agent drafting MVP."
-              tag="SaaS"
-              score={88}
-              onClick={openMockReport}
-            />
+            {opportunities.length > 0 ? opportunities.map((opp, idx) => (
+              <OpportunityItem 
+                key={idx}
+                title={opp.title} 
+                desc={opp.desc}
+                tag={opp.tag}
+                score={opp.score}
+                onClick={openMockReport}
+              />
+            )) : (
+              <div className="p-8 border border-dashed border-white/10 rounded-2xl text-center opacity-40">
+                <p className="text-xs font-mono">No active signals in current regime</p>
+              </div>
+            )}
+            
+            {/* Roadmap Items marked clearly */}
+            <div className="mt-8 pt-4 border-t border-white/5 opacity-50">
+              <h4 className="text-[10px] font-display text-white/30 uppercase tracking-[0.2em] mb-3">System Roadmap / Aspirational</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="p-3 bg-white/5 border border-white/5 rounded-xl grayscale">
+                   <p className="text-[10px] font-bold text-white/40">GitHub Bounty Hunter</p>
+                   <p className="text-[8px] text-white/20 mt-1">Status: Concept Phase</p>
+                </div>
+                <div className="p-3 bg-white/5 border border-white/5 rounded-xl grayscale">
+                   <p className="text-[10px] font-bold text-white/40">Upwork/Contra Agent</p>
+                   <p className="text-[8px] text-white/20 mt-1">Status: Research phase</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
