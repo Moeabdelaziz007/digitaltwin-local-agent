@@ -24,7 +24,7 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
   const ttsSocketRef = useRef<WebSocket | null>(null);
 
   // Subscribe to controller changes
-  controllerRef.current.onStateChange = (newState) => {
+  controllerRef.current.onStateChange = (newState: VoiceState) => {
     setState(newState);
   };
 
