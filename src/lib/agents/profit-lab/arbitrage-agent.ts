@@ -100,7 +100,6 @@ export class ArbitrageAgent {
 
   private parseAndValidateStrategy(content: string): { commentary: string, risk_level: string } {
     try {
-      // Robust JSON extraction
       const firstBrace = content.indexOf('{');
       const lastBrace = content.lastIndexOf('}');
       if (firstBrace === -1 || lastBrace === -1) throw new Error('No JSON payload found');
@@ -108,13 +107,12 @@ export class ArbitrageAgent {
       const jsonStr = content.substring(firstBrace, lastBrace + 1);
       const parsed = JSON.parse(jsonStr);
 
-      // Strict Schema Validation
       if (typeof parsed.commentary !== 'string' || parsed.commentary.length < 5) {
         throw new Error('Invalid commentary field');
       }
       const validRisks = ['low', 'med', 'high'];
       if (!validRisks.includes(parsed.risk_level)) {
-        parsed.risk_level = 'high'; // Default to safe failure
+        parsed.risk_level = 'high';
       }
 
       return {
@@ -127,6 +125,42 @@ export class ArbitrageAgent {
         risk_level: "high" 
       };
     }
+  }
+
+  /**
+   * Real Price Fetching (Simulated for this stage, but structured for real API)
+   */
+  private async fetchRealPrices(pair: string): Promise<{ l1: number, l2: number }> {
+    // In a real prod environment, this would call CoinGecko or a CEX WebSocket
+    // We simulate a realistic spread between L1 and L2
+    const basePrice = pair.startsWith('ETH') ? 2400 : 1.0;
+    const l1 = basePrice + (Math.random() * 10 - 5);
+    const l2 = l1 + (Math.random() * 15 - 7.5); // L2 often has higher volatility
+    return { l1, l2 };
+  }
+
+  /**
+   * Monte Carlo Simulation for Success Probability
+   * Runs 1000 iterations of price/slippage volatility to estimate risk.
+   */
+  private runMonteCarloSimulation(expectedNetProfit: number): number {
+    const iterations = 1000;
+    let successes = 0;
+
+    for (let i = 0; i < iterations; i++) {
+      // Simulate slippage (0.1% to 1.5%)
+      const slippage = 1 - (Math.random() * 0.015);
+      // Simulate gas price spikes (up to 3x)
+      const gasMultiplier = 1 + (Math.random() * 2);
+      
+      const simulatedNet = (expectedNetProfit * slippage) - (35 * (gasMultiplier - 1));
+      
+      if (simulatedNet > 0) {
+        successes++;
+      }
+    }
+
+    return successes / iterations;
   }
 }
 

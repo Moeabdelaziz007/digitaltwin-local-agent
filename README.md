@@ -1,9 +1,10 @@
 <p align="center">
-  <img src="public/assets/docs/header.svg" width="100%" alt="Digital Twin Header" />
+  <img src="public/assets/docs/meta-icon.png" width="120" alt="Venture Lab Meta Icon" />
 </p>
 
 <p align="center">
-  <img src="public/assets/docs/meta-icon.png" width="120" alt="Venture Lab Meta Icon" />
+  <b>⚠️ Status: Pre-Alpha / Prototype</b><br/>
+  <i>MAS-ZERO is currently an experimental research project. Income-generating features are in the prototype/roadmap stage and not yet production-ready.</i>
 </p>
 
 <p align="center">
@@ -80,17 +81,20 @@ The system has been hardened with cutting-edge agentic infrastructure:
 -   **[Automated Refactoring]**: A dual-layer system using `auto-refactor.sh` and `ai-split.ts` (LLM-driven) to intelligently decompose large files and maintain 100% modular health.
 -   **[File Size Guard]**: CI-integrated check that warns about files over 300 lines to prevent technical debt.
 -   **[Real-World Signal Ingestion]**: Upgraded `market-news` connector using **Jina Reader** to fetch real-time context from Hacker News and tech trends, eliminating mocked data.
--   **[Quantum Topology]**: Tiered lazy-loading architecture in `topology-router.ts` that ensures 0.8s cold starts and 40-60% faster build times by loading modules only on demand.
+-   **[Tiered Module Topology]**: Advanced lazy-loading architecture in `topology-router.ts` that optimizes cold starts and build efficiency by loading modules only on demand.
 
 ***
 
-### 💰 Hidden Revenue Strategies | استراتيجيات الربح المخفية
--   **Income Stream 1: [Autonomous Freelance Agent]**: Automated Upwork/Contra job hunting. Uses Jina Reader for signal fetching and Digital Twin voice for proposal generation.
--   **Income Stream 2: [Content Arbitrage Machine]**: Monitors trending tech keywords, writes SEO-optimized articles with embedded affiliate links (Vercel, GitHub, Notion), and auto-posts to Medium/Hashnode/Dev.to.
--   **Income Stream 3: [Micro-SaaS Idea Validator + Builder]**: Automatically identifies high-ROI problems, generates a minimal Next.js/API solution, creates a Gumroad listing, and deploys to Vercel.
--   **Income Stream 4: [GitHub Issue Bounty Hunter]**: Scans for open-source issues with bounties ($50-$500), solves them autonomously using the SWE-agent pattern, and submits PRs.
--   **Income Stream 5: [Digital Product Factory]**: Audits internal memory for reusable knowledge and packages it into sellable assets (Templates, Prompt Packs, AI Workflows).
--   **Income Stream 6: [Agent-as-a-Service]**: Monetize the Twin's intelligence by exposing the `opportunity/` and `causal/` engines as a paid API for other developers.
+### 💰 Venture Lab: Income Roadmap (Experimental) | استراتيجيات الربح (قيد التطوير)
+> [!IMPORTANT]
+> The following strategies represent the **planned capabilities** of the MAS-ZERO engine. They are currently being implemented as modular skills and are NOT yet operational for real-world capital deployment.
+
+-   **Stream 1: [Autonomous Freelance Agent]**: Automated Upwork/Contra job hunting prototype.
+-   **Stream 2: [Content Arbitrage Machine]**: Automated SEO-writing and cross-posting engine (Testing phase).
+-   **Stream 3: [Micro-SaaS Idea Validator]**: Identifying high-ROI problems and generating Next.js scaffolds.
+-   **Stream 4: [GitHub Issue Bounty Hunter]**: Autonomous PR submission for open-source bounties (Aspirational).
+-   **Stream 5: [Digital Product Factory]**: Knowledge synthesis into templates and workflows.
+-   **Stream 6: [Agent-as-a-Service]**: Exposing internal reasoning engines via API.
 -   **The Arbitrage Mirror**: Uses *The Prism* to simulate causal patterns of high-performance On-chain wallets.
 -   **Fragility Hunting**: Identify weaknesses in Micro-SaaS projects to build "Fixed" versions.
 -   **Memory Monetization**: Synthesis of *Chronos Ledger* into high-value "Alpha Reports".
@@ -130,14 +134,35 @@ npm run dev
 
 ## 📐 Architecture | البناء التقني
 
-```text
-  [ User Interface ] <---> [ Next.js 15 (App Router) ]
-                                 |
-                                 v
-  [ Go Sidecars ] <------> [ MAS-ZERO Engine ] <------> [ Local LLM (Ollama) ]
-                                 | (Causal Reasoning)
-                                 v
-                         [ PocketBase (DB) ]
+```mermaid
+graph TD
+    subgraph UI_Layer [Interface & Context]
+        A[User Interface] --> B[Next.js 15 App Router]
+        C[Desktop Bridge / Sidecar] --> B
+    end
+
+    subgraph Orchestration [MAS-ZERO Engine]
+        B --> D[Synapse Orchestrator]
+        D --> E[Consensus Loop / Crucible]
+        E --> F[14 Specialized Agents]
+    end
+
+    subgraph Memory_Layer [Chronos Ledger]
+        D --> G[Tiered Memory Store]
+        G --> H[PocketBase]
+        G --> I[Causal Attribution Graph]
+    end
+
+    subgraph Intelligence [Local Intelligence]
+        F --> J[Ollama / Local LLM]
+        F --> K[Monte Carlo Simulators]
+        F --> L[Jina Reader / Prism]
+    end
+
+    subgraph Execution [Kinetic Edge]
+        F --> M[Action Executors]
+        M --> N[Go Sidecars]
+    end
 ```
 
 - **Frontend**: React 19, Framer Motion, Tailwind 4.
