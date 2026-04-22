@@ -55,7 +55,7 @@ export default function VentureLabDashboard() {
   useEffect(() => {
     if (user?.id) {
       pb.collection('user_profiles').getFirstListItem(`user_id = "${user.id}"`)
-        .then(setProfile)
+        .then((record: any) => setProfile(record as UserProfile))
         .catch(console.error);
     }
   }, [user?.id]);
