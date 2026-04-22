@@ -1,6 +1,7 @@
 import { callOllama } from '../ollama-client';
 import { skillRegistry } from './registry';
-import { ticketEngine } from '../holding/ticket-engine';
+import { TicketEngine } from '../holding/ticket-engine';
+import { Venture, Role, ExecutionResult } from '../holding/types';
 
 /**
  * src/lib/skills/marketing-specialist.ts
@@ -10,22 +11,24 @@ import { ticketEngine } from '../holding/ticket-engine';
 export class MarketingSpecialistSkill {
   static id = 'marketing-specialist';
 
-  async execute(params: { ventureName: string; mission: string }) {
-    console.log(`[Marketing Director] Orchestrating campaign for ${params.ventureName}...`);
+  async execute(venture: Venture, role: Role, params?: { ventureName?: string; mission?: string }): Promise<ExecutionResult> {
+    const vName = params?.ventureName || venture.name;
+    const vMission = params?.mission || (venture as any).mission || 'Growth and scale';
+    console.log(`[Marketing Director] Orchestrating campaign for ${vName}...`);
 
     // 1. Spawning Sub-Agents & Running Simulations
-    const simulationResults = await this.runMarketSimulation(params.ventureName, params.mission);
+    const simulationResults = await this.runMarketSimulation(vName, vMission);
     
     // 2. Based on simulation, refine strategy
-    const strategy = await this.generateStrategy(params.ventureName, params.mission, simulationResults);
+    const strategy = await this.generateStrategy(vName, vMission, simulationResults);
     
     // 3. Delegate Content Creation to Sub-Agent
-    const socialPosts = await this.draftContent(params.ventureName, strategy);
+    const socialPosts = await this.draftContent(vName, strategy);
 
     // 4. Governance Ticket with Simulation Insights
-    const ticket = await ticketEngine.createTicket({
-      title: `[Growth] Orchestrated Campaign: ${params.ventureName}`,
-      description: `
+    const ticket = await TicketEngine.createTicket(venture, role, {
+      title: `[Growth] Orchestrated Campaign: ${vName}`,
+      context: `
         **Simulation Insights:**
         ${simulationResults}
         

@@ -154,8 +154,21 @@ ${active.map(s => `
 `;
   }
 
-  public getActiveSkills(): Skill[] {
-    return Array.from(this.skills.values());
+  public listSkills(): SkillSchema[] {
+    return Array.from(this.skills.entries()).map(([id, skill]) => ({
+      id,
+      ...skill.metadata
+    }));
+  }
+
+  /**
+   * Semantic search for skills using SynapseRouter
+   */
+  public async searchSkills(taskDescription: string): Promise<SkillMetadata[]> {
+    // Note: To avoid circular dependency, we import SynapseRouter dynamically or use a shared interface
+    const { SynapseRouter } = await import('./synapse-router');
+    const matches = await SynapseRouter.routeTask(taskDescription);
+    return matches.map(m => m as any); // Returns full metadata
   }
 
   public getSkill(name: string): Skill | undefined {

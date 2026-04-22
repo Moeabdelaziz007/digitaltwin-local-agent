@@ -1,7 +1,8 @@
 import { callOllama } from '../ollama-client';
 import { skillRegistry } from './registry';
 import { ExecutionResult } from './types';
-import { ticketEngine } from '../holding/ticket-engine';
+import { TicketEngine } from '../holding/ticket-engine';
+import { Venture, Role } from '../holding/types';
 
 /**
  * src/lib/skills/saas-factory.ts
@@ -11,7 +12,7 @@ import { ticketEngine } from '../holding/ticket-engine';
 export class SaaSFactorySkill {
   static id = 'saas-factory';
 
-  async execute() {
+  async execute(venture: Venture, role: Role): Promise<ExecutionResult> {
     console.log('[SaaSFactory] Discovering market pain points...');
 
     // 1. Discover (Simulated scan of Reddit/X for "is there a tool for...")
@@ -21,16 +22,16 @@ export class SaaSFactorySkill {
     const bestProblem = problems[0];
 
     if (!bestProblem) {
-      return { success: false, reason: 'no_profitable_problems_found' };
+      return { success: false, output: 'no_profitable_problems_found' };
     }
 
     // 3. Architect MVP
     const mvpSpec = await this.architectMVP(bestProblem);
     
     // 4. Submit for Approval (Governance Layer)
-    const ticket = await ticketEngine.createTicket({
+    const ticket = await TicketEngine.createTicket(venture, role, {
       title: `[MVP] Launch SaaS for: ${bestProblem.title}`,
-      description: `
+      context: `
         **Problem:** ${bestProblem.description}
         **Target Market:** ${bestProblem.market}
         

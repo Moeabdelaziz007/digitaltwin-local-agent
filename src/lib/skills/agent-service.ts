@@ -1,7 +1,8 @@
 import { callOllama } from '../ollama-client';
 import { skillRegistry } from './registry';
 import { ExecutionResult } from './types';
-import { ticketEngine } from '../holding/ticket-engine';
+import { TicketEngine } from '../holding/ticket-engine';
+import { Venture, Role } from '../holding/types';
 
 /**
  * src/lib/skills/agent-service.ts
@@ -11,7 +12,7 @@ import { ticketEngine } from '../holding/ticket-engine';
 export class AgentServiceSkill {
   static id = 'agent-service';
 
-  async execute() {
+  async execute(venture: Venture, role: Role): Promise<ExecutionResult> {
     console.log('[AgentService] Auditing API usage and performance...');
 
     // 1. Audit Usage (Simulated)
@@ -23,9 +24,9 @@ export class AgentServiceSkill {
       const plan = await this.proposePlan(usageData);
       
       // 4. Submit for Approval (Governance Layer)
-      const ticket = await ticketEngine.createTicket({
+      const ticket = await TicketEngine.createTicket(venture, role, {
         title: `[AaaS] Launch New API Plan: ${plan.name}`,
-        description: `
+        context: `
           **Current Usage:** ${usageData.requests} requests/day
           **Proposed Plan:** ${plan.name}
           **Price:** $${plan.price}/month

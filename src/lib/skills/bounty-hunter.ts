@@ -1,7 +1,8 @@
 import { callOllama } from '../ollama-client';
 import { skillRegistry } from './registry';
 import { ExecutionResult } from './types';
-import { ticketEngine } from '../holding/ticket-engine';
+import { TicketEngine } from '../holding/ticket-engine';
+import { Venture, Role } from '../holding/types';
 
 /**
  * src/lib/skills/bounty-hunter.ts
@@ -11,7 +12,7 @@ import { ticketEngine } from '../holding/ticket-engine';
 export class BountyHunterSkill {
   static id = 'bounty-hunter';
 
-  async execute() {
+  async execute(venture: Venture, role: Role): Promise<ExecutionResult> {
     console.log('[BountyHunter] Scanning for high-value GitHub issues...');
 
     // 1. Scan (Simulated search for issues with 'bounty' label)
@@ -21,16 +22,16 @@ export class BountyHunterSkill {
     const bestIssue = issues[0];
 
     if (!bestIssue) {
-      return { success: false, reason: 'no_bounties_found' };
+      return { success: false, output: 'no_bounties_found' };
     }
 
     // 3. Solve (Draft Fix)
     const solution = await this.generateSolution(bestIssue);
     
     // 4. Submit for Approval (Governance Layer)
-    const ticket = await ticketEngine.createTicket({
+    const ticket = await TicketEngine.createTicket(venture, role, {
       title: `[BOUNTY] Fix Issue #${bestIssue.id} in ${bestIssue.repo}`,
-      description: `
+      context: `
         **Repository:** ${bestIssue.repo}
         **Issue:** ${bestIssue.title}
         **Potential Reward:** $${bestIssue.reward}

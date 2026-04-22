@@ -2,7 +2,8 @@ import { callOllama } from '../ollama-client';
 import { executeRecallMemory } from '../memory-engine';
 import { skillRegistry } from './registry';
 import { ExecutionResult } from './types';
-import { ticketEngine } from '../holding/ticket-engine';
+import { TicketEngine } from '../holding/ticket-engine';
+import { Venture, Role } from '../holding/types';
 
 /**
  * src/lib/skills/product-factory.ts
@@ -12,23 +13,23 @@ import { ticketEngine } from '../holding/ticket-engine';
 export class ProductFactorySkill {
   static id = 'product-factory';
 
-  async execute() {
+  async execute(venture: Venture, role: Role): Promise<ExecutionResult> {
     console.log('[ProductFactory] Auditing memory for sellable knowledge...');
 
     // 1. Audit Memory
     const knowledge = await executeRecallMemory('system', 'solved complex technical implementation');
     
     if (!knowledge || knowledge.includes('No relevant facts found')) {
-      return { success: false, reason: 'no_sellable_knowledge_found' };
+      return { success: false, output: 'no_sellable_knowledge_found' };
     }
 
     // 2. Package into Product
     const productManifest = await this.packageKnowledge(knowledge);
     
     // 3. Submit for Approval (Governance Layer)
-    const ticket = await ticketEngine.createTicket({
+    const ticket = await TicketEngine.createTicket(venture, role, {
       title: `[PRODUCT] New Asset: ${productManifest.name}`,
-      description: `
+      context: `
         **Concept:** ${productManifest.concept}
         **Type:** ${productManifest.type}
         **Suggested Price:** $${productManifest.price}

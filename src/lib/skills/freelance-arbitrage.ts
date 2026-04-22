@@ -1,7 +1,8 @@
 import { callOllama } from '../ollama-client';
 import { skillRegistry } from './registry';
 import { ExecutionResult } from './types';
-import { ticketEngine } from '../holding/ticket-engine';
+import { TicketEngine } from '../holding/ticket-engine';
+import { Venture, Role } from '../holding/types';
 
 /**
  * src/lib/skills/freelance-arbitrage.ts
@@ -11,7 +12,7 @@ import { ticketEngine } from '../holding/ticket-engine';
 export class FreelanceArbitrageSkill {
   static id = 'freelance-arbitrage';
 
-  async execute() {
+  async execute(venture: Venture, role: Role): Promise<ExecutionResult> {
     console.log('[FreelanceArbitrage] Starting execution loop...');
 
     // 1. Scan (Simulated Upwork/Contra Scan)
@@ -22,16 +23,16 @@ export class FreelanceArbitrageSkill {
     const topOpportunity = scored[0];
 
     if (!topOpportunity || topOpportunity.score < 0.7) {
-      return { success: false, reason: 'no_high_value_opportunities' };
+      return { success: false, output: 'no_high_value_opportunities' };
     }
 
     // 3. Draft Proposal
     const proposal = await this.generateProposal(topOpportunity);
     
     // 4. Submit for Approval (Governance Layer)
-    const ticket = await ticketEngine.createTicket({
+    const ticket = await TicketEngine.createTicket(venture, role, {
       title: `[BID] ${topOpportunity.title} - $${topOpportunity.budget}`,
-      description: `
+      context: `
         **Opportunity Found:** ${topOpportunity.title}
         **Budget:** $${topOpportunity.budget}
         **Score:** ${(topOpportunity.score * 100).toFixed(0)}%

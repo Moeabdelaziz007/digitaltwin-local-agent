@@ -1,7 +1,8 @@
 import { callOllama } from '../ollama-client';
 import { skillRegistry } from './registry';
 import { ExecutionResult } from './types';
-import { ticketEngine } from '../holding/ticket-engine';
+import { TicketEngine } from '../holding/ticket-engine';
+import { Venture, Role } from '../holding/types';
 
 /**
  * src/lib/skills/content-multiplier.ts
@@ -11,7 +12,7 @@ import { ticketEngine } from '../holding/ticket-engine';
 export class ContentMultiplierSkill {
   static id = 'content-multiplier';
 
-  async execute() {
+  async execute(venture: Venture, role: Role): Promise<ExecutionResult> {
     console.log('[ContentMultiplier] Scanning for trending topics...');
 
     // 1. Discover Trends
@@ -19,7 +20,7 @@ export class ContentMultiplierSkill {
     const topTopic = topics[0];
 
     if (!topTopic) {
-      return { success: false, reason: 'no_trending_topics_found' };
+      return { success: false, output: 'no_trending_topics_found' };
     }
 
     // 2. Generate Content
@@ -27,9 +28,9 @@ export class ContentMultiplierSkill {
     const socialPosts = await this.generateSocialPosts(article);
     
     // 3. Submit for Approval (Governance Layer)
-    const ticket = await ticketEngine.createTicket({
+    const ticket = await TicketEngine.createTicket(venture, role, {
       title: `[CONTENT] Publish Article: ${topTopic.title}`,
-      description: `
+      context: `
         **Topic:** ${topTopic.title}
         **Sentiment:** ${topTopic.sentiment}
         
