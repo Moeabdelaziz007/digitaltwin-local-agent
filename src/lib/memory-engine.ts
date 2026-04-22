@@ -122,6 +122,8 @@ export const MEMORY_TOOLS: OllamaTool[] = [
   }
 ];
 
+import { tieredMemory, MemoryEntry } from './memory/tiered-store';
+
 /**
  * 🧠 EXECUTOR: executeRecallMemory
  */
@@ -130,23 +132,26 @@ export async function executeRecallMemory(userId: string, topic: string): Promis
   return await obs.trace('memory_recall', {
     attributes: { 'memory.query': topic, 'user_id_hash': pbUserId }
   }, async (span) => {
-    const pb = getServerPB();
     try {
-      const result = await (pb.collection('facts') as any).getList(1, 5, {
-        filter: `user_id = "${pbUserId}" && (fact ~ "${topic}" || tags ~ "${topic}")`,
-        sort: '-confidence'
-      });
+      // 1. Search HOT (Memory)
+      const hotEntries = tieredMemory.getHotContext()
+        .filter(e => e.content.toLowerCase().includes(topic.toLowerCase()));
+
+      // 2. Search WARM (PocketBase)
+      const warmEntries = await tieredMemory.searchWarm(topic);
+
+      const allEntries = [...hotEntries, ...warmEntries];
 
       obs.recordMemoryStats(span, {
         operation_type: 'retrieval',
-        candidates_count: result.items.length,
-        selected_ids: result.items.map((f: Fact) => f.id).join(','),
+        candidates_count: allEntries.length,
+        selected_ids: allEntries.map(f => f.id).join(','),
       });
 
-      if (result.items.length === 0) return "No relevant facts found for this topic.";
+      if (allEntries.length === 0) return "No relevant facts found for this topic.";
 
-      return `Found ${result.items.length} facts:\n` +
-        result.items.map((f: Fact) => `- ${getFactText(f)} (category: ${f.category})`).join('\n');
+      return `Found ${allEntries.length} facts:\n` +
+        allEntries.map(f => `- ${f.content} (type: ${f.type})`).join('\n');
     } catch {
       return "Failed to recall memory due to internal error.";
     }
@@ -161,125 +166,23 @@ export async function executeSaveMemory(userId: string, fact: string, category: 
   return await obs.trace('memory_save', {
     attributes: { 'memory.category': category, 'user_id_hash': pbUserId }
   }, async (span) => {
-    const pb = getServerPB();
-    
     try {
-      const now = new Date().toISOString();
-      const normalizedFact = normalizeFactText(fact);
-      const incomingFingerprint = fingerprintFact(normalizedFact);
-      const incomingTokens = tokenize(normalizedFact);
+      // Use the Tiered Memory Engine for physical L1/L2/L3 routing
+      await tieredMemory.add(fact, category as any, { userId: pbUserId });
 
-      // Stage 1: lexical dedup (fingerprint + token overlap)
-      const lexicalCandidates = await (pb.collection('facts') as any).getFullList({
-        filter: `user_id = "${pbUserId}" && category = "${category}" && (status = "active" || status = "reinforced")`,
-        sort: '-updated',
+      obs.recordMemoryStats(span, { 
+        operation_type: 'write', 
+        memory_type: 'tiered_save' 
       });
-
-      const exactFingerprintMatch = lexicalCandidates.find((f: Fact) => f.fact_fingerprint === incomingFingerprint);
-
-      // Stage 2: semantic dedup using embedding similarity
-      const [lexicalThreshold] = await Promise.all([
-        config.get('MEMORY_LEXICAL_OVERLAP', DEFAULT_LEXICAL_OVERLAP)
-      ]);
-
-      const overlapCandidate = lexicalCandidates
-        .map((candidate: Fact) => {
-          const candidateNormalized = normalizeFactText(getFactText(candidate));
-          const overlap = tokenOverlapScore(incomingTokens, tokenize(candidateNormalized));
-          return { candidate, overlap };
-        })
-        .filter((item: { candidate: Fact; overlap: number }) => item.overlap >= lexicalThreshold)
-        .sort((a: { candidate: Fact; overlap: number }, b: { candidate: Fact; overlap: number }) => b.overlap - a.overlap)[0]?.candidate;
-
-      const lexicalMatch = exactFingerprintMatch || overlapCandidate;
-
-      if (lexicalMatch) {
-        const [dedupThreshold, reinforcementDelta] = await Promise.all([
-          config.get('MEMORY_DEDUP_THRESHOLD', DEFAULT_SIMILARITY_THRESHOLD),
-          config.get('MEMORY_REINFORCEMENT_DELTA', DEFAULT_REINFORCEMENT_DELTA)
-        ]);
-
-        const [newEmbedding, existingEmbedding] = await Promise.all([
-          fetchEmbedding(normalizedFact),
-          fetchEmbedding(normalizeFactText(getFactText(lexicalMatch))),
-        ]);
-
-        const semanticSimilarity =
-          newEmbedding && existingEmbedding ? cosineSimilarity(newEmbedding, existingEmbedding) : 0;
-
-        if (semanticSimilarity >= dedupThreshold) {
-          const boostedConfidence = Math.min(1.0, (lexicalMatch.confidence || 0.5) + reinforcementDelta);
-          await pb.collection('facts').update(lexicalMatch.id, {
-            reinforced_count: (lexicalMatch.reinforced_count || 0) + 1,
-            confidence: parseFloat(boostedConfidence.toFixed(4)),
-            updated: now,
-            last_reinforced_at: now,
-            status: 'reinforced',
-          });
-
-          obs.recordMemoryStats(span, { operation_type: 'write', memory_type: 'reinforcement', selected_ids: lexicalMatch.id });
-          return `Memory already exists; reinforced existing fact: "${getFactText(lexicalMatch)}".`;
-        }
-
-        // Contradiction path (if semantically related but conflicting)
-        const isContradiction = await detectContradiction(fact, getFactText(lexicalMatch), category);
-        if (isContradiction) {
-          const conflictGroupId = lexicalMatch.conflict_group_id || randomUUID();
-
-          await pb.collection('facts').update(lexicalMatch.id, {
-            status: 'conflicted',
-            conflict_group_id: conflictGroupId,
-            updated: now,
-          });
-
-          await pb.collection('facts').create({
-            user_id: pbUserId,
-            fact,
-            category,
-            confidence: 0.65,
-            reinforced_count: 1,
-            fact_fingerprint: incomingFingerprint,
-            status: 'conflicted',
-            source: 'user_statement',
-            last_reinforced_at: now,
-            conflict_group_id: conflictGroupId,
-          });
-
-          await pb.collection('fact_revisions').create({
-            user_id: pbUserId,
-            conflict_group_id: conflictGroupId,
-            previous_fact_id: lexicalMatch.id,
-            previous_fact: getFactText(lexicalMatch),
-            revision_fact: fact,
-            category,
-            reason: 'contradiction_detected',
-            source: 'memory_engine',
-          });
-
-          obs.recordMemoryStats(span, { operation_type: 'write', memory_type: 'contradiction', selected_ids: lexicalMatch.id });
-          return `Detected contradiction for category "${category}". Stored as a conflicted revision for review.`;
-        }
-      }
-
-      const newRecord = await (pb.collection('facts') as any).create({
-        user_id: pbUserId,
-        fact,
-        category,
-        confidence: 0.8,
-        reinforced_count: 1,
-        fact_fingerprint: incomingFingerprint,
-        status: 'active',
-        source: 'user_statement',
-        last_reinforced_at: now,
-      });
-
-      obs.recordMemoryStats(span, { operation_type: 'write', memory_type: 'new_fact', selected_ids: newRecord.id });
-      return `Succesfully saved and reinforced fact: "${fact}" under ${category}.`;
-    } catch {
+      
+      return `Successfully saved and reinforced fact: "${fact}" under ${category}.`;
+    } catch (e: any) {
+      console.error('[MemoryEngine] Save failed:', e.message);
       return 'Failed to save fact to long-term memory.';
     }
   });
 }
+
 
 /**
  * Build the full system prompt for the twin, including:

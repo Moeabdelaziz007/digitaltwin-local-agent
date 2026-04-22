@@ -1,22 +1,15 @@
 import { callOllama } from '../ollama-client';
 import { executeRecallMemory } from '../memory-engine';
-import { AgentSkill } from '../agents/profit-lab/skill-registry';
+import { AgentSkill, ExecutionResult } from '@/types/agent-skills';
 
 /**
  * src/lib/skills/product-factory.ts
  * Personalized Digital Product Factory: Audits memory for sellable knowledge and auto-lists on Gumroad.
  */
 
-export interface SellableKnowledge {
-  topic: string;
-  solution: string;
-  reusability: number; // 0-1
-}
-
-import { AgentSkill, ExecutionResult } from '@/types/agent-skills';
-
 export const productFactorySkill: AgentSkill & { execute: (context: Record<string, any>) => Promise<ExecutionResult> } = {
   id: 'product-factory@1.0.0',
+
   name: 'Digital Product Factory',
   version: '1.0.0',
   author: 'system',

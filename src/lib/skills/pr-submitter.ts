@@ -1,23 +1,14 @@
 import { callOllama } from '../ollama-client';
-import { AgentSkill } from '../agents/profit-lab/skill-registry';
-import { AttributionEngine } from '../causal/attribution';
+import { AgentSkill, BountyIssue, ExecutionResult } from '@/types/agent-skills';
 
 /**
  * src/lib/skills/pr-submitter.ts
  * GitHub Bounty Hunter: Solves issues and submits PRs autonomously.
  */
 
-export interface BountyIssue {
-  id: number;
-  repo: string;
-  description: string;
-  url: string;
-}
-
-import { AgentSkill, BountyIssue, ExecutionResult } from '@/types/agent-skills';
-
 export const prSubmitterSkill: AgentSkill & { execute: (context: BountyIssue) => Promise<ExecutionResult> } = {
   id: 'pr-submitter@1.0.0',
+
   name: 'Bounty PR Submitter',
   version: '1.0.0',
   author: 'system',

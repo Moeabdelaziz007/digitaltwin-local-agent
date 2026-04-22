@@ -1,20 +1,11 @@
 import { callOllama } from '../ollama-client';
 import { executeRecallMemory } from '../memory-engine';
-import { AgentSkill } from '../agents/profit-lab/skill-registry';
-import { UpworkJob } from '../opportunity/connectors/upwork';
+import { AgentSkill, DigitalTwinProfile, UpworkJob, ExecutionResult } from '@/types/agent-skills';
 
 /**
  * src/lib/skills/freelance-applicant.ts
  * Autonomous Freelance Applicant Skill.
  */
-
-export interface DigitalTwinProfile {
-  summary: string;
-  voiceStyle: string;
-  pastWins: string[];
-}
-
-import { AgentSkill, DigitalTwinProfile, UpworkJob, ExecutionResult } from '@/types/agent-skills';
 
 export const freelanceApplicantSkill: AgentSkill & { execute: (context: { job: UpworkJob; profile: DigitalTwinProfile }) => Promise<ExecutionResult> } = {
   id: 'freelance-applicant@1.0.0',
@@ -33,8 +24,8 @@ export const freelanceApplicantSkill: AgentSkill & { execute: (context: { job: U
     totalRuns: 0,
     avgDurationMs: 0
   },
-  execute: async (context: { job: UpworkJob; profile: DigitalTwinProfile }) => {
-    const { job, profile } = context as { job: UpworkJob; profile: DigitalTwinProfile };
+  execute: async (context: { job: UpworkJob; profile: DigitalTwinProfile }): Promise<ExecutionResult> => {
+    const { job, profile } = context;
 
     // 1. Recall past similar wins using memory engine
     const query = `freelance job proposal ${job.title} ${job.description.substring(0, 50)}`;
@@ -43,7 +34,7 @@ export const freelanceApplicantSkill: AgentSkill & { execute: (context: { job: U
     // 2. Generate winning proposal
     const prompt = `
       Write a winning Upwork proposal in this person's voice:
-      Voice Style: ${profile.voiceStyle}
+      Voice Style: ${profile.voiceStyle || 'professional and concise'}
       
       Job Title: ${job.title}
       Job Description: ${job.description}
@@ -51,7 +42,7 @@ export const freelanceApplicantSkill: AgentSkill & { execute: (context: { job: U
       Their past wins & context:
       ${JSON.stringify(relevantPastWork)}
       
-      Their profile: ${profile.summary}
+      Their profile summary: ${profile.summary || 'Expert in AI and development.'}
       
       INSTRUCTIONS:
       - Max 150 words.
@@ -69,10 +60,14 @@ export const freelanceApplicantSkill: AgentSkill & { execute: (context: { job: U
     console.log(`[FreelanceSkill] Proposal generated: \n${proposal.substring(0, 100)}...`);
 
     return {
+      success: true,
       status: 'generated',
-      proposal,
-      jobId: job.id,
-      timestamp: Date.now()
+      output: proposal,
+      metadata: {
+        jobId: job.id,
+        timestamp: Date.now()
+      }
     };
   }
 };
+

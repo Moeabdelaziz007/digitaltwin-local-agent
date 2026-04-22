@@ -34,6 +34,8 @@ import { executeSaveMemory, executeRecallMemory } from '@/lib/memory-engine';
 import { VentureSentinelAgent } from '../agents/profit-lab/venture-sentinel';
 import { SynapseOracle } from '../agents/profit-lab/synapse-oracle';
 import { ArbitrageAgent } from '../agents/profit-lab/arbitrage-agent';
+import { ollamaBreaker } from './circuit-breaker';
+import { groq } from '../groq-service';
 import { opportunityScanner } from '../opportunity/scanner';
 import { tieredMemory } from '../memory/tiered-store';
 import { metaCognitive } from '../meta-cognitive/reflection-loop';
@@ -52,16 +54,51 @@ const DEFAULT_FLAGS: RiskFlags = {
   policy_risk: false,
 };
 
+/**
+ * Robustly extracts the first valid JSON object from a potentially noisy string.
+ */
+function extractBalancedJSON(raw: string): any {
+  const firstBrace = raw.indexOf('{');
+  if (firstBrace === -1) throw new Error('No JSON object found');
+
+  // Try parsing from the first brace to the last brace (greedy)
+  const lastBrace = raw.lastIndexOf('}');
+  if (lastBrace === -1) throw new Error('No closing brace found');
+
+  const candidate = raw.substring(firstBrace, lastBrace + 1);
+  try {
+    return JSON.parse(candidate);
+  } catch (e) {
+    // If greedy fails, try walking backwards from the first brace
+    let depth = 0;
+    for (let i = firstBrace; i < raw.length; i++) {
+      if (raw[i] === '{') depth++;
+      else if (raw[i] === '}') {
+        depth--;
+        if (depth === 0) {
+          const innerCandidate = raw.substring(firstBrace, i + 1);
+          try {
+            return JSON.parse(innerCandidate);
+          } catch (innerErr) {
+            continue; // Keep looking
+          }
+        }
+      }
+    }
+  }
+  
+  // Last resort: Strip markdown and try again
+  const clean = raw.replace(/```json\n?|\n?```/g, '').trim();
+  const simpleMatch = clean.match(/\{[\s\S]*\}/);
+  if (simpleMatch) return JSON.parse(simpleMatch[0]);
+  
+  throw new Error('Failed to extract valid JSON');
+}
+
 function safeParseProposal(raw: string, agent: string): AgentProposal {
   try {
-    // 1. Strip Markdown code blocks if present
-    const cleanRaw = raw.replace(/```json\n?|\n?```/g, '').trim();
+    const parsed = extractBalancedJSON(raw);
     
-    // 2. Extract JSON using a more robust regex if needed
-    const jsonMatch = cleanRaw.match(/\{[\s\S]*\}/);
-    const finalRaw = jsonMatch ? jsonMatch[0] : cleanRaw;
-    
-    const parsed = JSON.parse(finalRaw);
     return {
       agent: agent as any,
       verdict: parsed.verdict || 'accept',
@@ -72,19 +109,20 @@ function safeParseProposal(raw: string, agent: string): AgentProposal {
       issues: parsed.issues || [],
       metadata: parsed
     };
-  } catch (e) {
-    console.warn(`[JSON-PARSE] Failed to parse ${agent} output, using raw text.`);
+  } catch (e: any) {
+    console.warn(`[JSON-PARSE] Robust parse failed for ${agent}: ${e.message}. Falling back to raw.`);
     return {
       agent: agent as any,
       verdict: 'revise',
       confidence: 0.1,
       risk: 'high',
       output: raw,
-      reasoning_summary: 'Parse failed - raw fallback used',
+      reasoning_summary: `Parse failed: ${e.message}`,
       issues: ['invalid_json']
     };
   }
 }
+
 
 function toAgentOutput(proposal: AgentProposal, stage: VentureStage): AgentOutput {
   return {
@@ -142,40 +180,75 @@ async function runVentureLabCycle(input: ConsensusInput, start: number): Promise
   
   return await obs.trace('venture_lab_v4.0_parallel_dag', {}, async (span) => {
     // --- STAGE 0: PRIVACY & SAFETY (SEQUENTIAL GATE) ---
-    const privacyCheckRaw = await ollamaBreaker.execute(() => callOllama(input.userMessage, [
-      { role: 'system', content: PRIVACY_FILTER_PROMPT },
-      { role: 'user', content: `INPUT_TO_SCRUB: ${input.userMessage}` }
-    ]), '{"output": "INPUT_SCRUBBED_FOR_SAFETY"}');
+    const privacyCheckRaw = await ollamaBreaker.execute(
+      () => callOllama(input.userMessage, [
+        { role: 'system', content: PRIVACY_FILTER_PROMPT },
+        { role: 'user', content: `INPUT_TO_SCRUB: ${input.userMessage}` }
+      ]),
+      () => groq.chatCompletion({
+        messages: [
+          { role: 'system', content: PRIVACY_FILTER_PROMPT },
+          { role: 'user', content: `INPUT_TO_SCRUB: ${input.userMessage}` }
+        ],
+        model: 'llama-3.3-70b-versatile'
+      })
+    );
     
     const scrubbedInput = safeParseProposal(privacyCheckRaw, 'guardian').output;
     await tieredMemory.add(`Initiating venture cycle for: ${scrubbedInput}`, 'thought');
 
-    // --- STAGE 1: EXPLORE (PARALLEL DISCOVERY) ---
-    const [hunterRaw, pastFailures, oracleGems] = await Promise.all([
-      ollamaBreaker.execute(() => callOllama(scrubbedInput, [
-        { role: 'system', content: OPPORTUNITY_HUNTER_PROMPT },
-        { role: 'user', content: `REQUEST: ${scrubbedInput}` }
-      ]), ''),
+    // --- STAGE 1: EXPLORE (TRUE PARALLEL DISCOVERY) ---
+    const [hunterRaw, foragerRaw, minerRaw, pastFailures, oracleGems] = await Promise.all([
+      ollamaBreaker.execute(
+        () => callOllama(scrubbedInput, [
+          { role: 'system', content: OPPORTUNITY_HUNTER_PROMPT },
+          { role: 'user', content: `REQUEST: ${scrubbedInput}` }
+        ]),
+        () => groq.chatCompletion({
+          messages: [
+            { role: 'system', content: OPPORTUNITY_HUNTER_PROMPT },
+            { role: 'user', content: `REQUEST: ${scrubbedInput}` }
+          ],
+          model: 'llama-3.3-70b-versatile'
+        })
+      ),
+      ollamaBreaker.execute(
+        () => callOllama(scrubbedInput, [
+          { role: 'system', content: EVIDENCE_FORAGER_PROMPT },
+          { role: 'user', content: `REQUEST: ${scrubbedInput}` }
+        ]),
+        () => groq.chatCompletion({
+          messages: [
+            { role: 'system', content: EVIDENCE_FORAGER_PROMPT },
+            { role: 'user', content: `REQUEST: ${scrubbedInput}` }
+          ],
+          model: 'llama-3.3-70b-versatile'
+        })
+      ),
+      ollamaBreaker.execute(
+        () => callOllama(scrubbedInput, [
+          { role: 'system', content: SIGNAL_MINER_PROMPT },
+          { role: 'user', content: `REQUEST: ${scrubbedInput}` }
+        ]),
+        () => groq.chatCompletion({
+          messages: [
+            { role: 'system', content: SIGNAL_MINER_PROMPT },
+            { role: 'user', content: `REQUEST: ${scrubbedInput}` }
+          ],
+          model: 'llama-3.3-70b-versatile'
+        })
+      ),
       executeRecallMemory(userId, 'venture_failure'),
       oracle.detectEmergingOpportunities()
     ]);
     
     const hunter = safeParseProposal(hunterRaw, 'scout');
-    if (oracleGems.length > 0) hunter.output += `\n\n[ORACLE_GEMS]: ${JSON.stringify(oracleGems)}`;
-
-    const [foragerRaw, minerRaw] = await Promise.all([
-      ollamaBreaker.execute(() => callOllama(scrubbedInput, [
-        { role: 'system', content: EVIDENCE_FORAGER_PROMPT },
-        { role: 'user', content: `OPPORTUNITIES: ${hunter.output}\nPAST_FAILURES: ${pastFailures}` }
-      ]), ''),
-      ollamaBreaker.execute(() => callOllama(scrubbedInput, [
-        { role: 'system', content: SIGNAL_MINER_PROMPT },
-        { role: 'user', content: `OPPORTUNITIES: ${hunter.output}` }
-      ]), '')
-    ]);
-    
     const forager = safeParseProposal(foragerRaw, 'architect');
     const miner = safeParseProposal(minerRaw, 'scout');
+    
+    if (oracleGems.length > 0) hunter.output += `\n\n[ORACLE_GEMS]: ${JSON.stringify(oracleGems)}`;
+    if (pastFailures) forager.output += `\n\n[PAST_FAILURES]: ${pastFailures}`;
+
 
     // GATE 1: THE PRISM CHECK
     const gate1 = await sentinel.evaluateStageTransition(

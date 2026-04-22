@@ -30,14 +30,21 @@ export class CircuitBreaker {
     };
   }
 
-  async execute<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
+  async execute<T>(fn: () => Promise<T>, fallback: T | (() => Promise<T>)): Promise<T> {
+    const getFallback = async () => {
+      if (typeof fallback === 'function') {
+        return await (fallback as () => Promise<T>)();
+      }
+      return fallback;
+    };
+
     if (this.state === 'OPEN') {
       if (Date.now() - this.lastFailureTime > this.config.recoveryTimeoutMs) {
         this.state = 'HALF_OPEN';
         console.log('[CIRCUIT-BREAKER] Attempting recovery (HALF_OPEN)');
       } else {
-        console.warn('[CIRCUIT-BREAKER] Circuit is OPEN. Returning fallback.');
-        return fallback;
+        console.warn('[CIRCUIT-BREAKER] Circuit is OPEN. Executing fallback.');
+        return await getFallback();
       }
     }
 
@@ -57,9 +64,10 @@ export class CircuitBreaker {
     } catch (error) {
       console.error('[CIRCUIT-BREAKER] Execution failure:', error);
       this.recordFailure();
-      return fallback;
+      return await getFallback();
     }
   }
+
 
   private recordSuccess() {
     this.failureCount = 0;

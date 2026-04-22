@@ -195,6 +195,13 @@ class GroqService {
   }
 }
 
-// Singleton instance
-export const groq = new GroqService();
+// Singleton protection for Next.js hot reloads
+const globalForGroq = globalThis as unknown as {
+  groq: GroqService | undefined;
+};
+
+export const groq = globalForGroq.groq ?? new GroqService();
+
+if (process.env.NODE_ENV !== 'production') globalForGroq.groq = groq;
+
 export default groq;
