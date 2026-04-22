@@ -1,4 +1,5 @@
 import { GitHubSignal } from '@/lib/opportunity/types';
+import { cachedFetch } from '../cache';
 
 const GITHUB_API = 'https://api.github.com';
 
@@ -19,14 +20,8 @@ export async function fetchGitHubSignals(repo?: string): Promise<GitHubSignal> {
 
   try {
     const [issuesResp, prsResp] = await Promise.all([
-      fetch(`${GITHUB_API}/repos/${repo}/issues?state=open&per_page=100`, {
-        headers: { Accept: 'application/vnd.github+json' },
-        next: { revalidate: 1800 },
-      }),
-      fetch(`${GITHUB_API}/repos/${repo}/pulls?state=open&per_page=100`, {
-        headers: { Accept: 'application/vnd.github+json' },
-        next: { revalidate: 1800 },
-      }),
+      cachedFetch(`${GITHUB_API}/repos/${repo}/issues?state=open&per_page=100`, 'github-signals'),
+      cachedFetch(`${GITHUB_API}/repos/${repo}/pulls?state=open&per_page=100`, 'github-signals'),
     ]);
 
     if (!issuesResp.ok || !prsResp.ok) {

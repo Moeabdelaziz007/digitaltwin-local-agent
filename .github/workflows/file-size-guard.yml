@@ -1,0 +1,24 @@
+name: File Size Guard
+on: [pull_request]
+
+jobs:
+  check-file-size:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Flag large files (>300 lines)
+        run: |
+          echo "📦 Checking for bloated files..."
+          LARGE_FILES=$(find src/ -name "*.ts" -not -path "*/node_modules/*" -not -path "*/.next/*" | xargs wc -l | awk '$1 > 300 {print $2}')
+          
+          if [ -n "$LARGE_FILES" ]; then
+            echo "::warning title=Large Files Detected::The following files are over 300 lines and should be refactored:"
+            echo "$LARGE_FILES"
+            
+            for FILE in $LARGE_FILES; do
+              echo "::warning file=$FILE,line=1::This file is over 300 lines. Consider splitting it using scripts/ai-split.ts."
+            done
+          else
+            echo "✅ All files are within size limits."
+          fi
