@@ -1,6 +1,6 @@
-import PocketBase from 'pocketbase';
 import { env } from '@/lib/env';
 import { UserSignal } from '@/lib/opportunity/types';
+import { cachedFetch } from '../cache';
 
 type ConversationRecord = {
   id: string;
@@ -26,17 +26,15 @@ function normalizePainPoint(text: string): string {
  * Extracts pain points and user signals from recent conversations in PocketBase.
  */
 export async function fetchUserSignals(userId: string, focus: string[] = []): Promise<UserSignal[]> {
-  const pb = new PocketBase(env.POCKETBASE_URL);
-  pb.autoCancellation(false);
+  const filter = encodeURIComponent(`user_id="${userId}" && role="user"`);
+  const sort = '-created';
+  const url = `${env.POCKETBASE_URL}/api/collections/conversations/records?page=1&perPage=100&filter=${filter}&sort=${sort}`;
 
   try {
-    // Fetch recent user messages
-    const messages = await pb
-      .collection('conversations')
-      .getList<ConversationRecord>(1, 100, { 
-        filter: `user_id="${userId}" && role="user"`, 
-        sort: '-created' 
-      });
+    const response = await cachedFetch(url, 'user-signals');
+    if (!response.ok) throw new Error(`PocketBase API failed: ${response.statusText}`);
+    
+    const messages = await response.json();
 
     const painMap = new Map<string, { frequency: number; confidence: number; sourceRef: string }>();
 
