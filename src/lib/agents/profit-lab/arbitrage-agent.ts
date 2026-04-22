@@ -40,7 +40,7 @@ export class ArbitrageAgent {
       const prices = await this.fetchRealPrices(pair);
       
       // 2. DETERMINISTIC COMPUTATION (The Source of Truth)
-      const tradeSize = 1000; 
+      const tradeSize = 10000; 
       const spread = Math.abs(prices.l1 - prices.l2);
       const spreadPercentage = (spread / Math.min(prices.l1, prices.l2)) * 100;
       const flashLoanFee = tradeSize * 0.0009;
@@ -70,7 +70,17 @@ export class ArbitrageAgent {
         Format: JSON { "commentary": "string", "risk_level": "low" | "med" | "high" }
       `;
       
-      const strategyResponse = await callOllama(strategyPrompt);
+      let strategyResponse: string;
+      try {
+        strategyResponse = await callOllama(strategyPrompt);
+      } catch (e) {
+        console.warn(`[ArbitrageAgent] LLM analysis failed, using fallback strategy:`, e);
+        strategyResponse = JSON.stringify({
+          commentary: "Strategy synthesis failed. Manual oversight required for execution.",
+          risk_level: "high"
+        });
+      }
+      
       const strategy = this.parseAndValidateStrategy(strategyResponse);
 
       // 4. STRUCTURED TELEMETRY (Professional Logging)
