@@ -32,17 +32,34 @@ export interface Skill {
 }
 
 export class SkillRegistry {
-  private static instance: SkillRegistry;
   private skills: Map<string, Skill> = new Map();
   private skillsDir = path.join(process.cwd(), 'skills');
 
-  private constructor() {}
+  constructor() {}
 
-  public static getInstance(): SkillRegistry {
-    if (!SkillRegistry.instance) {
-      SkillRegistry.instance = new SkillRegistry();
-    }
-    return SkillRegistry.instance;
+  /**
+   * تسجيل مهارة جديدة ديناميكياً (مستوردة مثلاً)
+   */
+  public registerSkill(skill: Partial<Skill> & { id: string }): void {
+    const fullSkill: Skill = {
+      metadata: {
+        name: skill.metadata?.name || skill.id,
+        version: skill.metadata?.version || '1.0.0',
+        description: skill.metadata?.description || '',
+        when_to_use: skill.metadata?.when_to_use || 'Always',
+        permissions: skill.metadata?.permissions || [],
+        required_tools: skill.metadata?.required_tools || [],
+        input_schema: {},
+        output_schema: {},
+        safety_notes: skill.metadata?.safety_notes || 'Safe to use',
+      },
+      instructions: skill.instructions || '',
+      examples: skill.examples || [],
+      enabled: true
+    };
+
+    this.skills.set(skill.id, fullSkill);
+    console.log(`[SkillRegistry] Dynamically registered skill: ${skill.id}`);
   }
 
   /**
@@ -137,4 +154,13 @@ ${active.map(s => `
   }
 }
 
-export const skillRegistry = SkillRegistry.getInstance();
+// Phase 3 Singleton Protection
+const globalForSkills = globalThis as unknown as {
+  skillRegistry: SkillRegistry | undefined;
+};
+
+export const skillRegistry = globalForSkills.skillRegistry ?? new SkillRegistry();
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForSkills.skillRegistry = skillRegistry;
+}

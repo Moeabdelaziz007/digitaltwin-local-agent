@@ -1,44 +1,53 @@
-/**
- * src/lib/holding/synapse.ts
- * محرك التوجيه العصبي (Synapse Routing): المسؤول عن حقن المهارات والتعليمات ديناميكياً.
- */
-
+import { promises as fs } from 'fs';
+import path from 'path';
 import { skillRegistry } from '../skills/registry';
-import { tieredMemory } from '../memory/tiered-store';
+import { Role } from './types';
+
+export interface SynapseConfig {
+  context: string;
+  provider: 'ollama' | 'groq' | 'openai' | 'claude' | 'gemini';
+  model: string;
+}
 
 export class SynapseRouter {
   /**
-   * بناء السياق (Context) المثالي للمهمة الحالية
-   * يقوم باختيار المهارات اللازمة فقط لتقليل الضوضاء للنموذج اللغوي (LLM)
+   * بناء الإعدادات المثالية للمهمة (المزود + السياق)
    */
-  public static async assembleContextForTask(taskDescription: string): Promise<string> {
+  public static async resolveConfig(role: Role, taskDescription: string): Promise<SynapseConfig> {
     const allSkills = skillRegistry.getActiveSkills();
     
-    // منطق ذكي: البحث عن المهارات التي تتطابق كلماتها المفتاحية مع وصف المهمة
-    // مستقبلاً يمكن استخدام Embeddings هنا
+    // قراءة الدستور (SOUL.md)
+    let soul = '';
+    try {
+      soul = await fs.readFile(path.join(process.cwd(), '.mas-zero', 'soul.md'), 'utf-8');
+    } catch (e) {
+      console.warn('[Synapse] SOUL.md not found. Proceeding with default identity.');
+    }
+
+    // منطق اختيار المهارات
     const relevantSkills = allSkills.filter(skill => {
       const keywords = skill.metadata.description.toLowerCase() + " " + skill.metadata.when_to_use.toLowerCase();
       return taskDescription.toLowerCase().split(' ').some(word => word.length > 3 && keywords.includes(word));
     });
 
-    if (relevantSkills.length === 0) {
-      console.log(`[Synapse] No specific skills matched for task. Providing general capability.`);
-    }
-
     const context = `
-### Current Tactical Capability (Synapse Injected)
-You have been injected with the following specific skills to complete this task efficiently:
+### SYSTEM SOUL (Mandatory Boundaries)
+${soul}
 
-${relevantSkills.map(s => `
-#### ${s.metadata.name}
-- Instructions: ${s.instructions}
-- Capabilities: ${s.metadata.description}
-`).join('\n')}
-
-### Strategic Goal
-Maintain the ROI focus of the venture. If these skills are insufficient, request 'Evolution' of your toolset.
+### Injected Skills
+${relevantSkills.map(s => `- ${s.metadata.name}: ${s.instructions}`).join('\n')}
 `;
 
-    return context;
+    // درس Hermes: اختيار المزود بناءً على الدور أو تعقيد المهمة
+    let provider = role.provider_hint || 'ollama';
+    let model = 'llama3'; // افتراضي لـ Ollama
+
+    if (provider === 'groq') {
+      model = 'llama-3.3-70b-versatile';
+    } else if (provider === 'claude') {
+      model = 'claude-3-5-sonnet-latest';
+    }
+
+    return { context, provider, model };
   }
 }
