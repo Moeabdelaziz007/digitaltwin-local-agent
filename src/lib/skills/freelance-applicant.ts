@@ -14,7 +14,9 @@ export interface DigitalTwinProfile {
   pastWins: string[];
 }
 
-export const freelanceApplicantSkill: AgentSkill & { execute: (context: any) => Promise<any> } = {
+import { AgentSkill, DigitalTwinProfile, UpworkJob, ExecutionResult } from '@/types/agent-skills';
+
+export const freelanceApplicantSkill: AgentSkill & { execute: (context: { job: UpworkJob; profile: DigitalTwinProfile }) => Promise<ExecutionResult> } = {
   id: 'freelance-applicant@1.0.0',
   name: 'Freelance Applicant',
   version: '1.0.0',
@@ -31,7 +33,7 @@ export const freelanceApplicantSkill: AgentSkill & { execute: (context: any) => 
     totalRuns: 0,
     avgDurationMs: 0
   },
-  execute: async (context: any) => {
+  execute: async (context: { job: UpworkJob; profile: DigitalTwinProfile }) => {
     const { job, profile } = context as { job: UpworkJob; profile: DigitalTwinProfile };
 
     // 1. Recall past similar wins using memory engine

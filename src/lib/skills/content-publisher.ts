@@ -1,13 +1,13 @@
 import { callOllama } from '../ollama-client';
-import { AgentSkill } from '../agents/profit-lab/skill-registry';
 import { AttributionEngine } from '../causal/attribution';
+import type { AgentSkill, ExecutionResult } from '@/types/agent-skills';
 
 /**
  * src/lib/skills/content-publisher.ts
  * Content Arbitrage Machine: Monitors trends, writes SEO articles, and embeds affiliate links.
  */
 
-export interface MarketSignal {
+export interface MarketSignalLocal {
   keyword: string;
   headline: string;
   momentum: number;
@@ -29,7 +29,7 @@ const AFFILIATE_DATABASE: AffiliateProduct[] = [
   { name: 'Lemon Squeezy', link: 'https://lemonsqueezy.com?aff=twin', category: 'payments' }
 ];
 
-export const contentArbitrageSkill: AgentSkill & { execute: (context: any) => Promise<any> } = {
+export const contentArbitrageSkill: AgentSkill & { execute: (context: MarketSignalLocal) => Promise<ExecutionResult> } = {
   id: 'content-arbitrage@1.0.0',
   name: 'Content Arbitrage Machine',
   version: '1.0.0',
@@ -46,8 +46,8 @@ export const contentArbitrageSkill: AgentSkill & { execute: (context: any) => Pr
     totalRuns: 0,
     avgDurationMs: 0
   },
-  execute: async (context: any) => {
-    const signal = context as MarketSignal;
+  execute: async (context: MarketSignalLocal) => {
+    const signal = context;
     const causal = AttributionEngine.getInstance();
 
     // 1. Find relevant affiliate products

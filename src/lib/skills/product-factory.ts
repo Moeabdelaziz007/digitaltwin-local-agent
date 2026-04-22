@@ -13,7 +13,9 @@ export interface SellableKnowledge {
   reusability: number; // 0-1
 }
 
-export const productFactorySkill: AgentSkill & { execute: (context: any) => Promise<any> } = {
+import { AgentSkill, ExecutionResult } from '@/types/agent-skills';
+
+export const productFactorySkill: AgentSkill & { execute: (context: Record<string, any>) => Promise<ExecutionResult> } = {
   id: 'product-factory@1.0.0',
   name: 'Digital Product Factory',
   version: '1.0.0',
@@ -30,7 +32,7 @@ export const productFactorySkill: AgentSkill & { execute: (context: any) => Prom
     totalRuns: 0,
     avgDurationMs: 0
   },
-  execute: async (context: any) => {
+  execute: async (context: Record<string, any>) => {
     // 1. Audit memory for recent "solved_problem" entries
     console.log('[ProductFactory] Auditing memory for sellable knowledge...');
     const solvedProblems = await executeRecallMemory('system', 'solved problem code implementation deployment pattern');

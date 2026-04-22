@@ -14,7 +14,9 @@ export interface BountyIssue {
   url: string;
 }
 
-export const prSubmitterSkill: AgentSkill & { execute: (context: any) => Promise<any> } = {
+import { AgentSkill, BountyIssue, ExecutionResult } from '@/types/agent-skills';
+
+export const prSubmitterSkill: AgentSkill & { execute: (context: BountyIssue) => Promise<ExecutionResult> } = {
   id: 'pr-submitter@1.0.0',
   name: 'Bounty PR Submitter',
   version: '1.0.0',
@@ -31,7 +33,7 @@ export const prSubmitterSkill: AgentSkill & { execute: (context: any) => Promise
     totalRuns: 0,
     avgDurationMs: 0
   },
-  execute: async (context: any) => {
+  execute: async (context: BountyIssue) => {
     const issue = context as BountyIssue;
     const causal = AttributionEngine.getInstance();
 
