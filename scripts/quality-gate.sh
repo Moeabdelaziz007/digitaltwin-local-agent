@@ -5,6 +5,14 @@
 
 echo "🛡️ Starting Sovereign Quality Gate..."
 
+# 0. Contract Generation
+echo "🧬 Phase 0: Generating DB Contracts..."
+npm run generate:types
+if [ $? -ne 0 ]; then
+    echo "❌ CONTRACT GENERATION FAILED."
+    exit 1
+fi
+
 # 1. Type Check
 echo "🔍 Phase 1: Neural Type Verification (TSC)..."
 npx tsc --noEmit
