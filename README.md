@@ -8,7 +8,7 @@
 
 <p align="center">
   <b>🚀 Status: Operational Alpha (v1.1.0)</b><br/>
-  <b>MIT License · ★ 2.4k · Active Development</b>
+  <b>MIT License · ★ 2 · Active Development</b>
 </p>
 
 <p align="center">
