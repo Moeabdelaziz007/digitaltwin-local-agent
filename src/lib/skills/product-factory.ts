@@ -1,66 +1,51 @@
 import { callOllama } from '../ollama-client';
 import { executeRecallMemory } from '../memory-engine';
-import { AgentSkill, ExecutionResult } from '@/types/agent-skills';
+import { skillRegistry } from './registry';
+import { ExecutionResult } from '@/types/agent-skills';
 
 /**
  * src/lib/skills/product-factory.ts
- * Personalized Digital Product Factory: Audits memory for sellable knowledge and auto-lists on Gumroad.
+ * Digital Product Factory (Refactored for AHP)
  */
 
-export const productFactorySkill: AgentSkill & { execute: (context: Record<string, any>) => Promise<ExecutionResult> } = {
-  id: 'product-factory@1.0.0',
-
-  name: 'Digital Product Factory',
-  version: '1.0.0',
-  author: 'system',
-  description: 'Audits memory for reusable solutions and packages them as sellable digital products.',
-  successRate: 0,
-  totalEarnings: 0,
-  lastUsed: new Date().toISOString(),
-  status: 'experimental',
-  tags: ['revenue', 'gumroad', 'knowledge-monetization'],
-  requiredEnvVars: ['GUMROAD_TOKEN', 'OLLAMA_BASE_URL'],
-  cost: 'free',
-  stats: {
-    totalRuns: 0,
-    avgDurationMs: 0
-  },
-  execute: async (context: Record<string, any>) => {
-    // 1. Audit memory for recent "solved_problem" entries
-    console.log('[ProductFactory] Auditing memory for sellable knowledge...');
-    const solvedProblems = await executeRecallMemory('system', 'solved problem code implementation deployment pattern');
+export const productFactorySkill = {
+  id: 'product-factory',
+  instructions: `
+    You are a Digital Product Expert. 
+    Audit memory for technical solutions and package them into sellable digital products.
+  `,
+  async execute(context: Record<string, any>): Promise<ExecutionResult> {
+    const solvedProblems = await executeRecallMemory('system', 'solved problem code implementation');
 
     if (!solvedProblems || solvedProblems.includes('No relevant facts found')) {
-      return { status: 'skipped', reason: 'no_sellable_knowledge_found' };
+      return { success: false, error: 'no_sellable_knowledge_found' };
     }
 
-    // 2. Package the best candidate as a product
-    const prompt = `
-      You are a Digital Product Expert. Package this technical solution into a sellable $9 Gumroad product:
-      Solution: ${solvedProblems}
-      
-      PRODUCT TYPE: Choose from [Prompt Pack, Next.js Template, AI Workflow, Code Snippet]
-      
-      OUTPUT REQUIREMENTS:
-      - Product Name (Catchy & Benefit-driven)
-      - Product Description (SEO optimized, problem-solution focus)
-      - Price Recommendation ($5 - $49)
-      - Minimal Implementation Guide
-    `;
-
-    console.log(`[ProductFactory] Packaging knowledge...`);
+    const prompt = `Package this solution as a digital product: ${solvedProblems}`;
     const productManifest = await callOllama(prompt, [
-      { role: 'system', content: 'You are an expert at micro-SaaS and digital product monetization.' }
+      { role: 'system', content: 'You are an expert at digital product monetization.' }
     ]);
 
-    // 3. Simulate Gumroad Listing
-    console.log(`[ProductFactory] Product created: \n${productManifest.substring(0, 100)}...`);
-
     return {
-      status: 'listed_simulated',
-      productName: 'AI Agent Starter Kit (Simulated)',
-      listingUrl: 'https://gumroad.com/l/simulated_id',
-      timestamp: Date.now()
+      success: true,
+      output: productManifest,
+      metadata: { timestamp: Date.now() }
     };
   }
 };
+
+// Register in AHP Registry
+skillRegistry.registerSkill({
+  id: productFactorySkill.id,
+  metadata: {
+    name: 'Digital Product Factory',
+    version: '1.1.0',
+    description: 'Packages knowledge into sellable digital products.',
+    when_to_use: 'When reusable solutions are found in memory.',
+    permissions: ['memory_read', 'network'],
+    required_tools: ['ollama'],
+    category: 'revenue',
+    revenue_impact: 'medium'
+  },
+  instructions: productFactorySkill.instructions
+});

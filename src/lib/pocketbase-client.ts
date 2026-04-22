@@ -13,13 +13,9 @@ const pb = new PocketBase(
 // Disable auto-cancellation to prevent interference in concurrent micro-tasks.
 pb.autoCancellation(false);
 
-pb.beforeSend = (url, options) => {
+pb.beforeSend = (url: string, options: any) => {
   if (typeof window !== 'undefined') {
-    const clerkUserId = (window as Window & { Clerk?: { user?: { id?: string } } })
-      .Clerk
-      ?.user
-      ?.id
-      ?.trim();
+    const clerkUserId = (window as any).Clerk?.user?.id?.trim();
 
     if (clerkUserId) {
       options.headers = {

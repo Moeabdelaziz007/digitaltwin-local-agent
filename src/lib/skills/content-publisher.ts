@@ -1,10 +1,10 @@
 import { callOllama } from '../ollama-client';
-import { AttributionEngine } from '../causal/attribution';
-import type { AgentSkill, ExecutionResult } from '@/types/agent-skills';
+import { skillRegistry } from './registry';
+import { ExecutionResult } from '@/types/agent-skills';
 
 /**
  * src/lib/skills/content-publisher.ts
- * Content Arbitrage Machine: Monitors trends, writes SEO articles, and embeds affiliate links.
+ * Content Arbitrage Machine (Refactored for AHP)
  */
 
 export interface MarketSignalLocal {
@@ -14,91 +14,53 @@ export interface MarketSignalLocal {
   relatedKeywords: string[];
 }
 
-export interface AffiliateProduct {
-  name: string;
-  link: string;
-  category: string;
-}
-
-// Known high-paying affiliate programs
-const AFFILIATE_DATABASE: AffiliateProduct[] = [
+const AFFILIATE_DATABASE = [
   { name: 'Vercel', link: 'https://vercel.com?via=twin', category: 'deployment' },
   { name: 'GitHub Copilot', link: 'https://github.com/features/copilot', category: 'ai-coding' },
-  { name: 'DigitalOcean', link: 'https://m.do.co/c/twin', category: 'cloud' },
-  { name: 'Notion', link: 'https://notion.so?via=twin', category: 'productivity' },
-  { name: 'Lemon Squeezy', link: 'https://lemonsqueezy.com?aff=twin', category: 'payments' }
+  { name: 'Notion', link: 'https://notion.so?via=twin', category: 'productivity' }
 ];
 
-export const contentArbitrageSkill: AgentSkill & { execute: (context: MarketSignalLocal) => Promise<ExecutionResult> } = {
-  id: 'content-arbitrage@1.0.0',
-  name: 'Content Arbitrage Machine',
-  version: '1.0.0',
-  author: 'system',
-  description: 'Monitors trending topics and auto-publishes monetized technical content.',
-  successRate: 0,
-  totalEarnings: 0,
-  lastUsed: new Date().toISOString(),
-  status: 'experimental',
-  tags: ['revenue', 'content', 'affiliate', 'seo'],
-  requiredEnvVars: ['MEDIUM_API_KEY', 'HASHNODE_TOKEN', 'DEVTO_API_KEY'],
-  cost: 'free',
-  stats: {
-    totalRuns: 0,
-    avgDurationMs: 0
-  },
-  execute: async (context: MarketSignalLocal) => {
+export const contentArbitrageSkill = {
+  id: 'content-arbitrage',
+  instructions: `
+    You are a technical SEO content creator.
+    Generate long-form articles with embedded affiliate links.
+    Focus on high-value technical niches.
+  `,
+  async execute(context: MarketSignalLocal): Promise<ExecutionResult> {
     const signal = context;
-    const causal = AttributionEngine.getInstance();
-
-    // 1. Find relevant affiliate products
     const matches = AFFILIATE_DATABASE.filter(p => 
       signal.keyword.toLowerCase().includes(p.category) || 
       signal.headline.toLowerCase().includes(p.category)
     );
 
-    if (matches.length === 0) {
-      console.log(`[ContentArbitrage] Skipping non-monetizable topic: ${signal.keyword}`);
-      return { status: 'skipped', reason: 'no_affiliate_match' };
-    }
+    if (matches.length === 0) return { success: false, error: 'no_affiliate_match' };
 
-    // 2. Generate SEO Article
-    const prompt = `
-      Write a 1200-word expert technical article about: ${signal.keyword}
-      Context: ${signal.headline}
-      SEO Keywords: ${signal.relatedKeywords.join(', ')}
-      
-      INSTRUCTIONS:
-      - Naturally mention these tools with their links: ${matches.map(m => `${m.name} (${m.link})`).join(', ')}
-      - Tone: Senior Engineer, authoritative but accessible.
-      - Include clear code examples or architecture diagrams (mermaid syntax).
-      - Use H1, H2, H3 headers for SEO.
-    `;
-
-    console.log(`[ContentArbitrage] Writing article for: ${signal.keyword}`);
+    const prompt = `Write SEO Article for: ${signal.keyword}. Products: ${matches.map(m => m.name).join(', ')}`;
     const article = await callOllama(prompt, [
-      { role: 'system', content: 'You are a world-class technical content creator and SEO specialist.' }
+      { role: 'system', content: 'You are a technical SEO expert.' }
     ]);
 
-    // 3. Auto-post (Simulated for now)
-    console.log(`[ContentArbitrage] Article generated (${article.length} chars). Ready for multi-platform blast.`);
-    
-    // 4. Track in Causal Module
-    await causal.recordTrace({
-      event: 'content_published',
-      outcome: 'success',
-      causes: [
-        { factor: 'trending_topic', impact: 'positive', weight: 0.8 },
-        { factor: 'affiliate_match', impact: 'positive', weight: 0.9 }
-      ],
-      counterfactual: 'If we had not used affiliate links, revenue potential would be 0.',
-      confidence: 0.9
-    });
-
     return {
-      status: 'published_simulated',
-      topic: signal.keyword,
-      products: matches.map(m => m.name),
-      timestamp: Date.now()
+      success: true,
+      output: article,
+      metadata: { topic: signal.keyword, timestamp: Date.now() }
     };
   }
 };
+
+// Register in AHP Registry
+skillRegistry.registerSkill({
+  id: contentArbitrageSkill.id,
+  metadata: {
+    name: 'Content Arbitrage Machine',
+    version: '1.1.0',
+    description: 'Monitors trends and auto-publishes SEO content.',
+    when_to_use: 'When viral tech topics are detected.',
+    permissions: ['network'],
+    required_tools: ['ollama'],
+    category: 'revenue',
+    revenue_impact: 'medium'
+  },
+  instructions: contentArbitrageSkill.instructions
+});

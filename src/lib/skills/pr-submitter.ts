@@ -1,71 +1,46 @@
 import { callOllama } from '../ollama-client';
-import { AgentSkill, BountyIssue, ExecutionResult } from '@/types/agent-skills';
+import { skillRegistry } from './registry';
+import { BountyIssue, ExecutionResult } from '@/types/agent-skills';
 
 /**
  * src/lib/skills/pr-submitter.ts
- * GitHub Bounty Hunter: Solves issues and submits PRs autonomously.
+ * GitHub Bounty Hunter (Refactored for AHP)
  */
 
-export const prSubmitterSkill: AgentSkill & { execute: (context: BountyIssue) => Promise<ExecutionResult> } = {
-  id: 'pr-submitter@1.0.0',
-
-  name: 'Bounty PR Submitter',
-  version: '1.0.0',
-  author: 'system',
-  description: 'Solves GitHub issues and submits pull requests autonomously for bounties.',
-  successRate: 0,
-  totalEarnings: 0,
-  lastUsed: new Date().toISOString(),
-  status: 'experimental',
-  tags: ['revenue', 'github', 'coding', 'bounty'],
-  requiredEnvVars: ['GITHUB_TOKEN', 'OLLAMA_BASE_URL'],
-  cost: 'free',
-  stats: {
-    totalRuns: 0,
-    avgDurationMs: 0
-  },
-  execute: async (context: BountyIssue) => {
-    const issue = context as BountyIssue;
-    const causal = AttributionEngine.getInstance();
-
-    console.log(`[BountyHunter] Analyzing issue in ${issue.repo}...`);
-
-    // 1. Generate the Fix
-    const prompt = `
-      You are an expert software engineer. Solve this GitHub issue:
-      Issue Description: ${issue.description}
-      Repo: ${issue.repo}
-      
-      INSTRUCTIONS:
-      - Provide a concise, production-ready fix.
-      - Include a brief explanation of the change.
-      - Format as a clear patch or file replacement.
-    `;
-
+export const prSubmitterSkill = {
+  id: 'pr-submitter',
+  instructions: `
+    You are a Senior SWE-agent. 
+    Solve complex open-source bugs and submit production-ready Pull Requests.
+  `,
+  async execute(context: BountyIssue): Promise<ExecutionResult> {
+    const issue = context;
+    const prompt = `Solve GitHub issue: ${issue.title} in ${issue.repo}. Body: ${issue.body}`;
+    
     const fix = await callOllama(prompt, [
-      { role: 'system', content: 'You are a Senior SWE-agent specialized in solving complex open-source bugs.' }
+      { role: 'system', content: 'You are a Senior SWE-agent.' }
     ]);
 
-    // 2. Simulate PR Submission (Requires GitHub API integration)
-    console.log(`[BountyHunter] Fix generated for issue #${issue.id}. Ready to submit PR to ${issue.repo}`);
-
-    // 3. Track Attempt
-    await causal.recordTrace({
-      event: 'bounty_attempted',
-      outcome: 'success', // Simulated success of generation
-      causes: [
-        { factor: 'issue_matched', impact: 'positive', weight: 0.9 },
-        { factor: 'fix_generated', impact: 'positive', weight: 0.8 }
-      ],
-      counterfactual: 'If the agent lacked coding skills, this bounty would be unreachable.',
-      confidence: 0.8
-    });
-
     return {
-      status: 'submitted_simulated',
-      issueId: issue.id,
-      repo: issue.repo,
-      timestamp: Date.now()
+      success: true,
+      output: fix,
+      metadata: { issueId: issue.id, repo: issue.repo, timestamp: Date.now() }
     };
   }
 };
+
+// Register in AHP Registry
+skillRegistry.registerSkill({
+  id: prSubmitterSkill.id,
+  metadata: {
+    name: 'Bounty PR Submitter',
+    version: '1.1.0',
+    description: 'Solves GitHub issues and submits PRs autonomously.',
+    when_to_use: 'When high-value GitHub bounties are found.',
+    permissions: ['filesystem', 'network'],
+    required_tools: ['ollama', 'github-cli'],
+    category: 'revenue',
+    revenue_impact: 'high'
+  },
+  instructions: prSubmitterSkill.instructions
+});

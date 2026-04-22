@@ -16,6 +16,7 @@ async function testAHPCycle() {
     id: 'v-test-001',
     name: 'SaaS Profit Lab',
     vision: 'Build a profitable AI note-taking app with $10k MRR.',
+    mission_statement: 'Generate profit via autonomous AI workflows.',
     status: 'active',
     budget: {
       monthly_limit_usd: 1000,

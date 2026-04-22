@@ -19,7 +19,8 @@ export const SkillSchema = z.object({
   next_skills: z.array(z.string()).optional(),
   required_before: z.array(z.string()).optional(),
   blocks_if_missing: z.array(z.string()).optional(),
-  revenue_impact: z.enum(['critical', 'high', 'medium', 'low']).optional()
+  revenue_impact: z.enum(['critical', 'high', 'medium', 'low']).optional(),
+  category: z.string().optional()
 });
 
 export type SkillMetadata = z.infer<typeof SkillSchema>;
@@ -32,10 +33,18 @@ export interface Skill {
 }
 
 export class SkillRegistry {
+  private static instance: SkillRegistry;
   private skills: Map<string, Skill> = new Map();
   private skillsDir = path.join(process.cwd(), 'skills');
 
   constructor() {}
+
+  public static getInstance(): SkillRegistry {
+    if (!(globalThis as any)._skillRegistry) {
+      (globalThis as any)._skillRegistry = new SkillRegistry();
+    }
+    return (globalThis as any)._skillRegistry;
+  }
 
   /**
    * تسجيل مهارة جديدة ديناميكياً (مستوردة مثلاً)
