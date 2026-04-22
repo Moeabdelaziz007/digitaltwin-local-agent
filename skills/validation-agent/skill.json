@@ -1,0 +1,9 @@
+{
+  "name": "Validation Agent",
+  "alias": "validation-agent",
+  "description": "Validates venture outcomes against initial KPIs.",
+  "version": "1.0.0",
+  "revenue_impact": "high",
+  "required_before": ["impl-agent"],
+  "next_skills": ["growth-agent"]
+}

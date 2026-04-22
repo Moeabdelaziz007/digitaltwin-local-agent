@@ -1,0 +1,9 @@
+{
+  "name": "Growth Agent",
+  "alias": "growth-agent",
+  "description": "Scales successful ventures and optimizes user acquisition.",
+  "version": "1.0.0",
+  "revenue_impact": "high",
+  "required_before": ["validation-agent"],
+  "next_skills": []
+}
