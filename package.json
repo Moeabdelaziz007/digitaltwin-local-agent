@@ -22,6 +22,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@ai-sdk/groq": "^3.0.35",
     "@browserbasehq/sdk": "^2.10.0",
     "@clerk/nextjs": "^5.7.0",
     "@clerk/themes": "^2.1.0",
@@ -41,6 +42,7 @@
     "braintrust": "^3.9.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.38.0",
+    "groq-sdk": "^0.8.0",
     "livekit-client": "^2.5.0",
     "livekit-server-sdk": "^2.15.1",
     "lucide-react": "^0.460.0",
