@@ -22,6 +22,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@browserbasehq/sdk": "^2.10.0",
     "@clerk/nextjs": "^5.7.0",
     "@clerk/themes": "^2.1.0",
     "@livekit/components-react": "^2.5.0",
