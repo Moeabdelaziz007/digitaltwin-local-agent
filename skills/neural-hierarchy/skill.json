@@ -1,0 +1,9 @@
+{
+  "name": "The Neural Hierarchy",
+  "alias": "agent-task-tree",
+  "description": "Hierarchical task decomposition for complex ventures.",
+  "version": "1.0.0",
+  "revenue_impact": "medium",
+  "required_before": [],
+  "next_skills": []
+}

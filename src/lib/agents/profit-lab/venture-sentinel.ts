@@ -1,8 +1,8 @@
 import { VentureStage, VentureSentinelResult, Opportunity } from '@/types/twin';
 
 export class VentureSentinelAgent {
-  private name = 'Venture Sentinel';
-  private version = '1.0.0';
+  private name = 'The Synapse (Sentinel)';
+  private version = '1.1.0';
 
   /**
    * Evaluates the readiness of a venture to move to the next stage.
@@ -26,17 +26,17 @@ export class VentureSentinelAgent {
     let rollbackReason: string | undefined;
     let nextStage: VentureStage | undefined;
 
-    // Threshold Logic for Recursive Refinement
+    // Threshold Logic for Recursive Refinement (Neural Integration)
     if (readinessScore < 40 || alignmentScore < 30) {
       verdict = 'FAIL';
       rollbackTarget = 'Explore';
       rollbackReason = readinessScore < 40 
-        ? `Revenue Readiness (${readinessScore}) is critically low.`
-        : `Persona Alignment (${alignmentScore}) is too low. Venture doesn't match User identity.`;
+        ? `[The Synapse] Revenue Readiness (${readinessScore}) is critically low. Refracting via The Prism required.`
+        : `[The Synapse] Persona Alignment (${alignmentScore}) is too low. Venture fails User identity sync.`;
     } else if (missingSkills.length > 2 || blockers.length > 0) {
       verdict = 'CONCERNS';
       rollbackTarget = this.getPreviousStage(currentStage);
-      rollbackReason = `Significant blockers or missing skills (${missingSkills.length}) detected. Refining previous stage.`;
+      rollbackReason = `[The Synapse] Neural gaps detected. Missing skills or blockers in the Kinetic path.`;
     } else {
       nextStage = this.getNextStage(currentStage);
     }

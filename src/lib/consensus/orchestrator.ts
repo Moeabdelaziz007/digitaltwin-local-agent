@@ -109,22 +109,29 @@ export async function runConsensus(input: ConsensusInput): Promise<ConsensusVerd
 }
 
 /**
- * VENTURE LAB CYCLE (MAS-ZERO v3.5 - 14 AGENTS)
- * 1. EXPLORE: Hunter -> Forager -> Miner
+ * THE SYNAPSE: VENTURE LAB CYCLE (MAS-ZERO v3.5)
+ * 1. EXPLORE (The Prism): Hunter -> Forager -> Miner
  * 2. COLLAPSE: Cache -> Conductor
- * 3. ATTACK: Advocate -> Market Simulator
- * 4. BUILD: BuildSim -> RevSim -> Architect -> Affiliate -> Distribution
+ * 3. ATTACK (The Crucible): Advocate -> Market Simulator
+ * 4. BUILD (The Kinetic Edge): BuildSim -> RevSim -> Architect -> Affiliate -> Distribution
  * 5. SYNTHESIS: Blacksmith -> CEO -> Archivist
  */
 async function runVentureLabCycle(input: ConsensusInput, start: number): Promise<ConsensusVerdict> {
   const userId = input.userId || 'system';
   
   return await obs.trace('venture_lab_v3.5', {}, async (span) => {
-    // --- STAGE 1: EXPLORE (Divergence) ---
+    // --- PROTECTION: THE PRIVACY FILTER ---
+    const privacyCheckRaw = await runWithTimeout(() => callOllama(input.userMessage, [
+      { role: 'system', content: PRIVACY_FILTER_PROMPT },
+      { role: 'user', content: `INPUT_TO_SCRUB: ${input.userMessage}` }
+    ]), STAGE_TIMEOUT_MS);
+    const scrubbedInput = safeParseProposal(privacyCheckRaw, 'guardian').output;
+
+    // --- STAGE 1: EXPLORE (The Prism Refraction) ---
     const [hunterRaw, pastFailures] = await Promise.all([
-      runWithTimeout(() => callOllama(input.userMessage, [
+      runWithTimeout(() => callOllama(scrubbedInput, [
         { role: 'system', content: OPPORTUNITY_HUNTER_PROMPT },
-        { role: 'user', content: `REQUEST: ${input.userMessage}` }
+        { role: 'user', content: `REQUEST: ${scrubbedInput}` }
       ]), STAGE_TIMEOUT_MS),
       executeRecallMemory(userId, 'venture_failure')
     ]);
@@ -142,7 +149,7 @@ async function runVentureLabCycle(input: ConsensusInput, start: number): Promise
     ]), STAGE_TIMEOUT_MS);
     const miner = safeParseProposal(minerRaw, 'scout');
 
-    // --- GATE 1: EXPLORE CHECK ---
+    // --- GATE 1: THE PRISM CHECK ---
     const gate1 = await sentinel.evaluateStageTransition(
       { title: input.userMessage } as any, 
       'Explore', 
@@ -150,12 +157,12 @@ async function runVentureLabCycle(input: ConsensusInput, start: number): Promise
     );
     if (gate1.verdict !== 'PASS') {
       return createKillSwitchVerdict(
-        `[Sentinel] ${gate1.rollback_reason || 'Explore stage failed quality gate'}`,
+        `[The Prism] ${gate1.rollback_reason || 'Spectrum refraction failed quality gate'}`,
         Date.now() - start
       );
     }
 
-    // --- STAGE 2: COLLAPSE (Convergence) ---
+    // --- STAGE 2: COLLAPSE (The Synapse Integration) ---
     const cacheRaw = await runWithTimeout(() => callOllama(input.userMessage, [
       { role: 'system', content: PLAN_CACHE_KEEPER_PROMPT },
       { role: 'user', content: `EXPLORATION_DATA: ${miner.output}` }
@@ -176,7 +183,7 @@ async function runVentureLabCycle(input: ConsensusInput, start: number): Promise
     );
     if (gate2.verdict !== 'PASS') {
       return createKillSwitchVerdict(
-        `[Sentinel] ${gate2.rollback_reason || 'Collapse stage failed quality gate'}`,
+        `[The Synapse] ${gate2.rollback_reason || 'Neural collapse failed quality gate'}`,
         Date.now() - start
       );
     }
@@ -194,20 +201,26 @@ async function runVentureLabCycle(input: ConsensusInput, start: number): Promise
     ]), STAGE_TIMEOUT_MS);
     const marketSim = safeParseProposal(marketSimRaw, 'market_simulator');
 
-    // --- GATE 3: ATTACK CHECK ---
+    const futureMirrorRaw = await runWithTimeout(() => callOllama(input.userMessage, [
+      { role: 'system', content: FUTURE_MIRROR_PROMPT },
+      { role: 'user', content: `PROPOSAL: ${conductor.output}\nMARKET_DYNAMICS: ${marketSim.output}` }
+    ]), STAGE_TIMEOUT_MS);
+    const futureMirror = safeParseProposal(futureMirrorRaw, 'market_simulator');
+
+    // --- GATE 3: THE CRUCIBLE CHECK ---
     const gate3 = await sentinel.evaluateStageTransition(
       { title: input.userMessage } as any, 
       'Attack', 
-      [advocate, marketSim]
+      [advocate, marketSim, futureMirror]
     );
     if (gate3.verdict !== 'PASS') {
       return createKillSwitchVerdict(
-        `[Sentinel] ${gate3.rollback_reason || 'Attack stage failed quality gate'}`,
+        `[The Crucible] ${gate3.rollback_reason || 'Smelting failed quality gate'}`,
         Date.now() - start
       );
     }
 
-    // --- STAGE 4: BUILD (Triple Simulation) ---
+    // --- STAGE 4: BUILD (The Kinetic Edge) ---
     const buildSimRaw = await runWithTimeout(() => callOllama(input.userMessage, [
       { role: 'system', content: BUILD_SIMULATOR_PROMPT },
       { role: 'user', content: `PROPOSAL: ${conductor.output}\nMARKET_FEEDBACK: ${marketSim.output}` }
@@ -238,7 +251,7 @@ async function runVentureLabCycle(input: ConsensusInput, start: number): Promise
     ]), STAGE_TIMEOUT_MS);
     const distribution = safeParseProposal(distributionRaw, 'distribution');
 
-    // --- GATE 4: BUILD CHECK ---
+    // --- GATE 4: THE KINETIC EDGE CHECK ---
     const gate4 = await sentinel.evaluateStageTransition(
       { title: input.userMessage } as any, 
       'Build', 
@@ -246,21 +259,27 @@ async function runVentureLabCycle(input: ConsensusInput, start: number): Promise
     );
     if (gate4.verdict !== 'PASS') {
       return createKillSwitchVerdict(
-        `[Sentinel] ${gate4.rollback_reason || 'Build stage failed quality gate'}`,
+        `[The Kinetic Edge] ${gate4.rollback_reason || 'Action simulation failed quality gate'}`,
         Date.now() - start
       );
     }
 
-    // --- STAGE 5: SYNTHESIS (Final Consensus) ---
+    // --- STAGE 5: SYNTHESIS (Final Orchestration) ---
     const blacksmithRaw = await runWithTimeout(() => callOllama(input.userMessage, [
       { role: 'system', content: SPEC_BLACKSMITH_PROMPT },
       { role: 'user', content: `ALL_DATA: ${JSON.stringify({ conductor: conductor.output, attack: marketSim.output, build: architect.output, distribution: distribution.output })}` }
     ]), STAGE_TIMEOUT_MS);
     const blacksmith = safeParseProposal(blacksmithRaw, 'execution');
 
+    const taskTreeRaw = await runWithTimeout(() => callOllama(input.userMessage, [
+      { role: 'system', content: NEURAL_HIERARCHY_PROMPT },
+      { role: 'user', content: `SPEC_TO_DECOMPOSE: ${blacksmith.output}` }
+    ]), STAGE_TIMEOUT_MS);
+    const taskTree = safeParseProposal(taskTreeRaw, 'workflow_designer');
+
     const ceoRaw = await runWithTimeout(() => callOllama(input.userMessage, [
       { role: 'system', content: CEO_SYNTHESIZER_PROMPT },
-      { role: 'user', content: `FINAL_SPEC: ${blacksmith.output}\nFULL_TRACE_META: ${JSON.stringify({ stages: 5, agents: 14 })}` }
+      { role: 'user', content: `FINAL_SPEC: ${blacksmith.output}\nTASK_TREE: ${taskTree.output}\nFULL_TRACE_META: ${JSON.stringify({ stages: 5, agents: 17 })}` }
     ]), STAGE_TIMEOUT_MS);
     const ceo = safeParseProposal(ceoRaw, 'ceo');
 
