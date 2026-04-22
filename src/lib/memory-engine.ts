@@ -6,12 +6,15 @@
 import { createHash, randomUUID } from 'crypto';
 import type { UserProfile, ConversationMessage, ProfileSnapshot, Fact, ResearchGem } from '@/types/twin';
 import { OllamaTool, callOllama, fetchEmbedding } from '@/lib/ollama-client';
+import { toolRegistry } from '@/lib/plugins/tool-registry';
+import { ToolDefinition } from '@/lib/plugins/plugin-schema';
 import { skillRegistry } from '@/lib/skills/registry';
 
 
 import { getServerPB } from './pb-server';
 import { config } from './observability/config-service';
 import { obs } from './observability/observability-service';
+import { tieredMemory, MemoryEntry } from './memory/tiered-store';
 
 // Fallback defaults if config service fails
 const DEFAULT_SIMILARITY_THRESHOLD = 0.88;
@@ -86,41 +89,58 @@ async function detectContradiction(newFact: string, existingFact: string, catego
   }
 }
 
-/**
- * 🛠️ CAPABILITY: MEMORY_TOOLS
- * Standard tool definitions for the Twin's memory management.
- */
-export const MEMORY_TOOLS: OllamaTool[] = [
-  {
-    type: 'function',
-    function: {
-      name: 'recallMemory',
-      description: 'Search and recall specific facts about the user from long-term memory',
-      parameters: {
-        type: 'object',
-        properties: {
-          topic: { type: 'string', description: 'The topic or keyword to recall' }
+function registerBuiltInMemoryTools(): void {
+  const memoryTools: Array<{ definition: ToolDefinition; executor: (args: Record<string, unknown>, context?: { userId?: string }) => Promise<unknown>; }> = [
+    {
+      definition: {
+        name: 'recallMemory',
+        description: 'Search and recall specific facts about the user from long-term memory',
+        namespace: 'memory',
+        permissions: ['memory_read'],
+        parameters: {
+          type: 'object',
+          properties: {
+            topic: { type: 'string', description: 'The topic or keyword to recall' },
+          },
+          required: ['topic'],
         },
-        required: ['topic']
-      }
-    }
-  },
-  {
-    type: 'function',
-    function: {
-      name: 'saveMemory',
-      description: 'Save an important new fact learned about the user to long-term memory',
-      parameters: {
-        type: 'object',
-        properties: {
-          fact: { type: 'string', description: 'The fact to remember' },
-          category: { type: 'string', description: 'One of: preference, biographical, habit' }
+      },
+      executor: async (args, context) => {
+        const topic = String(args.topic ?? '');
+        return await executeRecallMemory(context?.userId ?? 'system', topic);
+      },
+    },
+    {
+      definition: {
+        name: 'saveMemory',
+        description: 'Save an important new fact learned about the user to long-term memory',
+        namespace: 'memory',
+        permissions: ['memory_write'],
+        parameters: {
+          type: 'object',
+          properties: {
+            fact: { type: 'string', description: 'The fact to remember' },
+            category: { type: 'string', description: 'One of: preference, biographical, habit' },
+          },
+          required: ['fact', 'category'],
         },
-        required: ['fact', 'category']
-      }
-    }
+      },
+      executor: async (args, context) => {
+        const fact = String(args.fact ?? '');
+        const category = String(args.category ?? '');
+        return await executeSaveMemory(context?.userId ?? 'system', fact, category);
+      },
+    },
+  ];
+
+  for (const tool of memoryTools) {
+    toolRegistry.registerTool(tool.definition, tool.executor);
   }
-];
+}
+
+registerBuiltInMemoryTools();
+
+export const MEMORY_TOOLS: OllamaTool[] = toolRegistry.getToolDefinitions();
 
 import { tieredMemory, MemoryEntry } from './memory/tiered-store';
 

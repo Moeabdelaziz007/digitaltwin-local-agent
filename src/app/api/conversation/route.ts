@@ -8,13 +8,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import PocketBase from 'pocketbase';
 import { auth } from '@clerk/nextjs/server';
 import { headers } from 'next/headers';
-import {
-  buildMemoryContext,
-  MEMORY_TOOLS,
-  executeRecallMemory,
-  executeSaveMemory
-} from '@/lib/memory-engine';
+import { buildMemoryContext } from '@/lib/memory-engine';
 import { streamOllama, OllamaMessage } from '@/lib/ollama-client';
+import { toolRegistry } from '@/lib/plugins/tool-registry';
+import { executeTool } from '@/lib/plugins/gateway';
 import { obs } from '@/lib/observability/observability-service';
 import { safeFetch } from '@/lib/safe-fetch';
 import { getServerPB } from '@/lib/pb-server';
@@ -349,7 +346,7 @@ export async function POST(request: NextRequest): Promise<Response> {
           body: JSON.stringify({
             model: env.OLLAMA_MODEL,
             messages,
-            tools: MEMORY_TOOLS,
+            tools: toolRegistry.getToolDefinitions(),
             stream: false,
           }),
         });
@@ -365,11 +362,12 @@ export async function POST(request: NextRequest): Promise<Response> {
 
         messages.push(responseMessage);
         for (const toolCall of responseMessage.tool_calls) {
-          const result = await (async () => {
-            if (toolCall.function.name === 'recallMemory') return await executeRecallMemory(userId, toolCall.function.arguments.topic);
-            if (toolCall.function.name === 'saveMemory') return await executeSaveMemory(userId, toolCall.function.arguments.fact, toolCall.function.arguments.category);
-            return 'Tool not found';
-          })();
+          const result = await executeTool(
+            toolCall.function.name,
+            toolCall.function.arguments || {},
+            ['memory_read', 'memory_write'],
+            { userId, sessionId }
+          );
           messages.push({ role: 'tool', name: toolCall.function.name, content: JSON.stringify(result) });
         }
         iterations++;
