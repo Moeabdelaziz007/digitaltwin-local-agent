@@ -5,6 +5,7 @@ import {
   SpanKind,
   Attributes
 } from '@opentelemetry/api';
+import { init, registerOtelFlush } from 'braintrust';
 import { env } from '@/lib/env';
 
 // We isolate Node-only types and imports to prevent client-side bundling errors
@@ -38,6 +39,15 @@ export class ObservabilityService {
     if (!this.isServer || this.sdk) return;
 
     try {
+      // Initialize Braintrust
+      if (process.env.BRAINTRUST_API_KEY && process.env.BRAINTRUST_PROJECT_ID) {
+        init({
+          apiKey: process.env.BRAINTRUST_API_KEY,
+          projectName: process.env.BRAINTRUST_PROJECT_ID,
+        });
+        console.log('[BRAINTRUST] Initialized');
+      }
+
       // Dynamic imports to prevent Webpack from trying to bundle Node-only modules for the browser
       const { NodeSDK } = await import('@opentelemetry/sdk-node');
       const { BatchSpanProcessor } = await import('@opentelemetry/sdk-trace-base');
@@ -57,7 +67,14 @@ export class ObservabilityService {
       });
 
       this.sdk.start();
-      console.log('[OBSERVABILITY] OTel SDK Started with PocketBase Exporter (Server-side)');
+      
+      // Register OTel flush with Braintrust to ensure traces are sent
+      if (process.env.BRAINTRUST_API_KEY) {
+        registerOtelFlush(this.sdk);
+        console.log('[BRAINTRUST] OTel flush registered');
+      }
+      
+      console.log('[OBSERVABILITY] OTel SDK Started with PocketBase Exporter + Braintrust Drain (Server-side)');
     } catch (e) {
       console.error('[OBSERVABILITY] Failed to initialize OTel SDK:', e);
     }
