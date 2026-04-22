@@ -27,7 +27,7 @@ export class BrowserbaseController {
     const session = await this.bb.sessions.create({
       projectId: this.projectId,
       keepAlive: options?.keepAlive || false,
-      proxy: options?.proxy || false,
+      proxies: options?.proxy ? true : undefined,
     });
 
     // Connect Playwright to the session

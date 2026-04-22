@@ -24,3 +24,5 @@ export const serverPB = PBServer.getInstance();
 export function getServerPB() {
   return serverPB;
 }
+
+export default serverPB;
