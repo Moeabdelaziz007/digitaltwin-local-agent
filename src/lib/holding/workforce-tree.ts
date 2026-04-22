@@ -26,6 +26,23 @@ export interface WorkforceNode {
   };
   status: 'active' | 'on_leave' | 'terminated';
   created_at: string;
+  wiki: {
+    roleDefinition: string[];
+    authority: string[];
+    skills: string[];
+    knowledgeBase: string[];
+    auditLog: string[];
+  };
+}
+
+export interface RoleSpec {
+  role: string;
+  title: string;
+  budget: number;
+  roleDefinition?: string[];
+  authority?: string[];
+  skills?: string[];
+  knowledgeBase?: string[];
 }
 
 export class WorkforceTree {
@@ -60,7 +77,14 @@ export class WorkforceTree {
         budget: { allocated: 1000, spent: 0 },
         performance: { runs: 0, successRate: 1, revenueGenerated: 0 },
         status: 'active',
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        wiki: {
+          roleDefinition: ['Sets top-level strategy and budget constraints.'],
+          authority: ['Can approve or reject venture-level decisions.'],
+          skills: ['governance:board-oversight'],
+          knowledgeBase: ['dataset:venture-roadmap'],
+          auditLog: [`${new Date().toISOString()}: Board node bootstrapped.`]
+        }
       };
       this.save();
     }
@@ -75,7 +99,7 @@ export class WorkforceTree {
   /**
    * Hire a new agent into the tree
    */
-  public async hire(parentId: string, spec: { role: string; title: string; budget: number }): Promise<WorkforceNode> {
+  public async hire(parentId: string, spec: RoleSpec): Promise<WorkforceNode> {
     const parent = this.nodes[parentId];
     if (!parent) throw new Error(`Parent node ${parentId} not found.`);
 
@@ -94,7 +118,14 @@ export class WorkforceTree {
       budget: { allocated: spec.budget, spent: 0 },
       performance: { runs: 0, successRate: 0, revenueGenerated: 0 },
       status: 'active',
-      created_at: new Date().toISOString()
+      created_at: new Date().toISOString(),
+      wiki: {
+        roleDefinition: spec.roleDefinition ?? ['No role definition assigned yet.'],
+        authority: spec.authority ?? [`Can operate within a budget cap of $${spec.budget}.`],
+        skills: spec.skills ?? [],
+        knowledgeBase: spec.knowledgeBase ?? [],
+        auditLog: [`${new Date().toISOString()}: Hired by ${parent.title}.`]
+      }
     };
 
     this.nodes[newNode.id] = newNode;
@@ -104,8 +135,12 @@ export class WorkforceTree {
     parent.budget.spent += spec.budget;
 
     this.save();
-    agentWiki.updateWiki(newNode);
+    this.createWikiPage(newNode);
     return newNode;
+  }
+
+  private createWikiPage(node: WorkforceNode) {
+    agentWiki.updateWiki(node);
   }
 
   /**
@@ -146,6 +181,13 @@ export class WorkforceTree {
     };
 
     return { successRate: avgSuccessRate, totalRuns, revenue: totalRevenue };
+  }
+
+  /**
+   * Async recursive subtree evaluation compatible with the Workforce Wiki Tree blueprint.
+   */
+  public async evaluateSubtree(headId: string): Promise<{ successRate: number; totalRuns: number; revenue: number }> {
+    return this.evaluatePerformance(headId);
   }
 
   public getNode(id: string): WorkforceNode | undefined {
