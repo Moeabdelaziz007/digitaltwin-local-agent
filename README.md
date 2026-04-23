@@ -27,9 +27,9 @@
 **If OpenClaw is an employee, MAS-ZERO is the Holding.**  
 **إذا كان OpenClaw هو الموظف، فإن MAS-ZERO هو الشركة القابضة.**
 
-MAS-ZERO is a modern Local-First AI venture engine built with Next.js 15, Go sidecars, PocketBase, LiveKit, Clerk, and local LLMs. It orchestrates specialized agents, enforces budgets, and keeps sensitive workflows private.
+MAS-ZERO is a modern Local-First AI venture engine built with Next.js 15, Go sidecars, PocketBase, LiveKit, Clerk, and local LLMs. It orchestrates specialized agents, enforces budgets, and evolves through genetic algorithms.
 
-MAS-ZERO هو محرك مشاريع ذكي محلي الأولوية مبني بـ Next.js 15، Sidecar بلغة Go، PocketBase، LiveKit، Clerk، ونماذج محلية. يدير وكلاء متخصصين، يطبق حدود الميزانية، ويحافظ على خصوصية العمليات.
+MAS-ZERO هو محرك مشاريع ذكي محلي الأولوية مبني بـ Next.js 15، Sidecar بلغة Go، PocketBase، LiveKit، Clerk، ونماذج محلية. يدير وكلاء متخصصين، يطبق حدود الميزانية، ويتطور عبر الخوارزميات الجينية.
 
 ---
 
@@ -37,9 +37,10 @@ MAS-ZERO هو محرك مشاريع ذكي محلي الأولوية مبني ب
 
 | Step | Action | English | العربية |
 | :--- | :--- | :--- | :--- |
-| **01** | **Define** | Identify a market gap (e.g., "AI-Powered SEO tool"). | تحديد فرصة في السوق (مثلاً: أداة SEO مدعومة بالذكاء الاصطناعي) |
-| **02** | **Hire** | Deploy CEO, Marketers, Engineers, and Sales agents. | نشر وكلاء المدير التنفيذي، التسويق، الهندسة، والمبيعات |
-| **03** | **Run** | Approve strategy, set budgets, and hit **GO**. | اعتماد الإستراتيجية، تحديد الميزانية، ثم بدء التشغيل الآلي |
+| **01** | **Define** | Identify a market gap via the **Validation Vortex**. | تحديد فرصة في السوق عبر "دوامة التحقق". |
+| **02** | **Hire** | Deploy Specialized ISkills (Sniper, Marketer, Builder). | نشر مهارات متخصصة (القناص، المسوق، المطور). |
+| **03** | **Evolve** | Use **Evolutionary Memory** to refine strategy over time. | استخدام "الذاكرة التطورية" لتحسين الإستراتيجية ذاتياً. |
+| **04** | **Run** | **Autonomous Kill Chain** manages approvals and budget. | "سلسلة القتل المستقلة" تدير الموافقات والميزانية. |
 
 ---
 
@@ -48,32 +49,38 @@ MAS-ZERO هو محرك مشاريع ذكي محلي الأولوية مبني ب
 ```mermaid
 graph TD
     subgraph UI_Layer [Sovereign Control Plane]
-        A[Dashboard UI] --> B[Next.js 15 App Router]
-        C[Mobile Monitor] --> B
+        A[Venture Lab UI] --> B[Next.js 15 App Router]
+        C[Profit Dashboard] --> B
     end
 
     subgraph Orchestration [Autonomous Venture Engine - AVE]
-        B --> D[Consensus CEO]
-        D --> E[DAG Executor]
-        E --> F[Parallel Skill Invoker]
+        B --> D[Unified ISkill Registry]
+        D --> E[Quantum Mirror Simulation]
+        E --> F[The Autonomous Kill Chain]
     end
 
-    subgraph Agency_Pool [Reusable Agent Desk]
-        F --> G[Growth Marketer]
-        F --> H[Sales Strategist]
-        F --> I[Execution Specialist]
-        F --> J[Legal Shield]
+    subgraph Learning_Layer [Self-Improvement Meta-Loop]
+        F --> G[Evolutionary Memory]
+        G --> H[Prompt DNA Crossover]
+        H --> D
+    end
+
+    subgraph Agency_Pool [Hardened ISkill Suite]
+        F --> I[Market Sniper]
+        F --> J[Validation Vortex]
+        F --> K[Content Multiplier]
+        F --> L[Vercel Deployer]
     end
 
     subgraph Integrity [Governance & Memory]
-        F --> K[Ticket System / Audit]
-        K --> L[PocketBase / Chronos Ledger]
-        F --> M[Budget Enforcement]
+        F --> M[Ticket System / Audit]
+        M --> N[PocketBase Ledger]
+        F --> O[Budget Cannibalism]
     end
 
     subgraph Intelligence [Local Intelligence]
-        G & H & I & J --> N[Ollama / Gemma 2]
-        I --> O[PTY Bridge / CLI Control]
+        I & J & K & L --> P[Ollama / Gemma 2]
+        K --> Q[PTY Bridge / CLI Control]
     end
 ```
 
@@ -81,26 +88,20 @@ graph TD
 
 ## ✨ Features | المميزات الذكية
 
-- **🔌 Bring Your Own Agent**: Any runtime, one org chart. (OpenClaw, Claude Code, Codex).  
-  **🔌 وظف أي وكيل**: أي بيئة تشغيل، هيكل تنظيمي واحد.
-- **🎯 Goal Alignment**: Tasks trace back to the mission; no aimless loops.  
-  **🎯 محاذاة الأهداف**: كل مهمة مرتبطة برؤية المشروع.
-- **💰 Cost Control**: Hard token budget limits and per-agent spending caps.  
-  **💰 التحكم بالتكلفة**: حدود صارمة على ميزانية التوكن لكل وكيل.
-- **🛡️ Governance**: Board-style approvals, overrides, and pause controls.  
-  **🛡️ الحوكمة**: أنت مجلس الإدارة، مع إمكانية الاعتراض والإيقاف.
-- **🏢 Multi-Venture**: One deployment supports many isolated companies.  
-  **🏢 مشاريع متعددة**: نشر واحد يدعم شركات متعددة مع عزل تام.
-- **🎙️ Voice-First**: LiveKit voice sessions plus local sidecar speech orchestration.  
-  **🎙️ صوت أولاً**: جلسات صوت LiveKit مع تنسيق الصوت المحلي.
-- **📦 PocketBase Memory**: Local session history, audits, and user persistence.  
-  **📦 ذاكرة PocketBase**: تاريخ الجلسات، التدقيق، والتخزين المحلي.
-- **🔐 Privacy Guard**: PII detection and local model fallback via Ollama/Gemma.  
-  **🔐 حماية الخصوصية**: كشف المعلومات الحساسة وتنفيذ محلي.
-- **🧠 Skill Registry**: Modular skills like Growth Marketer, PR Submitter, and SaaS Factory.  
-  **🧠 سجل المهارات**: مهارات قابلة للتوسيع مثل التسويق والنشر الذكي.
-- **🧪 Simulation**: Market and audit simulations before execution.  
-  **🧪 المحاكاة**: محاكاة السوق والتدقيق قبل التنفيذ.
+- **🔌 Unified ISkill Interface**: Standardized 6-stage lifecycle for all agents.  
+  **🔌 واجهة ISkill الموحدة**: دورة حياة من 6 مراحل لجميع الوكلاء.
+- **🛡️ The Autonomous Kill Chain**: Self-governing board that kills bad tasks and auto-approves profit.  
+  **🛡️ سلسلة القتل المستقلة**: مجلس إدارة ذاتي يقتل المهام الفاشلة ويعتمد المربحة.
+- **🌪️ Validation Vortex**: 5-day automated funnel to kill bad ideas fast.  
+  **🌪️ دوامة التحقق**: مسار آلي من 5 أيام لقتل الأفكار السيئة بسرعة.
+- **🧬 Evolutionary Memory**: Genetic algorithms for prompt optimization and strategy evolution.  
+  **🧬 الذاكرة التطورية**: خوارزميات جينية لتحسين التعليمات وتطور الإستراتيجية.
+- **💰 Budget Cannibalism**: Automated capital redirection from failing skills to winners.  
+  **💰 افتراس الميزانية**: إعادة توجيه الميزانية آلياً من الوكلاء الفاشلين للناجحين.
+- **⚡ Vercel Official Skill**: Automated zero-human deployment and scaling.  
+  **⚡ مهارة Vercel الرسمية**: نشر وتوسع آلي بدون تدخل بشري.
+- **🧪 Quantum Mirror**: Multi-persona simulations for risk/ROI assessment.  
+  **🧪 المحاكاة الكمية**: محاكاة لتقييم المخاطر والعوائد قبل التنفيذ.
 
 ---
 

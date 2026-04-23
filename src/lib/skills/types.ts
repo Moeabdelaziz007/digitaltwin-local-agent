@@ -27,6 +27,7 @@ export interface SkillMetadata {
   when_to_use?: string;
   successRate?: number;
   totalEarnings?: number;
+  invocation_flow?: string[];
 }
 
 /**
@@ -35,6 +36,7 @@ export interface SkillMetadata {
 export abstract class ISkill {
   abstract id: string;
   abstract metadata: SkillMetadata;
+  public instructions?: string;
 
   /**
    * 1. Discovery (اكتشاف الفرص)

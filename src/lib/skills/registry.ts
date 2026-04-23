@@ -30,7 +30,7 @@ export const SkillSchema = z.object({
   next_skills: z.array(z.string()).optional(),
   required_before: z.array(z.string()).optional(),
   blocks_if_missing: z.array(z.string()).optional(),
-  revenue_impact: z.enum(['critical', 'high', 'medium', 'low']).optional(),
+  revenue_impact: z.enum(['critical', 'high', 'medium', 'low']).optional().default('medium'),
   category: z.string().optional()
 });
 
