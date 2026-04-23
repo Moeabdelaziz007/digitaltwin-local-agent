@@ -5,11 +5,12 @@ import {
   SpanKind,
   Attributes
 } from '@opentelemetry/api';
-import { init, registerOtelFlush } from 'braintrust';
-import { env } from '@/lib/env';
+import { init } from 'braintrust';
 
-// We isolate Node-only types and imports to prevent client-side bundling errors
-type NodeSDKType = import('@opentelemetry/sdk-node').NodeSDK;
+// NOTE: We intentionally do NOT import @opentelemetry/sdk-node at the top level.
+// This package depends on @grpc/grpc-js which requires Node's http2 module,
+// causing build failures in Next.js. All Node-only OTel SDK usage is handled
+// via dynamic imports inside server-only code paths.
 
 /**
  * ObservabilityService
