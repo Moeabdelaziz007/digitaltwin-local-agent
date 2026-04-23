@@ -9,6 +9,8 @@ interface VoiceContextType {
   startListening: () => void;
   stopListening: () => void;
   interrupt: () => void;
+  audioContext: AudioContext | null;
+  ttsAbortController: AbortController | null;
 }
 
 const VoiceContext = createContext<VoiceContextType | null>(null);
@@ -73,7 +75,7 @@ export function VoiceProvider({ children }: { children: React.ReactNode }) {
       // References for advanced skill manipulation
       audioContext: audioContextRef.current,
       ttsAbortController: ttsAbortControllerRef.current
-    } as unknown as VoiceContextType}>
+    }}>
       {children}
     </VoiceContext.Provider>
   );

@@ -109,7 +109,7 @@ export class FeedbackForge {
       totalAccuracy += accuracy;
 
       // تحديث أداء المرآة في WorkforceTree
-      workforceTree.updateMirrorPerformance(
+      await workforceTree.updateMirrorPerformance(
         sim.mirrorId,
         accuracy,
         actual.outcome === 'success'

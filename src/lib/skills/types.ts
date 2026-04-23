@@ -13,6 +13,7 @@ export interface ExecutionResult {
   error?: string;
   estimatedRevenue?: number;
   metadata?: Record<string, any>;
+  verified?: boolean;
 }
 
 export interface SkillMetadata {
@@ -41,17 +42,17 @@ export abstract class ISkill {
   /**
    * 1. Discovery (اكتشاف الفرص)
    */
-  abstract scan(): Promise<any[]>;
+  async scan(): Promise<any[]> { return []; }
 
   /**
    * 2. Score (تقييم المخاطر والأرباح)
    */
-  abstract score(items: any[], venture: Venture): Promise<any[]>;
+  async score(items: any[], venture: Venture): Promise<any[]> { return items; }
 
   /**
    * 3. Generate (توليد مسودة العمل)
    */
-  abstract generate(bestOpportunity: any): Promise<any>;
+  async generate(bestOpportunity: any): Promise<any> { return bestOpportunity; }
 
   /**
    * 6. EXECUTE (التنفيذ الفعلي عبر الـ Kernel)
@@ -61,12 +62,12 @@ export abstract class ISkill {
   /**
    * 7. VERIFY (التحقق من النتيجة)
    */
-  abstract verify(result: ExecutionResult): Promise<boolean>;
+  async verify(result: ExecutionResult): Promise<boolean> { return result.success; }
 
   /**
    * 8. LEARN (التعلم والتحسين)
    */
-  abstract learn(outcome: ExecutionResult, venture: Venture): Promise<void>;
+  async learn(outcome: ExecutionResult, venture: Venture): Promise<void> {}
 }
 
 // Compatibility Alias

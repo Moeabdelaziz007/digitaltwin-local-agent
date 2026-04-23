@@ -1,4 +1,4 @@
-name: Venture OS Master Pipeline
+name: MAS-ZERO Agent Economy Pipeline
 
 on:
   pull_request:
@@ -38,7 +38,17 @@ jobs:
         run: |
           npm install -g pnpm
           pnpm install
-          pnpm run build
+      - name: 🛡️ Type Check
+        if: matrix.component == 'frontend'
+        run: pnpm run typecheck
+
+      - name: 🧹 Lint Check
+        if: matrix.component == 'frontend'
+        run: pnpm run lint
+
+      - name: 🏗️ Build App
+        if: matrix.component == 'frontend'
+        run: pnpm run build
       
       # Sidecar Build & Artifact
       - name: Build Sidecar

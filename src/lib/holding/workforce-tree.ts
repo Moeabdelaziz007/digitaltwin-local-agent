@@ -1,11 +1,10 @@
-import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
-import { join } from 'path';
+import { serverPB } from '../pb-server';
 import { agentWiki } from './agent-wiki';
 import { MirrorMeta, MirrorPersonaVariant } from '../quantum-mirror/types/mirror-types';
 
 /**
  * src/lib/holding/workforce-tree.ts
- * Implements the "Workforce Wiki Tree" hierarchy.
+ * Implements the "Workforce Wiki Tree" hierarchy using PocketBase.
  * Allows agents to hire sub-agents and manage their performance/budgets.
  */
 
@@ -51,11 +50,15 @@ export interface RoleSpec {
 
 export class WorkforceTree {
   private static instance: WorkforceTree;
-  private dbPath = join(process.cwd(), 'ventures', 'workforce.json');
   private nodes: Record<string, WorkforceNode> = {};
+  private isLoaded = false;
 
   private constructor() {
-    this.load();
+    this.init();
+  }
+
+  private async init() {
+    await this.syncFromPB();
   }
 
   public static getInstance(): WorkforceTree {
@@ -65,39 +68,103 @@ export class WorkforceTree {
     return WorkforceTree.instance;
   }
 
-  private load() {
-    if (existsSync(this.dbPath)) {
-      this.nodes = JSON.parse(readFileSync(this.dbPath, 'utf8'));
-    } else {
-      // Initialize with Founder/Board
-      const boardId = 'board-0';
-      this.nodes[boardId] = {
-        id: boardId,
-        role: 'board',
-        title: 'Founder / Board',
-        hiredBy: 'system',
-        reportsTo: 'user',
-        manages: [],
-        budget: { allocated: 1000, spent: 0 },
-        performance: { runs: 0, successRate: 1, revenueGenerated: 0, roi: 0, capitalAllocation: 1000 },
-        status: 'active',
-        created_at: new Date().toISOString(),
-        wiki: {
-          roleDefinition: ['Sets top-level strategy and budget constraints.'],
-          authority: ['Can approve or reject venture-level decisions.'],
-          skills: ['governance:board-oversight'],
-          knowledgeBase: ['dataset:venture-roadmap'],
-          auditLog: [`${new Date().toISOString()}: Board node bootstrapped.`]
-        }
-      };
-      this.save();
+  /**
+   * Syncs the local cache from PocketBase
+   */
+  public async syncFromPB() {
+    try {
+      const records = await serverPB.collection('workforce').getFullList<any>();
+      if (records.length === 0) {
+        await this.bootstrap();
+      } else {
+        records.forEach(r => {
+          this.nodes[r.node_id] = r.data;
+        });
+        this.isLoaded = true;
+      }
+    } catch (e) {
+      console.warn('[WorkforceTree] PB sync failed, using bootstrap logic.');
+      await this.bootstrap();
     }
   }
 
-  private save() {
-    const dir = join(process.cwd(), 'ventures');
-    if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-    writeFileSync(this.dbPath, JSON.stringify(this.nodes, null, 2));
+  private async bootstrap() {
+    // Initialize with Founder/Board and Core Employees if collection is empty
+    const boardId = 'board-0';
+    if (!this.nodes[boardId]) {
+      const boardNode: WorkforceNode = {
+        id: boardId,
+        role: 'board',
+        title: 'Founder / Board (Paperclip Holding)',
+        hiredBy: 'system',
+        reportsTo: 'user',
+        manages: [],
+        budget: { allocated: 5000, spent: 0 },
+        performance: { runs: 0, successRate: 1, revenueGenerated: 0, roi: 0, capitalAllocation: 5000 },
+        status: 'active',
+        created_at: new Date().toISOString(),
+        wiki: {
+          roleDefinition: ['Sets top-level strategy and manages the Paperclip holding structure.'],
+          authority: ['Can approve or reject economy-level decisions.'],
+          skills: ['governance:board-oversight'],
+          knowledgeBase: ['dataset:economy-roadmap'],
+          auditLog: [`${new Date().toISOString()}: Board node bootstrapped.`]
+        }
+      };
+      this.nodes[boardId] = boardNode;
+      await this.persistNode(boardNode);
+
+      // Add OpenClaw Prime (Orchestrator)
+      await this.hire(boardId, {
+        role: 'orchestrator',
+        title: 'OpenClaw Prime',
+        budget: 1000,
+        roleDefinition: ['Generalist lead managing the agent swarm.'],
+        skills: ['orchestration:swarm-management']
+      });
+
+      // Add Hermes Agent (Self-Evolver)
+      await this.hire(boardId, {
+        role: 'specialist',
+        title: 'Hermes Agent',
+        budget: 500,
+        roleDefinition: ['Specialized in self-improvement and skill mutation.'],
+        skills: ['evolution:self-improvement', 'mutation:skill-discovery']
+      });
+
+      // Add Mercor Bridge (Human Validator)
+      await this.hire(boardId, {
+        role: 'bridge',
+        title: 'Mercor Bridge',
+        budget: 500,
+        roleDefinition: ['Connects AI logic with human expertise and validation.'],
+        skills: ['validation:human-in-the-loop']
+      });
+    }
+    this.isLoaded = true;
+  }
+
+  private async persistNode(node: WorkforceNode) {
+    try {
+      const existing = await (serverPB.collection('workforce').getFirstListItem(`node_id="${node.id}"`).catch(() => null) as any);
+      const payload = {
+        node_id: node.id,
+        role: node.role,
+        title: node.title,
+        hiredBy: node.hiredBy,
+        reportsTo: node.reportsTo,
+        status: node.status,
+        data: node
+      };
+
+      if (existing) {
+        await serverPB.collection('workforce').update(existing.id, payload);
+      } else {
+        await serverPB.collection('workforce').create(payload);
+      }
+    } catch (e) {
+      console.error(`[WorkforceTree] Failed to persist node ${node.id}:`, e);
+    }
   }
 
   /**
@@ -138,7 +205,9 @@ export class WorkforceTree {
     // Deduct from parent budget (as allocated)
     parent.budget.spent += spec.budget;
 
-    this.save();
+    await this.persistNode(newNode);
+    await this.persistNode(parent);
+    
     this.createWikiPage(newNode);
     return newNode;
   }
@@ -207,19 +276,19 @@ export class WorkforceTree {
   /**
    * 💰 Financial Governance: Allocate Capital to a Venture or Agent
    */
-  public allocateCapital(nodeId: string, amount: number, reasoning: string): void {
+  public async allocateCapital(nodeId: string, amount: number, reasoning: string): Promise<void> {
     const node = this.nodes[nodeId];
     if (!node) throw new Error(`Agent ${nodeId} not found for capital allocation.`);
     
     node.budget.allocated += amount;
     node.wiki.auditLog.push(`${new Date().toISOString()}: [CAPITAL ALLOCATION] $${amount} injected. Reason: ${reasoning}`);
-    this.save();
+    await this.persistNode(node);
   }
 
   /**
    * 📈 Performance Audit: Update Revenue and Calculate ROI
    */
-  public reportRevenue(nodeId: string, amount: number, source: string): void {
+  public async reportRevenue(nodeId: string, amount: number, source: string): Promise<void> {
     const node = this.nodes[nodeId];
     if (!node) return;
 
@@ -228,7 +297,7 @@ export class WorkforceTree {
     node.performance.roi = totalInvested > 0 ? (node.performance.revenueGenerated / totalInvested) * 100 : 0;
     
     node.wiki.auditLog.push(`${new Date().toISOString()}: [REVENUE REPORT] $${amount} generated from ${source}. Current ROI: ${node.performance.roi.toFixed(2)}%`);
-    this.save();
+    await this.persistNode(node);
   }
 
   /**
@@ -238,11 +307,11 @@ export class WorkforceTree {
     const parent = this.nodes[parentId];
     if (!parent) throw new Error(`Parent node ${parentId} not found.`);
 
-    const mirrorId = `mirror-${meta.personaVariant}-${Date.now()}`;
+    const mirrorId = `mirror-${meta.personaVariant || 'conservative'}-${Date.now()}`;
     const newNode: WorkforceNode = {
       id: mirrorId,
       role: 'mirror',
-      title: `Mirror [${meta.personaVariant}] of ${parent.title}`,
+      title: `Mirror [${meta.personaVariant || 'conservative'}] of ${parent.title}`,
       hiredBy: parentId,
       reportsTo: parentId,
       manages: [],
@@ -261,7 +330,7 @@ export class WorkforceTree {
         spawnedAt: new Date().toISOString(),
       },
       wiki: {
-        roleDefinition: [`Simulative mirror of ${parent.title} with ${meta.personaVariant} bias.`],
+        roleDefinition: [`Simulative mirror of ${parent.title} with ${meta.personaVariant || 'conservative'} bias.`],
         authority: ['Operates only in simulation mode.'],
         skills: parent.wiki.skills,
         knowledgeBase: parent.wiki.knowledgeBase,
@@ -270,7 +339,7 @@ export class WorkforceTree {
     };
 
     this.nodes[newNode.id] = newNode;
-    this.save();
+    await this.persistNode(newNode);
     return newNode;
   }
 
@@ -292,9 +361,10 @@ export class WorkforceTree {
     const parent = this.nodes[mirror.hiredBy];
     if (parent) {
       parent.budget.spent += budget;
+      await this.persistNode(parent);
     }
 
-    this.save();
+    await this.persistNode(mirror);
     this.createWikiPage(mirror);
     return mirror;
   }
@@ -307,14 +377,14 @@ export class WorkforceTree {
     if (mirror && mirror.status === 'mirror') {
       mirror.status = 'terminated';
       if (mirror.mirrorMeta) mirror.mirrorMeta.terminatedAt = new Date().toISOString();
-      this.save();
+      await this.persistNode(mirror);
     }
   }
 
   /**
    * Quantum Mirror: Update mirror performance metrics
    */
-  public updateMirrorPerformance(mirrorId: string, accuracy: number, isSuccess: boolean): void {
+  public async updateMirrorPerformance(mirrorId: string, accuracy: number, isSuccess: boolean): Promise<void> {
     const mirror = this.nodes[mirrorId];
     if (!mirror || !mirror.mirrorMeta) return;
 
@@ -327,7 +397,7 @@ export class WorkforceTree {
     const avgAccuracy = meta.accuracyHistory.reduce((a, b) => a + b, 0) / meta.accuracyHistory.length;
     meta.promotionScore = (avgAccuracy * 0.7) + (Math.min(meta.totalSimulations / 10, 1) * 0.3);
 
-    this.save();
+    await this.persistNode(mirror);
   }
 
   /**
@@ -350,3 +420,4 @@ export class WorkforceTree {
 }
 
 export const workforceTree = WorkforceTree.getInstance();
+

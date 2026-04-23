@@ -19,5 +19,8 @@ import './freelance-arbitrage-v2';
 import './pr-submitter';
 import './marketplace';
 import './auto-doc';
+export * from './orchestrator';
+export * from './types';
+export * from './registry';
 
 console.log('[SkillRegistry] 📚 All sovereign skills indexed and registered.');

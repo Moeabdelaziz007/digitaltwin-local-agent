@@ -83,7 +83,7 @@ export class ShadowBoard {
     if (best && best.id !== agentId) {
        const failingNode = workforceTree.getNode(agentId);
        const amountToTransfer = failingNode?.budget.allocated || 0;
-       workforceTree.allocateCapital(best.id, amountToTransfer, 'CANNIBALIZED_FROM_FAILING_SKILL');
+       await workforceTree.allocateCapital(best.id, amountToTransfer, 'CANNIBALIZED_FROM_FAILING_SKILL');
        // Terminate or reduce failing agent
     }
   }

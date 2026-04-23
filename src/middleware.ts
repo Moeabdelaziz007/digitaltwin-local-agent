@@ -2,17 +2,18 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
 // Define public routes that don't require authentication
 const isPublicRoute = createRouteMatcher([
+  '/',
   '/sign-in(.*)',
   '/sign-up(.*)',
-  '/api/webhooks/clerk(.*)',
-  '/' // Assuming landing page is public, if not, remove this.
+  '/api/webhooks(.*)',
+  '/api/cron(.*)',
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
   const isGuardian = request.headers.get('X-Guardian-Auth') === process.env.CRON_SECRET;
   
   if (!isPublicRoute(request) && !isGuardian) {
-    await auth().protect();
+    await (await auth()).protect();
   }
 });
 
@@ -24,3 +25,4 @@ export const config = {
     '/(api|trpc)(.*)',
   ],
 };
+
