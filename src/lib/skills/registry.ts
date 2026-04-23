@@ -4,6 +4,7 @@ import path from 'path';
 import { z } from 'zod';
 
 export const SkillSchema = z.object({
+  id: z.string().optional(),
   name: z.string(),
   version: z.string(),
   description: z.string(),
@@ -62,9 +63,11 @@ export class SkillRegistry {
         when_to_use: skill.metadata?.when_to_use || 'Always',
         permissions: skill.metadata?.permissions || [],
         required_tools: skill.metadata?.required_tools || [],
-        input_schema: {},
-        output_schema: {},
+        input_schema: skill.metadata?.input_schema || {},
+        output_schema: skill.metadata?.output_schema || {},
         safety_notes: skill.metadata?.safety_notes || 'Safe to use',
+        revenue_impact: skill.metadata?.revenue_impact || 'low',
+        category: skill.metadata?.category || 'general'
       },
       instructions: skill.instructions || '',
       examples: skill.examples || [],

@@ -1,12 +1,14 @@
 import { callOllama } from '../ollama-client';
-import { skillRegistry } from './registry';
-import type { SkillListItem } from './registry';
+import { skillRegistry, SkillMetadata, SkillListItem } from './registry';
 
 /**
  * src/lib/skills/synapse-router.ts
  * The "Refraction Agent": Semantic Router for skill discovery.
  * Replaces primitive includes() with vectorized-style LLM reasoning.
  */
+
+// SkillWithId is redundant as it's equivalent to SkillListItem from registry.ts
+export type SkillWithId = SkillListItem;
 
 export class SynapseRouter {
   /**
