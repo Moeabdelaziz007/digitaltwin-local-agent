@@ -1,4 +1,4 @@
-import { FreelanceArbitrageSkill } from '../skills/freelance-arbitrage';
+import { FreelanceArbitrageV2Skill as FreelanceArbitrageSkill } from '../skills/freelance-arbitrage-v2';
 import { TicketEngine } from './ticket-engine';
 import { Venture, Role } from './types';
 

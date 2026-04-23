@@ -6,7 +6,7 @@
 
 const TOPOLOGY_MAP: Record<string, () => Promise<any>> = {
   // Tier 0: Core / Essential
-  'core': () => import('./agents/profit-lab/skill-registry'),
+  'core': () => import('./skills/registry'),
   'guardian': () => import('./guardian/observability-guardian'),
   
   // Tier 1: Mid-weight / Frequent

@@ -1,13 +1,14 @@
 import { ventureRegistry } from './venture-registry';
 import { skillRegistry } from '../skills/registry';
-import { FreelanceArbitrageSkill } from '../skills/freelance-arbitrage';
+import { FreelanceArbitrageV2Skill } from '../skills/freelance-arbitrage-v2';
 import { BountyHunterSkill } from '../skills/bounty-hunter';
 import { SaaSFactorySkill } from '../skills/saas-factory';
 import { ContentMultiplierSkill } from '../skills/content-multiplier';
 import { ProductFactorySkill } from '../skills/product-factory';
 import { AgentServiceSkill } from '../skills/agent-service';
 import { MarketingSpecialistSkill } from '../skills/marketing-specialist';
-import { MercorReferralSkill } from '../skills/mercor-referral';
+import { MercorBridgeSkill } from '../skills/mercor-bridge';
+import { revenueFlywheel } from '../revenue-flywheel';
 
 /**
  * src/lib/holding/venture-engine.ts
@@ -33,6 +34,10 @@ export class VentureEngine {
   public start(tickRateMs: number = 3600000) { // Default: 1 hour
     console.log('[AVE] Venture Engine activated. Heartbeat started.');
     this.intervalId = setInterval(() => this.heartbeat(), tickRateMs);
+    
+    // Start the Strategic Revenue Flywheel
+    revenueFlywheel.start();
+    
     this.heartbeat(); // Initial run
   }
 
@@ -117,14 +122,15 @@ export class VentureEngine {
 
   private getSkillInstance(skillId: string) {
     switch (skillId) {
-      case 'freelance-arbitrage': return new FreelanceArbitrageSkill();
+      case 'freelance-arbitrage': return new FreelanceArbitrageV2Skill();
       case 'bounty-hunter': return new BountyHunterSkill();
       case 'saas-factory': return new SaaSFactorySkill();
       case 'content-multiplier': return new ContentMultiplierSkill();
       case 'product-factory': return new ProductFactorySkill();
       case 'agent-service': return new AgentServiceSkill();
       case 'marketing-specialist': return new MarketingSpecialistSkill();
-      case 'mercor-referral': return new MercorReferralSkill();
+      case 'mercor-bridge': return new MercorBridgeSkill();
+      case 'mercor-referral': return new MercorBridgeSkill(); // Map old ID to new Bridge for backward compatibility
       default: return null;
     }
   }

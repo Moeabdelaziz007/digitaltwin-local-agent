@@ -1,4 +1,4 @@
-import { skillRegistry } from '../agents/profit-lab/skill-registry';
+import { skillRegistry } from '../skills/registry';
 import { callOllama } from '../ollama-client';
 import { attributionEngine } from '../causal/attribution';
 
