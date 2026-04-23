@@ -9,27 +9,32 @@ import { Venture, Role, Ticket } from '../holding/types';
  * 
  * "The Hunter" — Finds high-value expert needs in the wild (Social/Job Boards).
  */
-export class MarketSniperSkill extends BaseSkill {
+export class MarketSniperSkill extends ISkill {
   id = 'market-sniper';
-  metadata: any;
+  metadata: SkillMetadata = {
+    id: 'market-sniper',
+    name: 'Market Sniper',
+    version: '1.0.0',
+    description: 'Scans social platforms and job boards for expert gaps and high-value opportunities.',
+    category: 'marketing',
+    revenue_impact: 'high',
+    permissions: ['web_scan', 'llm_generation', 'ticket_creation'],
+    required_tools: ['Puppeteer', 'Ollama']
+  };
 
   constructor() {
     super();
-    this.metadata = {
-      name: 'Market Sniper',
-      version: '1.0.0',
-      description: 'Scans social platforms and job boards for expert gaps and high-value opportunities.',
-      when_to_use: 'When a venture needs revenue streams or needs to match experts to market demand.',
-      permissions: ['web_scan', 'llm_generation', 'ticket_creation'],
-      required_tools: ['Puppeteer', 'Ollama'],
-      revenue_impact: 'high',
-      category: 'marketing'
-    };
   }
 
   async scan(): Promise<any[]> {
-    // In a real scenario, this would use a default query or from context
-    return this.stealthScan('looking for AI expert');
+    const queries = [
+      'looking for AI expert',
+      'wish there was an app for',
+      'this software is so bad at',
+      'need a developer for micro-saas'
+    ];
+    const randomQuery = queries[Math.floor(Math.random() * queries.length)];
+    return this.stealthScan(randomQuery);
   }
 
   async stealthScan(query: string): Promise<any[]> {
@@ -98,22 +103,41 @@ export class MarketSniperSkill extends BaseSkill {
 
     const plan = await this.generate(top);
 
+    // Phase 4: Visual Evidence (NEW)
+    let screenshotUrl = '';
+    try {
+      const { browserManager } = await import('../browser/browser-manager');
+      const page = await browserManager.connect();
+      screenshotUrl = await browserManager.takeScreenshot(page, `lead-${top.expertise_required}`);
+    } catch (e) {
+      console.warn('[Market Sniper] Visual capture failed, proceeding with data only.');
+    }
+
+    const isProductGap = top.content.toLowerCase().includes('wish') || top.content.toLowerCase().includes('bad');
+
     const newTicket = await TicketEngine.createTicket(venture, role, {
-      title: `[SNIPER] High-Value Lead: ${top.expertise_required}`,
-      description: `Detected on ${top.platform}. ROI: ${top.evaluation.score}`,
+      title: isProductGap ? `[SYNTHESIS] Micro-SaaS Idea: ${top.expertise_required}` : `[SNIPER] High-Value Lead: ${top.expertise_required}`,
+      description: isProductGap ? `Synthesized from user frustration: "${top.content}"` : `Detected on ${top.platform}. ROI: ${top.evaluation.score}`,
       status: 'pending',
       context: `Outreach Plan: ${plan.outreach}`,
       metadata: { 
-        type: 'market_lead', 
+        type: isProductGap ? 'venture_synthesis' : 'market_lead', 
         expertise: top.expertise_required,
-        score: top.evaluation.score 
+        score: top.evaluation.score,
+        evidence: screenshotUrl
       }
     });
+
+    // Phase 5: Autonomous Approval (NEW)
+    const { shadowBoard } = await import('../holding/shadow-board');
+    const autoApproved = await shadowBoard.evaluate(newTicket, venture, role);
 
     return {
       success: true,
       ticketId: newTicket.id,
-      output: `Captured lead for ${top.expertise_required}. Ticket created.`
+      output: autoApproved 
+        ? `Captured & AUTO-APPROVED lead for ${top.expertise_required}. Visual proof: ${screenshotUrl}`
+        : `Captured lead for ${top.expertise_required}. Ticket created for review.`
     };
   }
 

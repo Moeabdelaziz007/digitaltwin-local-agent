@@ -35,20 +35,11 @@ export const SkillSchema = z.object({
 
 export type SkillMetadata = z.infer<typeof SkillSchema>;
 
-export interface Skill {
-  metadata: SkillMetadata;
-  instructions: string;
-  examples: string[];
-  enabled: boolean;
-}
-
-export interface SkillListItem extends SkillMetadata {
-  id: string;
-}
+export type SkillListItem = SkillMetadata & { id: string };
 
 export class SkillRegistry {
   private static instance: SkillRegistry;
-  private skills: Map<string, Skill> = new Map();
+  private skills: Map<string, RegisteredSkill> = new Map();
   private skillsDir = path.join(process.cwd(), 'skills');
 
   constructor() {}
@@ -61,88 +52,21 @@ export class SkillRegistry {
   }
 
   /**
-   * تسجيل مهارة جديدة ديناميكياً
+   * تسجيل مهارة جديدة كـ Plugin
    */
-  public registerSkill(skill: { id: string; metadata?: Partial<SkillMetadata>; instructions?: string; examples?: string[] }): void {
-    const fullSkill: Skill = {
-      metadata: {
-        name: skill.metadata?.name || skill.id,
-        version: skill.metadata?.version || '1.0.0',
-        description: skill.metadata?.description || '',
-        when_to_use: skill.metadata?.when_to_use || 'Always',
-        permissions: skill.metadata?.permissions || [],
-        required_tools: skill.metadata?.required_tools || [],
-        input_schema: skill.metadata?.input_schema || {},
-        output_schema: skill.metadata?.output_schema || {},
-        safety_notes: skill.metadata?.safety_notes || 'Safe to use',
-        revenue_impact: skill.metadata?.revenue_impact || 'low',
-        category: skill.metadata?.category || 'general',
-        successRate: skill.metadata?.successRate || 0,
-        totalEarnings: skill.metadata?.totalEarnings || 0,
-        totalRuns: skill.metadata?.totalRuns || 0,
-        status: skill.metadata?.status || 'experimental'
-      },
-      instructions: skill.instructions || '',
-      examples: skill.examples || [],
-      enabled: true
-    };
-
-    this.skills.set(skill.id, fullSkill);
-    console.log(`[SkillRegistry] Registered skill: ${skill.id}`);
+  public registerSkillInstance(instance: ISkill): void {
+    this.skills.set(instance.id, {
+      id: instance.id,
+      metadata: instance.metadata,
+      instructions: instance.metadata.description,
+      instance
+    });
+    console.log(`[SkillRegistry] Plugin Registered: ${instance.id} (v${instance.metadata.version})`);
   }
 
   /**
-   * The Evolution Loop: Exponential Moving Average Evaluation
+   * The Evolution Loop: Moved to ISkill.learn
    */
-  public async evaluateSkill(skillId: string, outcome: 'success' | 'fail', value: number = 0) {
-    const skill = this.skills.get(skillId);
-    if (!skill) return;
-
-    // Exponential moving average: 0.9 * past + 0.1 * new outcome
-    const outcomeScore = outcome === 'success' ? 1 : 0;
-    skill.metadata.successRate = (0.9 * (skill.metadata.successRate || 0)) + (0.1 * outcomeScore);
-    
-    if (value > 0) {
-      skill.metadata.totalEarnings = (skill.metadata.totalEarnings || 0) + value;
-    }
-    
-    skill.metadata.totalRuns = (skill.metadata.totalRuns || 0) + 1;
-    skill.metadata.lastUsed = new Date().toISOString();
-
-    // Persist to PocketBase
-    try {
-      await pb.collection('agent_skills').update(skillId, skill.metadata);
-      console.log(`[SkillRegistry] Skill ${skillId} evolved: Success Rate -> ${(skill.metadata.successRate * 100).toFixed(1)}%`);
-    } catch (e) {
-      try {
-        await pb.collection('agent_skills').create({ id: skillId, ...skill.metadata });
-      } catch (err) {
-        console.warn(`[SkillRegistry] Persistence failed for ${skillId}, kept in memory.`);
-      }
-    }
-  }
-
-  /**
-   * Scan skills/ directory and load manifest + instructions
-   */
-  public async discover(): Promise<void> {
-    try {
-      try {
-        await fs.access(this.skillsDir);
-      } catch {
-        return;
-      }
-
-      const folders = await fs.readdir(this.skillsDir);
-      for (const folder of folders) {
-        const folderPath = path.join(this.skillsDir, folder);
-        const stats = await fs.stat(folderPath);
-        if (stats.isDirectory()) await this.loadSkill(folder);
-      }
-    } catch (error) {
-      console.error('[SkillRegistry] Discovery failed:', error);
-    }
-  }
 
   private async loadSkill(name: string): Promise<void> {
     try {
@@ -178,7 +102,7 @@ ${active.map(s => `
 `;
   }
 
-  public getSkill(name: string): Skill | undefined {
+  public getSkill(name: string): RegisteredSkill | undefined {
     return this.skills.get(name);
   }
 

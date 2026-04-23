@@ -15,11 +15,23 @@ export interface ExecutionResult {
   metadata?: Record<string, any>;
 }
 
+export interface SkillMetadata {
+  id: string;
+  name: string;
+  version: string;
+  description: string;
+  category: 'revenue' | 'marketing' | 'devops' | 'system';
+  revenue_impact: 'low' | 'medium' | 'high';
+  permissions: string[];
+  required_tools: string[];
+}
+
 /**
- * The 8-Step Lifecycle Enforcer
+ * ISkill: The Unified Plugin Interface for Venture OS
  */
-export abstract class BaseSkill {
+export abstract class ISkill {
   abstract id: string;
+  abstract metadata: SkillMetadata;
 
   /**
    * 1. Discovery (اكتشاف الفرص)
@@ -37,9 +49,7 @@ export abstract class BaseSkill {
   abstract generate(bestOpportunity: any): Promise<any>;
 
   /**
-   * 4. TICKET (إنشاء تذكرة الحوكمة)
-   * 5. APPROVE (انتظار الموافقة)
-   * 6. EXECUTE (التنفيذ الفعلي)
+   * 6. EXECUTE (التنفيذ الفعلي عبر الـ Kernel)
    */
   abstract execute(venture: Venture, role: Role, ticket?: Ticket): Promise<ExecutionResult>;
 
@@ -53,6 +63,9 @@ export abstract class BaseSkill {
    */
   abstract learn(outcome: ExecutionResult, venture: Venture): Promise<void>;
 }
+
+// Compatibility Alias
+export const BaseSkill = ISkill;
 
 export interface UpworkJob {
   id: string;
