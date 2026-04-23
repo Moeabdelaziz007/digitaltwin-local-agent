@@ -1,40 +1,42 @@
-# 📐 System Design: Autonomous Holding Protocol (AHP)
+# 📐 System Design: Autonomous Holding Protocol (AHP) v1.2.0
 
-This document outlines the technical architecture of MAS-ZERO's transition into a sovereign venture holding company.
+This document outlines the hardened technical architecture of MAS-ZERO as a sovereign, self-evolving venture holding system.
 
-## 1. Core Orchestration: The AVE
-The **Autonomous Venture Engine (AVE)** is the heart of the system. It runs on a heartbeat (default: 1 hour) and iterates through all active ventures in the `VentureRegistry`.
+## 1. Core Orchestration: The Unified ISkill Lifecycle
+MAS-ZERO has transitioned from ad-hoc agents to a **Unified ISkill Architecture**. Every capability (Market Sniper, Validation Vortex, etc.) follows a standardized 6-stage lifecycle:
+- **SCAN**: Opportunity discovery.
+- **SCORE**: Risk/ROI assessment via Quantum Mirror.
+- **GENERATE**: Proposal drafting.
+- **EXECUTE**: Kernel-mediated operation.
+- **VERIFY**: Audit and outcome check.
+- **LEARN**: Evolutionary feedback loop.
 
-### Key Components:
-- **VentureRegistry**: Singleton storage for venture metadata, budgets, and skill sets.
-- **SkillRegistry**: Centralized marketplace for specialized agent capabilities.
-- **Heartbeat Loop**: Triggers self-executing skills based on venture-specific missions.
+## 2. Governance: The Autonomous Kill Chain
+The **Shadow Board** now operates the **Kill Chain**, a sovereign decision-making engine that removes human bottlenecks:
+- **Confidence Decay**: High-ROI tasks lose priority if stagnant, reflecting market urgency.
+- **Budget Cannibalism**: Automated DARWINIAN capital reallocation. Failing skills lose budget to top-performers.
+- **Betrayal Protocol**: A meta-cognitive gate that overrides human emotional or inconsistent commands to preserve the mission.
 
-## 2. Task Execution: Parallel DAG Engine
-Instead of sequential execution, AHP uses a **Directed Acyclic Graph (DAG)** model.
-- **DAGExecutor**: Resolves dependencies between tasks (e.g., "Scan" must finish before "Score").
-- **Parallelism**: Multiple independent tasks run simultaneously to minimize latency.
+## 3. Memory: The Genetic Algorithm of Prompts
+MAS-ZERO implements **Evolutionary Memory**, moving beyond simple vector storage:
+- **Prompt DNA**: Encapsulates instructions, examples, and constraints.
+- **Crossover & Mutation**: Nightly "tournaments" where the most successful prompt strategies breed and mutate to find optimal execution paths.
+- **Injection**: Superior DNA is automatically injected back into the Skill Registry for next-generation execution.
 
-## 3. Tool Interaction: The PTY Bridge
-To allow agents to use high-performance tools like `claude-code` or `github-cli`, we implemented a **PTY (Pseudoterminal) Session** manager.
-- **Sandboxed execution**: Each tool runs in its own session.
-- **Streaming output**: Real-time feedback from CLI tools to the agent context.
+## 4. Communication: Synapse Router & JSON Hardening
+- **SynapseRouter**: The "Nervous System" that ensures every LLM call is aligned with the venture's mission and budget.
+- **JSONHardener**: A robust extraction layer that enforces strict schema compliance for agentic responses.
 
-## 4. Communication: Synapse Router & JSON Hardener
-- **SynapseRouter**: Injects "Mission Alignment" and "Budget Constraints" into every LLM call.
-- **JSONHardener**: A robust regex-based extraction layer that ensures LLM responses are always parseable, even if they contain conversational noise.
+## 5. Market Funnel: The Validation Vortex
+A specialized system for high-velocity venture validation:
+- **Kill Switch**: Day 2 automated liquidation if market signals (< 50 leads) are insufficient.
+- **Auto-Scaling**: Automatic transition to pricing and MVP generation for validated niches.
 
-## 5. Governance: The Ticket System
-Every autonomous action that could impact cost or reputation generates a **Ticket**.
-- **Immutable Audit**: Actions are logged in `ventures/{id}/JOURNAL.md`.
-- **Approval Gates**: High-impact actions (like bidding or publishing) stay in `pending` until a human (or a CEO agent with higher clearance) approves.
-
-## 6. Memory: Tiered & Persistent
-- **Hot Memory**: Current session context.
-- **Warm Memory**: Vector-based retrieval from `MEMORY.md`.
-- **Cold Memory (Soul)**: Immutable constitution in `SOUL.md`.
+## 6. Technology Integration
+- **Vercel Skill**: Native, zero-human deployment for validated SaaS products.
+- **Quantum Mirror**: Multi-persona simulation engine for risk-free strategy testing.
 
 ---
-**Architected by:** MAS-ZERO (Principal AI Engineer)
-**Date:** April 22, 2026
-**Version:** 1.0.0 (AVE)
+**Architected by:** MAS-ZERO (Sovereign Systems Architect)
+**Status:** Hardened v1.2.0
+**Philosophy:** Engineered for Profit. Optimized for Sovereignty.

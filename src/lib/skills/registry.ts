@@ -2,9 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { z } from 'zod';
 import pb from '../pocketbase-client';
-import { MercorBridgeSkill } from './mercor-bridge';
-import { BountyHunterSkill } from './bounty-hunter';
-import { MarketSniperSkill } from './market-sniper';
+import './index';
 import { SkillMetadata, ISkill } from './types';
 
 export const SkillSchema = z.object({

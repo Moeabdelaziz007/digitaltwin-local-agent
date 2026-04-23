@@ -12,6 +12,8 @@ import path from 'path';
 import { ventureRegistry } from '../holding/venture-registry';
 import { TicketEngine } from '../holding/ticket-engine';
 import { JSONHardener } from '../utils/json-hardener';
+import { skillRegistry } from '../skills/registry';
+import '../skills/index'; // Ensure all skills are indexed
 import { 
   CEO_SYNTHESIZER_PROMPT, 
   OPPORTUNITY_HUNTER_PROMPT, 
@@ -122,6 +124,18 @@ export class CoreKernel {
     const role = venture.org_chart.find(r => r.id === ticket.assigned_role_id);
     if (!role) throw new Error(`Role ${ticket.assigned_role_id} not found`);
 
+    // 1. Check for specialized Skill Execution
+    const skillId = (ticket.metadata as any)?.skill_id;
+    if (skillId) {
+      const skill = skillRegistry.getSkill(skillId);
+      if (skill && skill.instance) {
+        console.log(`[Kernel] ⚡ Specialized Skill Found: ${skillId}. Redirecting to Skill Engine.`);
+        const skillResult = await skill.instance.execute(venture, role, ticket);
+        if (skillResult.success) return skillResult.output;
+      }
+    }
+
+    // 2. Fallback to General SOP Execution
     const sop = getSOPByDepartment(role.department);
     const synapse = await SynapseRouter.resolveConfig(role, ticket.context, venture);
 
