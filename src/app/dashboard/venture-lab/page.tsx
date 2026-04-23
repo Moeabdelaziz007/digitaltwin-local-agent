@@ -77,7 +77,7 @@ export default function VentureLabDashboard() {
               <Sparkles className="text-cyan animate-pulse" size={24} />
             </div>
             <h1 className="text-3xl font-display font-bold tracking-tighter uppercase italic">
-              Venture Lab <span className="text-cyan/50">v4.0</span>
+              Paperclip Holding <span className="text-cyan/50">v4.0</span>
             </h1>
           </div>
           <p className="text-text-muted text-[10px] font-display tracking-[0.4em] uppercase">
@@ -93,7 +93,7 @@ export default function VentureLabDashboard() {
           </div>
           <div className="h-10 w-px bg-white/10" />
           <div className="text-right">
-            <span className="block text-[8px] uppercase tracking-widest text-text-muted mb-1">Active Ventures</span>
+            <span className="block text-[8px] uppercase tracking-widest text-text-muted mb-1">Active Portfolio</span>
             <span className="font-display text-xl font-bold text-white">{ventures.length}</span>
           </div>
         </div>
@@ -172,7 +172,7 @@ export default function VentureLabDashboard() {
         {/* Sidebar: REAL ACTIVE VENTURES */}
         <div className="col-span-12 lg:col-span-4 space-y-8">
           <div className="glass-surface p-6 rounded-3xl border-white/5 bg-white/5 min-h-[500px] flex flex-col">
-            <h3 className="text-[10px] uppercase tracking-[0.4em] text-cyan font-bold mb-8">Active Ventures</h3>
+            <h3 className="text-[10px] uppercase tracking-[0.4em] text-cyan font-bold mb-8">Active Portfolio</h3>
             <div className="space-y-4 flex-1">
               {ventures.map(v => (
                 <div key={v.id} className="p-4 bg-white/5 border border-white/5 rounded-2xl group hover:border-cyan/40 transition-all cursor-pointer">
@@ -222,7 +222,7 @@ export default function VentureLabDashboard() {
           </div>
         </div>
         <div className="font-display text-[7px] text-text-muted/30 tracking-[0.5em] uppercase">
-          M.A.S-ZERO VENTURE PROTOCOL // 2026-R1
+          M.A.S-ZERO AGENT ECONOMY // 2026-R1
         </div>
       </footer>
       {/* Live Sentinel Feed (Phase 4) */}

@@ -1,7 +1,7 @@
 import { SignIn } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import { TerminalIntro } from "@/components/TerminalIntro";
-import { VentureLabTicker } from "@/components/VentureLabTicker";
+import { EconomyTicker } from "@/components/VentureLabTicker";
 import { LoginBackground } from "@/components/LoginBackground";
 
 export default function SignInPage() {
@@ -47,7 +47,7 @@ export default function SignInPage() {
           </div>
         </div>
       </div>
-      <VentureLabTicker />
+      <EconomyTicker />
     </LoginBackground>
   );
 }

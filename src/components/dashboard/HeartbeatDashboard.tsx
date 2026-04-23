@@ -67,7 +67,7 @@ export default function HeartbeatDashboard() {
           <h1 className="text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">
             AHP Heartbeat <span className="text-blue-500">Terminal</span>
           </h1>
-          <p className="text-gray-500 mt-2 font-mono text-sm uppercase tracking-widest">Autonomous Venture Holding Protocol</p>
+          <p className="text-gray-500 mt-2 font-mono text-sm uppercase tracking-widest">Paperclip Holding Protocol</p>
         </div>
         <div className="flex items-center gap-4 text-right">
           <div>
@@ -87,7 +87,7 @@ export default function HeartbeatDashboard() {
         {/* Global KPI Cards */}
         <StatCard 
           icon={<Globe className="w-5 h-5" />} 
-          label="Active Ventures" 
+          label="Active Portfolio" 
           value={stats?.global.activeVentures || 0} 
           trend="+2 New"
           color="blue"
@@ -120,7 +120,7 @@ export default function HeartbeatDashboard() {
         <section className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold flex items-center gap-2">
-              <Layers className="w-5 h-5 text-blue-500" /> Active Infrastructure
+              <Layers className="w-5 h-5 text-blue-500" /> Active Portfolio Infrastructure
             </h2>
             <button className="text-xs text-blue-400 hover:text-blue-300 transition-colors uppercase tracking-widest font-mono">Expand All</button>
           </div>
