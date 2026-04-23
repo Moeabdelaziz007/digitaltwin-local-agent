@@ -24,3 +24,22 @@ services:
     command: redis-server --save 60 1 --loglevel warning
     ports:
       - "6379:6379"
+
+  pocketbase:
+    image: muchobien/pocketbase:latest
+    container_name: dmt-pocketbase
+    ports:
+      - "8090:8080"
+    volumes:
+      - ./pb_data:/pb_data
+      - ./pb_migrations:/pb_migrations
+    restart: always
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: dmt-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./ollama_data:/root/.ollama
+    restart: always
