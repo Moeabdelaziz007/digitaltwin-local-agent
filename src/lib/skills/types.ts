@@ -16,11 +16,11 @@ export interface ExecutionResult {
 }
 
 export interface SkillMetadata {
-  id: string;
+  id?: string;
   name: string;
   version: string;
   description: string;
-  category: string;
+  category?: string;
   revenue_impact: 'low' | 'medium' | 'high' | 'critical';
   permissions: string[];
   required_tools: string[];

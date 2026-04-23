@@ -4,7 +4,7 @@
  * يحدد هذا الملف هيكل "الشركة" وليس مجرد "الوكلاء".
  */
 
-export type VentureStatus = 'active' | 'paused' | 'liquidated' | 'stealth';
+export type VentureStatus = 'active' | 'paused' | 'liquidated' | 'stealth' | 'archived';
 export type DepartmentType = 'engineering' | 'revenue' | 'distribution' | 'governance' | 'risk';
 
 export interface Budget {
