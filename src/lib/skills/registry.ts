@@ -123,7 +123,7 @@ export class SkillRegistry {
 ### Available Skills
 ${active.map(s => `
 #### ${s.metadata.name} (v${s.metadata.version})
-- **Success Rate**: ${(s.metadata.successRate * 100).toFixed(1)}%
+- **Success Rate**: ${((s.metadata.successRate || 0) * 100).toFixed(1)}%
 - **Capabilities**: ${s.metadata.description}
 `).join('\n')}
 `;
@@ -142,8 +142,8 @@ ${active.map(s => `
 
   public listSkills(): SkillListItem[] {
     return Array.from(this.skills.entries()).map(([id, skill]) => ({
+      ...skill.metadata,
       id,
-      ...skill.metadata
     }));
   }
 }
