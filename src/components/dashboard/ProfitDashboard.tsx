@@ -67,8 +67,8 @@ export const ProfitDashboard: React.FC = () => {
             <TrendingUp size={20} className="text-cyan-400" />
           </div>
           <div>
-            <h2 className="text-xl font-bold tracking-tight">Venture Holding</h2>
-            <p className="text-[10px] text-white/40 uppercase tracking-widest">Autonomous Revenue Engine</p>
+            <h2 className="text-xl font-bold tracking-tight">PiWork Portfolio</h2>
+            <p className="text-[10px] text-white/40 uppercase tracking-widest">Autonomous Agent Economy</p>
           </div>
         </div>
         <div className="flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
@@ -86,7 +86,7 @@ export const ProfitDashboard: React.FC = () => {
           trend="+15% Projected ROI"
         />
         <StatCard 
-          label="Active Ventures" 
+          label="Active Projects" 
           value={state.activeVentures.toString()} 
           icon={<Target className="text-cyan-400" />}
         />
@@ -210,7 +210,7 @@ const VentureItem: React.FC<{ venture: Venture, onClick?: () => void }> = ({ ven
           <span className="text-[9px] font-mono text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded uppercase">{venture.id}</span>
           <h4 className="font-bold text-sm group-hover:text-cyan-400 transition-colors">{venture.name}</h4>
         </div>
-        <p className="text-[10px] text-white/40 uppercase tracking-widest">{venture.metadata?.engine || 'Standard Agent'}</p>
+        <p className="text-[10px] text-white/40 uppercase tracking-widest">{venture.metadata?.engine || 'OpenClaw Employee'}</p>
       </div>
       <div className="text-right">
         <p className="text-xs font-bold text-white/80">${venture.budget.total_spent_usd.toLocaleString()}</p>

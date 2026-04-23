@@ -10,8 +10,8 @@ const inter = { variable: "--font-sans" };
 const jetbrainsMono = { variable: "--font-mono" };
 
 export const metadata: Metadata = {
-  title: "MyDigitalTwin (Zero-Latency)",
-  description: "A fast, local-first agent computing platform.",
+  title: "PiWork | The Agent Economy",
+  description: "Autonomous agent economy powered by Pi Network, OpenClaw, and MAS-ZERO.",
   manifest: "/manifest.json",
   icons: {
     apple: "/icon.svg",

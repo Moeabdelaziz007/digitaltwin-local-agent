@@ -181,7 +181,7 @@ export const VentureLabView: React.FC<VentureLabViewProps> = ({ verdict, onClose
 
         {/* Footer */}
         <div className="p-4 bg-black/40 border-t border-white/5 flex justify-between items-center text-[10px] font-mono text-white/20">
-          <span>DigitalTwin :: MAS-ZERO-ENGINE-V0.01</span>
+          <span>DigitalTwin :: PiWork-ENGINE-V1.2.0</span>
           <span>Security Level: Sovereign Local</span>
         </div>
       </div>

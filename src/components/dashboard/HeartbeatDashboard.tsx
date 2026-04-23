@@ -65,9 +65,9 @@ export default function HeartbeatDashboard() {
       <header className="relative z-10 flex justify-between items-end mb-12 border-b border-white/5 pb-8">
         <div>
           <h1 className="text-4xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-500">
-            AHP Heartbeat <span className="text-blue-500">Terminal</span>
+            PiWork Heartbeat <span className="text-blue-500">Terminal</span>
           </h1>
-          <p className="text-gray-500 mt-2 font-mono text-sm uppercase tracking-widest">Paperclip Holding Protocol</p>
+          <p className="text-gray-500 mt-2 font-mono text-sm uppercase tracking-widest">PiWork Holding Protocol</p>
         </div>
         <div className="flex items-center gap-4 text-right">
           <div>
@@ -120,7 +120,7 @@ export default function HeartbeatDashboard() {
         <section className="lg:col-span-2 space-y-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold flex items-center gap-2">
-              <Layers className="w-5 h-5 text-blue-500" /> Active Portfolio Infrastructure
+              <Layers className="w-5 h-5 text-blue-500" /> Active Economy Infrastructure
             </h2>
             <button className="text-xs text-blue-400 hover:text-blue-300 transition-colors uppercase tracking-widest font-mono">Expand All</button>
           </div>
@@ -151,9 +151,9 @@ export default function HeartbeatDashboard() {
                 </div>
 
                 <div className="grid grid-cols-3 gap-8 mb-6">
-                  <VentureMetric label="Monthly Budget" value={`$${v.budget.spent_this_month_usd.toFixed(2)} / $${v.budget.monthly_limit_usd}`} percent={(v.budget.spent_this_month_usd / v.budget.monthly_limit_usd) * 100} />
-                  <VentureMetric label="Daily Rate" value={`$${v.budget.spent_today_usd.toFixed(2)} / $${v.budget.daily_limit_usd}`} percent={(v.budget.spent_today_usd / v.budget.daily_limit_usd) * 100} />
-                  <VentureMetric label="Compute Units" value={`${(v.budget.spent_tokens / 1000).toFixed(1)}k / ${(v.budget.token_limit / 1000).toFixed(0)}k`} percent={(v.budget.spent_tokens / v.budget.token_limit) * 100} />
+                  <ProjectMetric label="Monthly Budget" value={`$${v.budget.spent_this_month_usd.toFixed(2)} / $${v.budget.monthly_limit_usd}`} percent={(v.budget.spent_this_month_usd / v.budget.monthly_limit_usd) * 100} />
+                  <ProjectMetric label="Daily Rate" value={`$${v.budget.spent_today_usd.toFixed(2)} / $${v.budget.daily_limit_usd}`} percent={(v.budget.spent_today_usd / v.budget.daily_limit_usd) * 100} />
+                  <ProjectMetric label="Compute Units" value={`${(v.budget.spent_tokens / 1000).toFixed(1)}k / ${(v.budget.token_limit / 1000).toFixed(0)}k`} percent={(v.budget.spent_tokens / v.budget.token_limit) * 100} />
                 </div>
 
                 {v.recentActivity.length > 0 && (
@@ -232,7 +232,7 @@ function StatCard({ icon, label, value, trend, color }: any) {
   );
 }
 
-function VentureMetric({ label, value, percent }: any) {
+function ProjectMetric({ label, value, percent }: any) {
   return (
     <div className="space-y-2">
       <div className="flex justify-between text-[10px] uppercase tracking-widest font-mono text-gray-500">

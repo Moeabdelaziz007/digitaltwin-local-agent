@@ -75,8 +75,12 @@ export class MercorBridgeSkill extends ISkill {
   /**
    * PHASE 4-6: Ticket & Execution
    */
-  async execute(venture: Venture, role: Role, ticket?: Ticket): Promise<ExecutionResult> {
+  /**
+   * PHASE 4: Execution
+   */
+  async execute(venture: Venture, role: Role, ticket?: Ticket, plan?: any): Promise<ExecutionResult> {
     if (ticket && ticket.status === 'done') {
+      // ACTUAL VOUCHING (Final Action after approval)
       console.log(`[MercorBridge] Executing approved vouch for ${ticket.id}`);
       return {
         success: true,
@@ -85,40 +89,29 @@ export class MercorBridgeSkill extends ISkill {
       };
     }
 
-    const needs = await this.scan();
-    const scored = await this.score(needs, venture);
-    const top = scored[0];
-
-    if (!top || top.score < 0.6) {
-      return { success: false, output: 'no_vouching_opportunities_passed_sim' };
+    // Use passed plan or run discovery
+    let generated = plan;
+    if (!generated) {
+      const needs = await this.scan();
+      const scored = await this.score(needs, venture);
+      const top = scored[0];
+      if (!top || top.score < 0.6) {
+        return { success: false, output: 'No vouching opportunities passed simulation.' };
+      }
+      generated = await this.generate(top);
     }
 
-    const generated = await this.generate(top);
-
+    const top = generated;
     const newTicket = await TicketEngine.createTicket(venture, role, {
       title: `[MERCOR] Strategic Vouching: ${top.ventureName}`,
-      context: `
-### Opportunity Analysis
-- Venture: ${top.ventureName}
-- Expertise: ${top.expertiseNeeded}
-- Sim Recommendation: ${top.simulation.recommendation}
-- Estimated Affiliate Revenue: 20% Lifetime
-
-### Strategy
-${generated.strategy}
-
-### Instructions
-1. Log in to [work.mercor.com](https://work.mercor.com)
-2. Generate referral for: ${top.expertiseNeeded}
-3. Paste link in this ticket to VERIFY.
-      `,
+      context: `Expertise: ${top.expertiseNeeded}. ROI Sim: ${top.simulation.recommendation}. Strategy drafted.`,
       status: 'pending',
       metadata: { type: 'mercor_vouch', opportunity: top }
     });
 
     return { 
       success: true, 
-      output: `Mercor Vouching Ticket Created: ${newTicket.id}`,
+      output: `Mercor Vouching Ticket ${newTicket.id} Created.`,
       ticketId: newTicket.id 
     };
   }

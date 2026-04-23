@@ -19,6 +19,8 @@
     "test:cron:decay": "curl -H 'Authorization: Bearer test' http://localhost:3000/api/cron/decay",
     "test:cron:snapshot": "curl -H 'Authorization: Bearer test' http://localhost:3000/api/cron/snapshot",
     "check:memory-dataset": "node scripts/check-memory-dataset-version.js",
+    "pb:migrate": "pocketbase migrate up",
+    "pb:types": "npx pocketbase-typegen --url $NEXT_PUBLIC_POCKETBASE_URL --out src/lib/pb-types.ts",
     "test": "vitest run"
   },
   "dependencies": {

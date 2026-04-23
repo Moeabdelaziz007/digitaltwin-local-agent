@@ -58,6 +58,7 @@ export class WorkforceTree {
   }
 
   private async init() {
+    // Initial sync will trigger bootstrap if PB is empty
     await this.syncFromPB();
   }
 
@@ -73,17 +74,23 @@ export class WorkforceTree {
    */
   public async syncFromPB() {
     try {
-      const records = await serverPB.collection('workforce').getFullList<any>();
+      const records = await serverPB.collection('workforce').getFullList<any>({
+        sort: 'created'
+      });
+      
       if (records.length === 0) {
+        console.log('[WorkforceTree] PB collection "workforce" is empty. Bootstrapping initial nodes...');
         await this.bootstrap();
       } else {
+        this.nodes = {}; // Clear before sync
         records.forEach(r => {
           this.nodes[r.node_id] = r.data;
         });
         this.isLoaded = true;
+        console.log(`[WorkforceTree] Synced ${records.length} nodes from PocketBase.`);
       }
     } catch (e) {
-      console.warn('[WorkforceTree] PB sync failed, using bootstrap logic.');
+      console.warn('[WorkforceTree] PocketBase connection failed. Using local bootstrap.');
       await this.bootstrap();
     }
   }
@@ -95,7 +102,7 @@ export class WorkforceTree {
       const boardNode: WorkforceNode = {
         id: boardId,
         role: 'board',
-        title: 'Founder / Board (Paperclip Holding)',
+        title: 'Founder / Board (PiWork Holding)',
         hiredBy: 'system',
         reportsTo: 'user',
         manages: [],
@@ -104,7 +111,7 @@ export class WorkforceTree {
         status: 'active',
         created_at: new Date().toISOString(),
         wiki: {
-          roleDefinition: ['Sets top-level strategy and manages the Paperclip holding structure.'],
+          roleDefinition: ['Sets top-level strategy and manages the PiWork holding structure.'],
           authority: ['Can approve or reject economy-level decisions.'],
           skills: ['governance:board-oversight'],
           knowledgeBase: ['dataset:economy-roadmap'],
@@ -146,7 +153,11 @@ export class WorkforceTree {
 
   private async persistNode(node: WorkforceNode) {
     try {
-      const existing = await (serverPB.collection('workforce').getFirstListItem(`node_id="${node.id}"`).catch(() => null) as any);
+      // Find existing record by node_id
+      const existing = await serverPB.collection('workforce')
+        .getFirstListItem(`node_id="${node.id}"`)
+        .catch(() => null);
+
       const payload = {
         node_id: node.id,
         role: node.role,
@@ -163,7 +174,9 @@ export class WorkforceTree {
         await serverPB.collection('workforce').create(payload);
       }
     } catch (e) {
-      console.error(`[WorkforceTree] Failed to persist node ${node.id}:`, e);
+      console.error(`[WorkforceTree] Persistence failure for ${node.id}:`, e);
+      // Fallback: keep in memory
+      this.nodes[node.id] = node;
     }
   }
 

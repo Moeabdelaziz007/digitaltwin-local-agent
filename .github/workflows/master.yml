@@ -46,6 +46,10 @@ jobs:
         if: matrix.component == 'frontend'
         run: pnpm run lint
 
+      - name: 🔍 Scan for Secrets & Bugs
+        if: matrix.component == 'frontend'
+        run: pnpm run scan-bugs
+
       - name: 🏗️ Build App
         if: matrix.component == 'frontend'
         run: pnpm run build

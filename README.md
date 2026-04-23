@@ -1,69 +1,59 @@
 <p align="center">
-  <img src="public/assets/docs/meta-icon.png" width="120" alt="MAS-ZERO Logo" />
+  <img src="public/assets/docs/meta-icon.png" width="160" alt="PiWork Agent Economy" />
 </p>
 
-<h1 align="center">☤ MAS-ZERO: The Autonomous Agent Economy</h1>
-<p align="center">
-  <i>The Engine for a Zero-Human Venture Ecosystem powered by Pi Network.</i><br/>
-  <b>محرك اقتصاد الوكلاء الذاتي للمشاريع الرقمية المدعوم بشبكة Pi.</b>
-</p>
-
-<p align="center">
-  <a href="#-vision">Vision</a> · <a href="#-workforce">Workforce</a> · <a href="#-quickstart">Quickstart</a> · <a href="docs/architecture.md">Architecture</a>
-</p>
+<h1 align="center">☤ PiWork Agent Economy</h1>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Status-Operational_Alpha-brightgreen" alt="Status" />
   <img src="https://img.shields.io/badge/Network-Pi_Network_SDK-orange" alt="Pi Network" />
   <img src="https://img.shields.io/badge/Employee-OpenClaw-blue" alt="OpenClaw" />
   <img src="https://img.shields.io/badge/Holding-Paperclip-gold" alt="Paperclip" />
+  <img src="https://img.shields.io/badge/Framework-Hermes_AI-purple" alt="Hermes AI" />
+</p>
+
+<p align="center">
+  <i>The Autonomous Holding Structure for the Zero-Human Venture Ecosystem.</i><br/>
+  <b>الهيكل القابض الذاتي لاقتصاد المشاريع الرقمية الخالي من التدخل البشري.</b>
 </p>
 
 ---
 
-## 🌐 The Big Vision | الرؤية الموحدة
+## 🌐 The Vision | الرؤية الموحدة
 
-In the year 2026, the boundary between software and workforce has dissolved. MAS-ZERO is not just a framework; it is an **Economy**.
+**PiWork** is a self-evolving economic engine designed to manage a swarm of AI agents as a unified business entity. It bridges the gap between decentralized finance (Pi Network) and agentic autonomy (OpenClaw/Hermes).
 
-*   **OpenClaw** is the **Employee**: The intelligent agent executing tasks with precision.
-*   **Paperclip** is the **Company**: The autonomous holding structure managing resources and assets.
-*   **MAS-ZERO** is the **Economy**: The digital marketplace where value is created and Pi Tokens flow.
+في عام 2026، تلاشت الحدود بين البرمجيات والقوى العاملة. **PiWork** ليس مجرد إطار عمل؛ إنه **اقتصاد متكامل** يدير سرباً من الوكلاء الذكيين ككيان تجاري موحد.
 
-في عام 2026، تلاشت الحدود بين البرمجيات والقوى العاملة. MAS-ZERO ليس مجرد إطار عمل؛ إنه **اقتصاد متكامل**.
-
-*   **OpenClaw** هو **الموظف**: الوكيل الذكي الذي ينفذ المهام بدقة.
-*   **Paperclip** هي **الشركة**: الهيكل القابض الذاتي الذي يدير الموارد والأصول.
-*   **MAS-ZERO** هو **الاقتصاد**: السوق الرقمي حيث يتم خلق القيمة وتتدفق عملات Pi.
+### The Golden Trio | الثلاثي الذهبي
+1.  **OpenClaw (The Employee)**: The high-precision worker executing the standard 6-step lifecycle.
+2.  **Paperclip (The Holding)**: The organizational kernel managing hiring, firing, and budgets.
+3.  **MAS-ZERO (The Kernel)**: The operating system providing governance and simulative decision-making (Quantum Mirror).
 
 ---
 
-## 👥 The workforce | القوى العاملة (OpenClaw Employees)
+## 👥 Agent Workforce | القوى العاملة الذكية
 
-The Paperclip holding company employs a diverse range of specialized agents.
-
-| Employee | Role | Description | العربية |
+| Employee | Role | Description | الوصف العربي |
 | :--- | :--- | :--- | :--- |
-| **OpenClaw Prime** | Orchestrator | Generalist lead managing the agent swarm. | القائد العام لإدارة سرب الوكلاء. |
-| **Hermes Agent** | Self-Evolver | Specialized in self-improvement and skill mutation. | متخصص في التطوير الذاتي وطفرات المهارات. |
-| **Mercor Bridge** | Human Validator | Connects AI logic with human expertise and validation. | يربط منطق الذكاء الاصطناعي بالخبرة البشرية. |
-| **Market Sniper** | Scout | Scans social platforms for high-value opportunities. | يبحث في المنصات عن الفرص عالية القيمة. |
+| **OpenClaw Prime** | Orchestrator | Swarm lead & task delegator. | القائد العام لإدارة المهام وتوزيعها. |
+| **Hermes Agent** | Self-Evolver | Skill discovery & genetic optimization. | متخصص في تطوير المهارات والتحسين الجيني. |
+| **Bounty Hunter** | Scout | Scans GitHub/Social for revenue opportunities. | يبحث عن الفرص الربحية في المنصات البرمجية. |
+| **Market Sniper** | Trader | Real-time market analysis & execution. | تحليل الأسواق والتنفيذ اللحظي للفرص. |
+| **Mercor Bridge** | Validator | Human-in-the-loop expert validation. | يربط الذكاء الاصطناعي بالخبرة والتحقق البشري. |
 
 ---
 
-## ⚡ Key Features | المميزات الجوهرية
+## ⚡ Technical Core | النواة التقنية
 
-*   **🥧 Pi Network Native**: Integrated with the Pi SDK for identity (KYC) and payments.  
-    **🥧 مدعوم بشبكة Pi**: متكامل مع Pi SDK للهوية والمدفوعات.
-*   **🌪️ Validation Vortex**: A 5-day automated funnel to kill bad ideas fast.  
-    **🌪️ دوامة التحقق**: مسار آلي لقتل الأفكار السيئة بسرعة.
-*   **🧬 Evolutionary Memory**: Genetic algorithms that treat prompts as DNA.  
-    **🧬 الذاكرة التطورية**: خوارزميات جينية تعامل التعليمات كحمض نووي.
-*   **🛡️ The Autonomous Kill Chain**: Self-governing board for automated budget approvals.  
-    **🛡️ سلسلة القتل المستقلة**: مجلس إدارة ذاتي لاعتمادات الميزانية الآلية.
+*   **🧬 Standardized Skills**: Every agent follows a strict `Scan → Score → Generate → Execute → Verify → Learn` lifecycle.
+*   **🥧 Pi Payments**: Native integration for `app-to-user` and `user-to-app` Pi Network flows.
+*   **🌪️ Validation Vortex**: A multi-agent simulation funnel to eliminate low-ROI ventures within 5 days.
+*   **🪞 Quantum Mirror**: 30 parallel simulative variants calculating the "Golden Path" for every decision.
 
 ---
 
-## 🚀 Quickstart | ابدأ هنا
+## 🚀 Quickstart | ابدأ التشغيل
 
 ### English
 ```bash
@@ -71,18 +61,50 @@ The Paperclip holding company employs a diverse range of specialized agents.
 git clone https://github.com/Moeabdelaziz007/digitaltwin-local-agent.git
 cd digitaltwin-local-agent
 
-# 2. Setup environment
-npm install
+# 2. Setup Persistence
+# Ensure PocketBase is running and NEXT_PUBLIC_POCKETBASE_URL is set
+pnpm install
 cp .env.example .env.local
 
-# 3. Launch Paperclip
-npm run dev
+# 3. Launch the Holding
+pnpm run dev
 ```
 
 ### العربية
 ```bash
-# 1. انسخ الاقتصاد
+# 1. استنساخ الاقتصاد
 git clone https://github.com/Moeabdelaziz007/digitaltwin-local-agent.git
+cd digitaltwin-local-agent
+
+# 2. إعداد قاعدة البيانات
+# تأكد من تشغيل PocketBase وإعداد رابط الاتصال في الملف البيئي
+pnpm install
+cp .env.example .env.local
+
+# 3. تشغيل النظام
+pnpm run dev
+```
+
+---
+
+## 🛡️ DevOps & Governance
+
+We maintain a **Zero-Defect Policy** through automated quality gates:
+- **Type Safety**: Mandatory `pnpm run typecheck` on all PRs.
+- **Sentinel Scans**: Automated security and secret detection.
+- **Visual Regression**: Meticulous-AI verification for dashboard integrity.
+
+---
+
+## 👤 Architect | المصمم الرئيسي
+
+**Moe Abdelaziz** (@Moeabdelaziz007)  
+*Building the future of autonomous value creation.*
+
+<p align="center">
+  <b>2026 Venture Lab :: PiWork v1.2.0-Alpha</b>
+</p>
+laziz007/digitaltwin-local-agent.git
 cd digitaltwin-local-agent
 
 # 2. جهز البيئة
@@ -112,5 +134,5 @@ We follow professional DevOps standards to ensure a zero-defect infrastructure.
 *Building the future of autonomous value creation.*
 
 <p align="center">
-  <b>2026 Venture Lab :: MAS-ZERO v1.2.0</b>
+  <b>2026 Venture Lab :: PiWork v1.2.0</b>
 </p>

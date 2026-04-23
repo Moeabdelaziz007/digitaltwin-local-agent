@@ -57,7 +57,7 @@ export abstract class ISkill {
   /**
    * 6. EXECUTE (التنفيذ الفعلي عبر الـ Kernel)
    */
-  abstract execute(venture: Venture, role: Role, ticket?: Ticket): Promise<ExecutionResult>;
+  abstract execute(venture: Venture, role: Role, ticket?: Ticket, plan?: any): Promise<ExecutionResult>;
 
   /**
    * 7. VERIFY (التحقق من النتيجة)

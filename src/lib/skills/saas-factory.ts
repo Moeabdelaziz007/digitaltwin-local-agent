@@ -40,38 +40,36 @@ export class SaaSFactorySkill extends ISkill {
     return { ...bestOpportunity, mvpSpec };
   }
 
-  async execute(venture: Venture, role: Role, ticket?: Ticket): Promise<ExecutionResult> {
+  /**
+   * PHASE 4: Execution
+   */
+  async execute(venture: Venture, role: Role, ticket?: Ticket, plan?: any): Promise<ExecutionResult> {
     if (ticket && ticket.status === 'done') {
+      // ACTUAL SCAFFOLDING (Final Action after approval)
       return { success: true, output: 'MVP Scaffolded and deployed to preview environment.' };
     }
 
-    const problems = await this.scan();
-    const scored = await this.score(problems, venture);
-    const top = scored[0];
+    // Use passed plan or run discovery
+    let generated = plan;
+    if (!generated) {
+      const problems = await this.scan();
+      const scored = await this.score(problems, venture);
+      const top = scored[0];
+      if (!top) return { success: false, output: 'No profitable SaaS problems found.' };
+      generated = await this.generate(top);
+    }
 
-    if (!top) return { success: false, output: 'no_profitable_problems_found' };
-
-    const plan = await this.generate(top);
-
+    const top = generated;
     const newTicket = await TicketEngine.createTicket(venture, role, {
       title: `[MVP] Launch SaaS for: ${top.title}`,
-      context: `
-### Problem: ${top.description}
-### Target Market: ${top.market}
-
-### MVP Specification
-${plan.mvpSpec}
-
-### Proposed Stack
-Next.js, Tailwind, SQLite, Vercel.
-      `,
+      context: `Problem: ${top.description}. Target Market: ${top.market}. Spec Drafted.`,
       status: 'pending',
-      metadata: { type: 'saas_mvp', problem: top, spec: plan.mvpSpec }
+      metadata: { type: 'saas_mvp', problem: top, spec: top.mvpSpec }
     });
 
     return { 
       success: true, 
-      output: `MVP Architected for ${top.title}. Awaiting scaffold approval.`,
+      output: `MVP Architected for ${top.title}. Ticket ${newTicket.id} created for review.`,
       ticketId: newTicket.id 
     };
   }

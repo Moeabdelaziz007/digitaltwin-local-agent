@@ -84,20 +84,28 @@ export class MarketSniperSkill extends ISkill {
     return { ...bestOpportunity, outreach: message };
   }
 
-  async execute(venture: Venture, role: Role, ticket?: Ticket): Promise<ExecutionResult> {
+  /**
+   * PHASE 4: Execution
+   */
+  async execute(venture: Venture, role: Role, ticket?: Ticket, plan?: any): Promise<ExecutionResult> {
     if (ticket && ticket.status === 'done') {
-      return { success: true, output: 'Outreach sent successfully via Mirage Protocol.' };
+      // ACTUAL OUTREACH (Final Action after approval)
+      return { success: true, output: 'Outreach sent successfully via PiWork Mirage Protocol.' };
     }
 
-    const leads = await this.scan();
-    const scored = await this.score(leads, venture);
-    const top = scored[0];
-
-    if (!top || top.evaluation.recommendation === 'abort') {
-      return { success: false, output: 'No high-value leads passed the threshold.' };
+    // Use passed plan or run discovery
+    let generated = plan;
+    if (!generated) {
+      const leads = await this.scan();
+      const scored = await this.score(leads, venture);
+      const top = scored[0];
+      if (!top || top.evaluation.recommendation === 'abort') {
+        return { success: false, output: 'No high-value leads passed the threshold.' };
+      }
+      generated = await this.generate(top);
     }
 
-    const plan = await this.generate(top);
+    const top = generated;
 
     // Phase 4: Visual Evidence
     let screenshotUrl = '';
@@ -106,14 +114,14 @@ export class MarketSniperSkill extends ISkill {
       const page = await browserManager.connect();
       screenshotUrl = await browserManager.takeScreenshot(page, `lead-${top.expertise_required}`);
     } catch (e) {
-      console.warn('[Market Sniper] Visual capture failed, proceeding with data only.');
+      console.warn('[Market Sniper] Visual capture failed.');
     }
 
     const isProductGap = top.content.toLowerCase().includes('wish') || top.content.toLowerCase().includes('bad');
 
     const newTicket = await TicketEngine.createTicket(venture, role, {
       title: isProductGap ? `[SYNTHESIS] Micro-SaaS Idea: ${top.expertise_required}` : `[SNIPER] High-Value Lead: ${top.expertise_required}`,
-      context: isProductGap ? `Synthesized from user frustration: "${top.content}"` : `Detected on ${top.platform}. ROI: ${top.evaluation.expectedRevenue}. Outreach Plan: ${plan.outreach}`,
+      context: isProductGap ? `Synthesized from user frustration: "${top.content}"` : `Detected on ${top.platform}. ROI: ${top.evaluation.expectedRevenue}. Outreach Plan: ${top.outreach}`,
       status: 'pending',
       metadata: { 
         type: isProductGap ? 'venture_synthesis' : 'market_lead', 
@@ -126,7 +134,7 @@ export class MarketSniperSkill extends ISkill {
     return {
       success: true,
       ticketId: newTicket.id,
-      output: `Captured lead for ${top.expertise_required}. Ticket created for review.`
+      output: `Captured lead for ${top.expertise_required}. Ticket ${newTicket.id} created.`
     };
   }
 

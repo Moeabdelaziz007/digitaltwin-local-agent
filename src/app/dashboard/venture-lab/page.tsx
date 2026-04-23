@@ -222,7 +222,7 @@ export default function VentureLabDashboard() {
           </div>
         </div>
         <div className="font-display text-[7px] text-text-muted/30 tracking-[0.5em] uppercase">
-          M.A.S-ZERO AGENT ECONOMY // 2026-R1
+          PiWork AGENT ECONOMY // 2026-R1
         </div>
       </footer>
       {/* Live Sentinel Feed (Phase 4) */}

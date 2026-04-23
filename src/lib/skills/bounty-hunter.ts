@@ -95,9 +95,12 @@ export class BountyHunterSkill extends ISkill {
   /**
    * PHASE 4-6: Ticket & Execution
    */
-  async execute(venture: Venture, role: Role, ticket?: Ticket): Promise<ExecutionResult> {
+  /**
+   * PHASE 4: Execution
+   */
+  async execute(venture: Venture, role: Role, ticket?: Ticket, plan?: any): Promise<ExecutionResult> {
     if (ticket && ticket.status === 'done') {
-      // ACTUAL EXECUTION (Approved)
+      // ACTUAL PR SUBMISSION (Final Action after approval)
       console.log(`[BountyHunter] SUBMITTING PR for ticket ${ticket.id}`);
       return {
         success: true,
@@ -106,39 +109,29 @@ export class BountyHunterSkill extends ISkill {
       };
     }
 
-    // Auto-Discovery Flow
-    const opportunities = await this.scan();
-    const scored = await this.score(opportunities, venture);
-    const top = scored[0];
-
-    if (!top || top.score < 0.7) {
-      return { success: false, output: 'no_high_confidence_bounties_found' };
+    // Use passed plan or run discovery
+    let generated = plan;
+    if (!generated) {
+      const items = await this.scan();
+      const scored = await this.score(items, venture);
+      const top = scored[0];
+      if (!top || top.score < 0.7) {
+        return { success: false, output: 'No high-confidence bounties found.' };
+      }
+      generated = await this.generate(top);
     }
 
-    const generated = await this.generate(top);
-
+    const issue = generated;
     const newTicket = await TicketEngine.createTicket(venture, role, {
-      title: `[BOUNTY] Solve ${top.repo} #${top.id}`,
-      context: `
-### Opportunity
-- **Repo:** ${top.repo}
-- **Issue:** ${top.title}
-- **Sim Score:** ${top.score}
-- **Recommendation:** ${top.simulation.recommendation}
-
-### Proposed Solution
-${generated.solution}
-
-### Action Required
-Review and Approve to submit Pull Request.
-      `,
+      title: `[BOUNTY] Solve ${issue.repo} #${issue.id}`,
+      context: `Detected ${issue.title}. Sim Score: ${issue.score}. Solution drafted.`,
       status: 'pending',
-      metadata: { type: 'github_bounty', issue: top, solution: generated.solution }
+      metadata: { type: 'github_bounty', issue, solution: issue.solution }
     });
 
     return { 
       success: true, 
-      output: `Governance ticket created for bounty: ${top.id}`,
+      output: `Governance ticket ${newTicket.id} created for bounty discovery.`,
       ticketId: newTicket.id 
     };
   }

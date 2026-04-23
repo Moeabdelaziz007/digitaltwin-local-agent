@@ -28,7 +28,7 @@ export class SkillOrchestrator {
       
       // 4. Execution (Required)
       console.log(`[Orchestrator] [4/6] Executing core logic...`);
-      const result = await skill.execute(venture, role, ticket);
+      const result = await skill.execute(venture, role, ticket, plan);
       
       // 5. Verification
       console.log(`[Orchestrator] [5/6] Verifying results...`);
