@@ -12,6 +12,36 @@ import { Venture, Role } from '../holding/types';
 export class ContentMultiplierSkill {
   static id = 'content-multiplier';
 
+  async scan(): Promise<any[]> {
+    console.log('[ContentMultiplier][Hunter] Scouting for trending topics and affiliate opportunities...');
+    const topics = await this.discoverTrends();
+    
+    if (topics.length === 0) return [];
+
+    const { ventureRegistry } = await import('../holding/venture-registry');
+    const ventures = ventureRegistry.listVentures();
+    const mainVenture = ventures[0];
+    
+    if (!mainVenture) return topics;
+
+    for (const topic of topics) {
+      await TicketEngine.createTicket(mainVenture, mainVenture.org_chart[0], {
+        title: `[PROFIT OPPORTUNITY] Trending Content: ${topic.title}`,
+        context: `
+          **Opportunity Detected**
+          **Topic:** ${topic.title}
+          **Sentiment:** ${topic.sentiment}
+          
+          Analysis needed to generate SEO content and social threads.
+        `,
+        priority: 'medium',
+        metadata: { type: 'content_publication', topic }
+      });
+    }
+
+    return topics;
+  }
+
   async execute(venture: Venture, role: Role): Promise<ExecutionResult> {
     console.log('[ContentMultiplier] Scanning for trending topics...');
 

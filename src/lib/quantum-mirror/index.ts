@@ -40,7 +40,7 @@ export async function spawnMirrorsForAgent(
 
 export async function terminateMirrorsForAgent(parentAgentId: string): Promise<void> {
   const mirrors = workforceTree.listMirrors(parentAgentId);
-  await Promise.allSettled(mirrors.map(m => workforceTree.terminateMirror(m.id)));
+  await Promise.allSettled(mirrors.map((m: any) => workforceTree.terminateMirror(m.id)));
 }
 
 export function getPromotionCandidates(minScore = 0.7) {

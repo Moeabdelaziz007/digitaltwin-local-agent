@@ -12,6 +12,37 @@ import { Venture, Role } from '../holding/types';
 export class FreelanceArbitrageSkill {
   static id = 'freelance-arbitrage';
 
+  async scan(): Promise<any[]> {
+    console.log('[FreelanceArbitrage][Hunter] Searching for high-value freelance jobs...');
+    const jobs = await this.scanUpwork({ minBudget: 1000 });
+    
+    if (jobs.length === 0) return [];
+
+    const { ventureRegistry } = await import('../holding/venture-registry');
+    const ventures = ventureRegistry.listVentures();
+    const mainVenture = ventures[0];
+    
+    if (!mainVenture) return jobs;
+
+    for (const job of jobs) {
+      await TicketEngine.createTicket(mainVenture, mainVenture.org_chart[0], {
+        title: `[PROFIT OPPORTUNITY] Freelance Job: ${job.title}`,
+        context: `
+          **Opportunity Detected**
+          **Title:** ${job.title}
+          **Budget:** $${job.budget}
+          **Description:** ${job.description}
+          
+          Analysis needed to draft a winning proposal.
+        `,
+        priority: 'high',
+        metadata: { type: 'freelance_bid', opportunity: job }
+      });
+    }
+
+    return jobs;
+  }
+
   async execute(venture: Venture, role: Role): Promise<ExecutionResult> {
     console.log('[FreelanceArbitrage] Starting execution loop...');
 

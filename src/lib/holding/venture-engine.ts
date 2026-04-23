@@ -7,6 +7,7 @@ import { ContentMultiplierSkill } from '../skills/content-multiplier';
 import { ProductFactorySkill } from '../skills/product-factory';
 import { AgentServiceSkill } from '../skills/agent-service';
 import { MarketingSpecialistSkill } from '../skills/marketing-specialist';
+import { MercorReferralSkill } from '../skills/mercor-referral';
 
 /**
  * src/lib/holding/venture-engine.ts
@@ -53,8 +54,22 @@ export class VentureEngine {
     await Promise.all(ventures.map(async (venture) => {
       if (venture.status !== 'active') return;
 
-      // Parallel execution across all skills for this venture
-      const skillPromises = (venture.skills || []).map(skillId => 
+      console.log(`[AVE] Scanning for opportunities in venture: ${venture.name}`);
+
+      // 1. Identify "Revenue-Generating" skills (The Hunter Mode)
+      const revenueSkills = (venture.skills || []).filter(sid => {
+        const meta = skillRegistry.getSkill(sid)?.metadata;
+        return meta?.category === 'revenue';
+      });
+
+      // 2. Scan for opportunities without spending (Zero-Cost Scan)
+      for (const skillId of revenueSkills) {
+        await this.triggerHunter(skillId, venture);
+      }
+
+      // 3. Regular Skill Execution
+      const otherSkills = (venture.skills || []).filter(sid => !revenueSkills.includes(sid));
+      const skillPromises = otherSkills.map(skillId => 
         this.triggerSkill(skillId, venture)
       );
       
@@ -62,21 +77,29 @@ export class VentureEngine {
     }));
   }
 
+  private async triggerHunter(skillId: string, venture: any) {
+    console.log(`[AVE][Hunter] Searching for new profit leads with '${skillId}'`);
+    
+    try {
+      const skillInstance = this.getSkillInstance(skillId);
+      if (!skillInstance || !(skillInstance as any).scan) return;
+
+      const opportunities = await (skillInstance as any).scan();
+      if (opportunities && opportunities.length > 0) {
+        console.log(`[AVE][Hunter] Found ${opportunities.length} new opportunities for ${venture.name}!`);
+        // The skill instance will handle creating tickets inside its scan/execute logic
+      }
+    } catch (e) {
+      console.error(`[AVE][Hunter] Scan failed for '${skillId}':`, e);
+    }
+  }
+
   private async triggerSkill(skillId: string, venture: any) {
-    console.log(`[AVE] Triggering skill '${skillId}' for venture '${venture.name}'`);
+    console.log(`[AVE] Executing operational skill '${skillId}' for '${venture.name}'`);
 
     try {
-      let skillInstance;
-      switch (skillId) {
-        case 'freelance-arbitrage': skillInstance = new FreelanceArbitrageSkill(); break;
-        case 'bounty-hunter': skillInstance = new BountyHunterSkill(); break;
-        case 'saas-factory': skillInstance = new SaaSFactorySkill(); break;
-        case 'content-multiplier': skillInstance = new ContentMultiplierSkill(); break;
-        case 'product-factory': skillInstance = new ProductFactorySkill(); break;
-        case 'agent-service': skillInstance = new AgentServiceSkill(); break;
-        case 'marketing-specialist': skillInstance = new MarketingSpecialistSkill(); break;
-        default: return;
-      }
+      const skillInstance = this.getSkillInstance(skillId);
+      if (!skillInstance) return;
 
       // Find the best role to execute this skill
       const role = venture.org_chart.find((r: any) => r.capabilities?.includes(skillId)) || venture.org_chart[0];
@@ -89,6 +112,20 @@ export class VentureEngine {
       await (skillInstance as any).execute(venture, role);
     } catch (e) {
       console.error(`[AVE] Failed to execute skill '${skillId}':`, e);
+    }
+  }
+
+  private getSkillInstance(skillId: string) {
+    switch (skillId) {
+      case 'freelance-arbitrage': return new FreelanceArbitrageSkill();
+      case 'bounty-hunter': return new BountyHunterSkill();
+      case 'saas-factory': return new SaaSFactorySkill();
+      case 'content-multiplier': return new ContentMultiplierSkill();
+      case 'product-factory': return new ProductFactorySkill();
+      case 'agent-service': return new AgentServiceSkill();
+      case 'marketing-specialist': return new MarketingSpecialistSkill();
+      case 'mercor-referral': return new MercorReferralSkill();
+      default: return null;
     }
   }
 }

@@ -52,3 +52,40 @@ export interface PromotionCandidate {
   recommendedCapabilities: string[];
   cautionRules: string[];
 }
+
+export interface SimulationConfig {
+  mirrorCount: number;
+  simulationDepthDays: number;
+  mirrorModel: string;
+  temperature: number;
+  batchSize: number;
+  maxRiskScore: number;
+}
+
+export interface CompressedSimulation {
+  topPaths: SimulationResult[];
+  expectedRevenue: number;
+  expectedRisk: number;
+  overallConfidence: number;
+  recommendation: 'proceed' | 'caution' | 'abort';
+  reasoning: string;
+}
+
+export interface PromotionRequest {
+  mirrorId: string;
+  promotionScore: number;
+  accuracyHistory: number[];
+  simulationsCompleted: number;
+  recommendedRole: string;
+  recommendedTitle: string;
+  justification: string;
+}
+
+export const DEFAULT_SIMULATION_CONFIG: SimulationConfig = {
+  mirrorCount: 5,
+  simulationDepthDays: 30,
+  mirrorModel: process.env.OLLAMA_MODEL || 'gemma',
+  temperature: 0.7,
+  batchSize: 2,
+  maxRiskScore: 80,
+};

@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // تنفيذ الترقية
+    // تنفيذ الترقية في هيكل MAS-ZERO
     const promotedAgent = await workforceTree.promoteMirror(
       mirrorId,
       newRole,
@@ -53,14 +53,16 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Mirror ${mirrorId} promoted to ${newTitle}`,
+      message: `Mirror ${mirrorId} successfully promoted to Real Agent: ${newTitle}`,
       agent: {
         id: promotedAgent.id,
         role: promotedAgent.role,
         title: promotedAgent.title,
         status: promotedAgent.status,
-        previousAccuracy: mirror.mirrorMeta?.averageAccuracy,
-        simulationsCompleted: mirror.mirrorMeta?.simulationsCompleted,
+        averageAccuracy: mirror.mirrorMeta?.accuracyHistory.length 
+          ? (mirror.mirrorMeta.accuracyHistory.reduce((a, b) => a + b, 0) / mirror.mirrorMeta.accuracyHistory.length)
+          : 0,
+        simulationsCompleted: mirror.mirrorMeta?.totalSimulations,
       },
       approvedBy: approvedBy || userId,
       approvedAt: new Date().toISOString(),
@@ -87,9 +89,11 @@ export async function GET(request: NextRequest) {
         title: node.title,
         personaVariant: node.mirrorMeta?.personaVariant,
         promotionScore: node.mirrorMeta?.promotionScore,
-        averageAccuracy: node.mirrorMeta?.averageAccuracy,
-        simulationsCompleted: node.mirrorMeta?.simulationsCompleted,
-        simulationsSuccessful: node.mirrorMeta?.simulationsSuccessful,
+        averageAccuracy: node.mirrorMeta?.accuracyHistory.length 
+          ? (node.mirrorMeta.accuracyHistory.reduce((a: number, b: number) => a + b, 0) / node.mirrorMeta.accuracyHistory.length)
+          : 0,
+        simulationsCompleted: node.mirrorMeta?.totalSimulations,
+        simulationsSuccessful: node.mirrorMeta?.successfulSimulations,
         parentAgentId: node.mirrorMeta?.parentRealAgentId,
         spawnedAt: node.mirrorMeta?.spawnedAt,
       })),

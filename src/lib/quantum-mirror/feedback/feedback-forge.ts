@@ -183,15 +183,20 @@ Return ONLY valid JSON:
 
     return candidates
       .filter(node => node.mirrorMeta?.parentRealAgentId === parentAgentId)
-      .map(node => ({
-        mirrorId: node.id,
-        promotionScore: node.mirrorMeta!.promotionScore,
-        accuracyHistory: node.mirrorMeta!.accuracyHistory,
-        simulationsCompleted: node.mirrorMeta!.simulationsCompleted,
-        recommendedRole: `specialist-${node.mirrorMeta!.personaVariant}`,
-        recommendedTitle: `${node.mirrorMeta!.personaVariant.charAt(0).toUpperCase() + node.mirrorMeta!.personaVariant.slice(1)} Specialist`,
-        justification: `Mirror achieved ${Math.round(node.mirrorMeta!.averageAccuracy * 100)}% accuracy over ${node.mirrorMeta!.simulationsCompleted} simulations.`,
-      }));
+      .map(node => {
+        const meta = node.mirrorMeta!;
+        const avgAccuracy = meta.accuracyHistory.reduce((a, b) => a + b, 0) / (meta.accuracyHistory.length || 1);
+        
+        return {
+          mirrorId: node.id,
+          promotionScore: meta.promotionScore,
+          accuracyHistory: meta.accuracyHistory,
+          simulationsCompleted: meta.totalSimulations,
+          recommendedRole: `specialist-${meta.personaVariant}`,
+          recommendedTitle: `${meta.personaVariant.charAt(0).toUpperCase() + meta.personaVariant.slice(1)} Specialist`,
+          justification: `Mirror achieved ${Math.round(avgAccuracy * 100)}% accuracy over ${meta.totalSimulations} simulations.`,
+        };
+      });
   }
 
   // ─── Private: Archive to Memory ────────────────────────────────────────────

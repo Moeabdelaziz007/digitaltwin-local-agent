@@ -1,6 +1,7 @@
 import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import { agentWiki } from './agent-wiki';
+import { MirrorMeta, MirrorPersonaVariant } from '../quantum-mirror/types/mirror-types';
 
 /**
  * src/lib/holding/workforce-tree.ts
@@ -23,8 +24,11 @@ export interface WorkforceNode {
     runs: number;
     successRate: number;
     revenueGenerated: number;
+    roi: number; // العائد على الاستثمار
+    capitalAllocation: number; // رأس المال المخصص
   };
-  status: 'active' | 'on_leave' | 'terminated';
+  status: 'active' | 'on_leave' | 'terminated' | 'mirror' | 'promoted';
+  mirrorMeta?: MirrorMeta;
   created_at: string;
   wiki: {
     roleDefinition: string[];
@@ -75,7 +79,7 @@ export class WorkforceTree {
         reportsTo: 'user',
         manages: [],
         budget: { allocated: 1000, spent: 0 },
-        performance: { runs: 0, successRate: 1, revenueGenerated: 0 },
+        performance: { runs: 0, successRate: 1, revenueGenerated: 0, roi: 0, capitalAllocation: 1000 },
         status: 'active',
         created_at: new Date().toISOString(),
         wiki: {
@@ -116,7 +120,7 @@ export class WorkforceTree {
       reportsTo: parentId,
       manages: [],
       budget: { allocated: spec.budget, spent: 0 },
-      performance: { runs: 0, successRate: 0, revenueGenerated: 0 },
+      performance: { runs: 0, successRate: 0, revenueGenerated: 0, roi: 0, capitalAllocation: spec.budget },
       status: 'active',
       created_at: new Date().toISOString(),
       wiki: {
@@ -186,8 +190,9 @@ export class WorkforceTree {
   /**
    * Async recursive subtree evaluation compatible with the Workforce Wiki Tree blueprint.
    */
-  public async evaluateSubtree(headId: string): Promise<{ successRate: number; totalRuns: number; revenue: number }> {
-    return this.evaluatePerformance(headId);
+  public async evaluateSubtree(headId: string): Promise<{ successRate: number; totalRuns: number; revenue: number; roi: number }> {
+    const perf = this.evaluatePerformance(headId);
+    return { ...perf, roi: perf.revenue / (this.nodes[headId]?.budget.allocated || 1) };
   }
 
   public getNode(id: string): WorkforceNode | undefined {
@@ -196,6 +201,150 @@ export class WorkforceTree {
 
   public listWorkforce(): WorkforceNode[] {
     return Object.values(this.nodes);
+  }
+
+  /**
+   * 💰 Financial Governance: Allocate Capital to a Venture or Agent
+   */
+  public allocateCapital(nodeId: string, amount: number, reasoning: string): void {
+    const node = this.nodes[nodeId];
+    if (!node) throw new Error(`Agent ${nodeId} not found for capital allocation.`);
+    
+    node.budget.allocated += amount;
+    node.wiki.auditLog.push(`${new Date().toISOString()}: [CAPITAL ALLOCATION] $${amount} injected. Reason: ${reasoning}`);
+    this.save();
+  }
+
+  /**
+   * 📈 Performance Audit: Update Revenue and Calculate ROI
+   */
+  public reportRevenue(nodeId: string, amount: number, source: string): void {
+    const node = this.nodes[nodeId];
+    if (!node) return;
+
+    node.performance.revenueGenerated += amount;
+    const totalInvested = node.budget.allocated;
+    node.performance.roi = totalInvested > 0 ? (node.performance.revenueGenerated / totalInvested) * 100 : 0;
+    
+    node.wiki.auditLog.push(`${new Date().toISOString()}: [REVENUE REPORT] $${amount} generated from ${source}. Current ROI: ${node.performance.roi.toFixed(2)}%`);
+    this.save();
+  }
+
+  /**
+   * Quantum Mirror: Spawn a new mirror agent
+   */
+  public async hireMirror(parentId: string, meta: Partial<MirrorMeta> & { model?: string; temperature?: number }): Promise<WorkforceNode> {
+    const parent = this.nodes[parentId];
+    if (!parent) throw new Error(`Parent node ${parentId} not found.`);
+
+    const mirrorId = `mirror-${meta.personaVariant}-${Date.now()}`;
+    const newNode: WorkforceNode = {
+      id: mirrorId,
+      role: 'mirror',
+      title: `Mirror [${meta.personaVariant}] of ${parent.title}`,
+      hiredBy: parentId,
+      reportsTo: parentId,
+      manages: [],
+      budget: { allocated: 0, spent: 0 },
+      performance: { runs: 0, successRate: 0, revenueGenerated: 0 },
+      status: 'mirror',
+      created_at: new Date().toISOString(),
+      mirrorMeta: {
+        parentRealAgentId: parentId,
+        personaVariant: meta.personaVariant || 'conservative',
+        simulationDepth: meta.simulationDepth || 30,
+        accuracyHistory: [],
+        promotionScore: 0,
+        totalSimulations: 0,
+        successfulSimulations: 0,
+        spawnedAt: new Date().toISOString(),
+      },
+      wiki: {
+        roleDefinition: [`Simulative mirror of ${parent.title} with ${meta.personaVariant} bias.`],
+        authority: ['Operates only in simulation mode.'],
+        skills: parent.wiki.skills,
+        knowledgeBase: parent.wiki.knowledgeBase,
+        auditLog: [`${new Date().toISOString()}: Mirror spawned for ${parent.title}.`]
+      }
+    };
+
+    this.nodes[newNode.id] = newNode;
+    this.save();
+    return newNode;
+  }
+
+  /**
+   * Quantum Mirror: Promote a mirror to a real agent
+   */
+  public async promoteMirror(mirrorId: string, role: string, title: string, budget: number): Promise<WorkforceNode> {
+    const mirror = this.nodes[mirrorId];
+    if (!mirror || mirror.status !== 'mirror') throw new Error(`Node ${mirrorId} is not a valid mirror for promotion.`);
+
+    mirror.status = 'active'; // Change to active agent
+    mirror.role = role;
+    mirror.title = title;
+    mirror.budget = { allocated: budget, spent: 0 };
+    mirror.created_at = new Date().toISOString();
+    if (mirror.mirrorMeta) mirror.mirrorMeta.promotedAt = new Date().toISOString();
+    
+    // Deduct from parent budget if needed (assuming parent is the one who hired it)
+    const parent = this.nodes[mirror.hiredBy];
+    if (parent) {
+      parent.budget.spent += budget;
+    }
+
+    this.save();
+    this.createWikiPage(mirror);
+    return mirror;
+  }
+
+  /**
+   * Quantum Mirror: Terminate a mirror session
+   */
+  public async terminateMirror(mirrorId: string): Promise<void> {
+    const mirror = this.nodes[mirrorId];
+    if (mirror && mirror.status === 'mirror') {
+      mirror.status = 'terminated';
+      if (mirror.mirrorMeta) mirror.mirrorMeta.terminatedAt = new Date().toISOString();
+      this.save();
+    }
+  }
+
+  /**
+   * Quantum Mirror: Update mirror performance metrics
+   */
+  public updateMirrorPerformance(mirrorId: string, accuracy: number, isSuccess: boolean): void {
+    const mirror = this.nodes[mirrorId];
+    if (!mirror || !mirror.mirrorMeta) return;
+
+    const meta = mirror.mirrorMeta;
+    meta.accuracyHistory.push(accuracy);
+    meta.totalSimulations += 1;
+    if (isSuccess) meta.successfulSimulations += 1;
+
+    // Calculate new promotion score (weighted average)
+    const avgAccuracy = meta.accuracyHistory.reduce((a, b) => a + b, 0) / meta.accuracyHistory.length;
+    meta.promotionScore = (avgAccuracy * 0.7) + (Math.min(meta.totalSimulations / 10, 1) * 0.3);
+
+    this.save();
+  }
+
+  /**
+   * Quantum Mirror: List all mirrors for a specific parent agent
+   */
+  public listMirrors(parentId: string): WorkforceNode[] {
+    return Object.values(this.nodes).filter(
+      n => n.status === 'mirror' && n.hiredBy === parentId
+    );
+  }
+
+  /**
+   * Quantum Mirror: Find mirrors eligible for promotion
+   */
+  public getPromotionCandidates(minScore: number): WorkforceNode[] {
+    return Object.values(this.nodes).filter(
+      n => n.status === 'mirror' && n.mirrorMeta && n.mirrorMeta.promotionScore >= minScore
+    );
   }
 }
 
