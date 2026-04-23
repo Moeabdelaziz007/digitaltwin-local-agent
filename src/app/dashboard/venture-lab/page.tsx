@@ -32,6 +32,7 @@ const STAGES = [
 const SUPERPOWERS = [
   { name: 'The Expert Validator', type: 'Composite', impact: 'Critical', active: true },
   { name: 'Revenue Flywheel', type: 'Loop', impact: 'High', active: true },
+  { name: 'Mirage Protocol', type: 'Stealth', impact: 'Tactical', active: true },
   { name: 'Guardian Shield', type: 'Security', impact: 'Medium', active: true }
 ];
 
