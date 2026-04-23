@@ -13,10 +13,13 @@ import {
   Layers,
   ChevronRight,
   AlertCircle,
-  Clock
+  Clock,
+  Sparkles,
+  Database
 } from 'lucide-react';
 import { ParticleNetwork } from '@/components/ParticleNetwork';
 import { NeuralScanOverlay } from '@/components/NeuralScanOverlay';
+import { Venture } from '@/lib/holding/types';
 
 const STAGES = [
   { id: 'Explore', label: 'The Prism', icon: Search, color: 'text-cyan', desc: 'Market Refraction' },
@@ -26,116 +29,100 @@ const STAGES = [
   { id: 'Synthesis', label: 'The CEO', icon: ShieldCheck, color: 'text-green-400', desc: 'Final Orchestration' }
 ];
 
-const AGENTS = [
-  { name: 'Hunter', role: 'Explore' }, { name: 'Forager', role: 'Explore' }, { name: 'Miner', role: 'Explore' },
-  { name: 'Cache', role: 'Collapse' }, { name: 'Conductor', role: 'Collapse' },
-  { name: 'Advocate', role: 'Attack' }, { name: 'MarketSim', role: 'Attack' }, { name: 'Mirror', role: 'Attack' },
-  { name: 'BuildSim', role: 'Build' }, { name: 'RevSim', role: 'Build' }, { name: 'Architect', role: 'Build' },
-  { name: 'Blacksmith', role: 'Synthesis' }, { name: 'CEO', role: 'Synthesis' }, { name: 'Archivist', role: 'Synthesis' }
+const SUPERPOWERS = [
+  { name: 'The Expert Validator', type: 'Composite', impact: 'Critical', active: true },
+  { name: 'Revenue Flywheel', type: 'Loop', impact: 'High', active: true },
+  { name: 'Guardian Shield', type: 'Security', impact: 'Medium', active: true }
 ];
 
-import { MemoryCanvas } from '@/components/MemoryCanvas';
-import { useUser } from '@clerk/nextjs';
-import pb from '@/lib/pocketbase-client';
-
-interface UserProfile {
-  id: string;
-  user_id: string;
-  skills: string[];
-  interests: string[];
-  bio?: string;
-  name?: string;
-}
-
 export default function VentureLabDashboard() {
-  const { user } = useUser();
   const [activeStage, setActiveStage] = useState('Explore');
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [ventures, setVentures] = useState<Venture[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (user?.id) {
-      pb.collection('user_profiles').getFirstListItem(`user_id = "${user.id}"`)
-        .then((record: any) => setProfile(record as UserProfile))
-        .catch(console.error);
-    }
-  }, [user?.id]);
+    const fetchVentures = async () => {
+      try {
+        const res = await fetch('/api/ventures');
+        const data = await res.json();
+        if (data.ventures) setVentures(data.ventures);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    void fetchVentures();
+  }, []);
+
   useEffect(() => {
-    // Simulate real-time progress
     const stages = STAGES.map(s => s.id);
     const timer = setInterval(() => {
       const nextIdx = (stages.indexOf(activeStage) + 1) % stages.length;
       setActiveStage(stages[nextIdx]);
-    }, 8000);
+    }, 6000);
     return () => clearInterval(timer);
   }, [activeStage]);
 
   return (
-    <div className="relative min-h-screen bg-[#06060A] text-white p-8 overflow-hidden">
+    <div className="relative min-h-screen bg-[#06060A] text-white p-8 overflow-hidden custom-scrollbar">
       <ParticleNetwork />
       <NeuralScanOverlay />
 
       <header className="relative z-10 mb-12 flex justify-between items-end">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <Rocket className="text-cyan animate-pulse" size={24} />
+            <div className="p-2 bg-cyan/10 rounded-xl border border-cyan/20">
+              <Sparkles className="text-cyan animate-pulse" size={24} />
+            </div>
             <h1 className="text-3xl font-display font-bold tracking-tighter uppercase italic">
-              Venture Lab <span className="text-cyan/50">v3.5</span>
+              Venture Lab <span className="text-cyan/50">v4.0</span>
             </h1>
           </div>
-          <p className="text-text-muted text-xs font-display tracking-[0.2em] uppercase">
-            Autonomous Alpha Generation Engine
+          <p className="text-text-muted text-[10px] font-display tracking-[0.4em] uppercase">
+            Autonomous Enterprise Operating System
           </p>
         </div>
         <div className="flex items-center gap-6">
           <div className="text-right">
-            <span className="block text-[8px] uppercase tracking-widest text-text-muted mb-1">System Health</span>
+            <span className="block text-[8px] uppercase tracking-widest text-text-muted mb-1">Core Health</span>
             <div className="flex gap-1">
               {[1, 2, 3, 4, 5].map(i => <div key={i} className="w-4 h-1 bg-cyan shadow-[0_0_5px_#00f0ff]" />)}
             </div>
           </div>
           <div className="h-10 w-px bg-white/10" />
           <div className="text-right">
-            <span className="block text-[8px] uppercase tracking-widest text-text-muted mb-1">Live Agents</span>
-            <span className="font-display text-xl font-bold text-white">14 / 14</span>
+            <span className="block text-[8px] uppercase tracking-widest text-text-muted mb-1">Active Ventures</span>
+            <span className="font-display text-xl font-bold text-white">{ventures.length}</span>
           </div>
         </div>
       </header>
 
       <div className="grid grid-cols-12 gap-8 relative z-10">
-        {/* --- MAIN STAGE FLOW --- */}
         <div className="col-span-12 lg:col-span-8 space-y-8">
-          <div className="glass-surface p-8 rounded-3xl border-white/5 relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-8 opacity-5">
-              <Activity size={120} />
-            </div>
-            
-            <h2 className="text-[10px] uppercase tracking-[0.4em] text-cyan mb-8 font-bold">Neural Hierarchy Progression</h2>
+          {/* Progression Map */}
+          <div className="glass-surface p-8 rounded-3xl border-white/5 relative overflow-hidden bg-white/5">
+            <h2 className="text-[10px] uppercase tracking-[0.4em] text-cyan mb-12 font-bold">8-Step Execution Lifecycle</h2>
             
             <div className="flex justify-between items-center relative">
-              <div className="absolute top-1/2 left-0 w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-y-1/2" />
+              <div className="absolute top-1/2 left-0 w-full h-[2px] bg-white/5 -translate-y-1/2" />
               
               {STAGES.map((stage, idx) => {
                 const Icon = stage.icon;
                 const isActive = activeStage === stage.id;
-                const isPast = STAGES.findIndex(s => s.id === activeStage) > idx;
-
                 return (
                   <div key={stage.id} className="relative z-10 flex flex-col items-center gap-4">
                     <motion.div 
-                      animate={isActive ? { scale: [1, 1.1, 1], boxShadow: '0 0 20px rgba(0, 240, 255, 0.2)' } : {}}
-                      className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${
-                        isActive ? 'bg-cyan text-bg-void shadow-[0_0_30px_#00f0ff]' : 
-                        isPast ? 'bg-white/10 text-cyan' : 'bg-white/5 text-text-muted'
+                      animate={isActive ? { scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] } : {}}
+                      className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-700 ${
+                        isActive ? 'bg-cyan text-bg-void shadow-[0_0_40px_rgba(0,240,255,0.4)]' : 'bg-white/5 text-text-muted border border-white/5'
                       }`}
                     >
                       <Icon size={24} />
                     </motion.div>
                     <div className="text-center">
-                      <span className={`block font-display text-[9px] uppercase tracking-widest font-bold mb-1 ${isActive ? 'text-white' : 'text-text-muted'}`}>
+                      <span className={`block font-display text-[9px] uppercase tracking-widest font-bold ${isActive ? 'text-white' : 'text-text-muted'}`}>
                         {stage.label}
-                      </span>
-                      <span className="block text-[7px] text-text-muted/60 uppercase tracking-tighter">
-                        {stage.desc}
                       </span>
                     </div>
                   </div>
@@ -145,100 +132,81 @@ export default function VentureLabDashboard() {
           </div>
 
           <div className="grid grid-cols-2 gap-8">
-            <div className="glass-surface p-6 rounded-3xl border-white/5">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-[9px] uppercase tracking-widest text-text-muted font-bold">Agent Neural Cloud</h3>
-                <span className="text-[8px] text-cyan animate-pulse">Scanning...</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {AGENTS.map((agent) => (
-                  <div 
-                    key={agent.name}
-                    className={`px-3 py-1.5 rounded-lg border text-[8px] font-bold uppercase tracking-widest transition-all duration-500 ${
-                      agent.role === activeStage 
-                        ? 'bg-cyan/10 border-cyan text-cyan shadow-[0_0_10px_rgba(0,240,255,0.1)]' 
-                        : 'bg-white/5 border-white/5 text-text-muted/40'
-                    }`}
-                  >
-                    {agent.name}
+            {/* Superpowers Panel */}
+            <div className="glass-surface p-6 rounded-3xl border-white/5 bg-white/5">
+              <h3 className="text-[9px] uppercase tracking-widest text-text-muted font-bold mb-6 flex items-center gap-2">
+                <ShieldCheck size={14} className="text-emerald-400" />
+                Active Superpowers
+              </h3>
+              <div className="space-y-3">
+                {SUPERPOWERS.map(p => (
+                  <div key={p.name} className="flex justify-between items-center p-3 bg-white/5 rounded-xl border border-white/5 group hover:border-cyan/30 transition-all">
+                    <div>
+                      <p className="text-[10px] font-bold text-white/90 group-hover:text-cyan transition-colors">{p.name}</p>
+                      <span className="text-[8px] text-text-muted uppercase tracking-tighter">{p.type} Layer</span>
+                    </div>
+                    <div className="text-[8px] font-bold text-emerald-400 px-2 py-0.5 bg-emerald-400/10 rounded">{p.impact}</div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="glass-surface p-6 rounded-3xl border-white/5">
-              <h3 className="text-[9px] uppercase tracking-widest text-text-muted font-bold mb-6">Active Insights</h3>
+            {/* Live Insights */}
+            <div className="glass-surface p-6 rounded-3xl border-white/5 bg-white/5">
+              <h3 className="text-[9px] uppercase tracking-widest text-text-muted font-bold mb-6">Neural Insights</h3>
               <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 mt-1 animate-pulse" />
-                  <div>
-                    <p className="text-[10px] text-white/90">Revenue Mirror: Slippage detected in L2 pairs.</p>
-                    <span className="text-[8px] text-text-muted">Adjusting Monte Carlo params...</span>
-                  </div>
+                <div className="p-3 bg-white/5 rounded-xl border-l-2 border-l-cyan flex gap-3">
+                   <div className="w-1 h-1 rounded-full bg-cyan mt-1 animate-ping" />
+                   <p className="text-[10px] text-white/70 leading-relaxed italic">"Mercor expertise matched for Venture Alpha. Estimated ROI: 20% Life-time."</p>
                 </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-green-400 mt-1" />
-                  <div>
-                    <p className="text-[10px] text-white/90">The Prism: New High-Velocity Gem found.</p>
-                    <span className="text-[8px] text-text-muted">Venture ID: 0xFX-92</span>
-                  </div>
+                <div className="p-3 bg-white/5 rounded-xl border-l-2 border-l-purple-500 flex gap-3">
+                   <div className="w-1 h-1 rounded-full bg-purple-500 mt-1" />
+                   <p className="text-[10px] text-white/70 leading-relaxed italic">"Bounty Hunter solution validated. Human review pending for V-012."</p>
                 </div>
               </div>
             </div>
           </div>
-
-          <MemoryCanvas 
-            skills={profile?.skills || ['Neural-Link', 'Sovereign-Logic', 'Synthesis']} 
-            interests={profile?.interests || ['Artificial Intelligence', 'Wealth-Gen', 'Privacy']} 
-          />
         </div>
 
-        {/* --- SIDEBAR: OPPORTUNITIES --- */}
+        {/* Sidebar: REAL ACTIVE VENTURES */}
         <div className="col-span-12 lg:col-span-4 space-y-8">
-          <div className="glass-surface p-6 rounded-3xl border-white/5 min-h-[600px] flex flex-col">
-            <div className="flex justify-between items-center mb-8">
-              <h3 className="text-[10px] uppercase tracking-[0.3em] text-cyan font-bold">Hidden Gems</h3>
-              <TrendingUp size={16} className="text-cyan/40" />
+          <div className="glass-surface p-6 rounded-3xl border-white/5 bg-white/5 min-h-[500px] flex flex-col">
+            <h3 className="text-[10px] uppercase tracking-[0.4em] text-cyan font-bold mb-8">Active Ventures</h3>
+            <div className="space-y-4 flex-1">
+              {ventures.map(v => (
+                <div key={v.id} className="p-4 bg-white/5 border border-white/5 rounded-2xl group hover:border-cyan/40 transition-all cursor-pointer">
+                  <div className="flex justify-between items-start mb-3">
+                    <span className="text-[9px] font-mono text-cyan/60">{v.id}</span>
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/10 rounded-full">
+                       <div className="w-1 h-1 bg-emerald-500 rounded-full animate-pulse" />
+                       <span className="text-[7px] text-emerald-500 font-bold uppercase tracking-widest">Active</span>
+                    </div>
+                  </div>
+                  <h4 className="text-sm font-bold text-white/90 mb-1">{v.name}</h4>
+                  <p className="text-[9px] text-white/30 uppercase tracking-widest mb-4">{v.metadata?.engine || 'Sovereign-Logic'}</p>
+                  
+                  <div className="flex items-center gap-3">
+                     <div className="flex-1 h-[2px] bg-white/5 rounded-full overflow-hidden">
+                        <div className="h-full bg-cyan" style={{ width: '45%' }} />
+                     </div>
+                     <span className="text-[8px] font-bold text-cyan">$${v.budget.total_spent_usd}</span>
+                  </div>
+                </div>
+              ))}
+              {ventures.length === 0 && !isLoading && (
+                <div className="flex flex-col items-center justify-center h-64 text-center opacity-20">
+                  <Database size={32} className="mb-4" />
+                  <p className="text-[10px] uppercase tracking-widest">No Active Vectors Found</p>
+                </div>
+              )}
             </div>
 
-            <div className="flex-1 space-y-4">
-              {/* Mock Opportunities */}
-              <div className="p-4 bg-white/5 border border-white/5 rounded-2xl hover:border-cyan/30 transition-all cursor-pointer group">
-                <div className="flex justify-between items-start mb-3">
-                  <span className="text-[9px] px-2 py-0.5 bg-cyan/10 text-cyan rounded border border-cyan/20 font-bold uppercase tracking-widest">Arbitrage</span>
-                  <span className="text-[10px] font-bold text-white">$1,420/mo</span>
-                </div>
-                <h4 className="text-sm font-bold text-white group-hover:text-cyan transition-colors mb-2 italic">ETH/USDC Cross-Chain Mirror</h4>
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-cyan w-[88%]" />
-                  </div>
-                  <span className="text-[8px] font-bold text-cyan">88% Match</span>
-                </div>
-              </div>
-
-              <div className="p-4 bg-white/5 border border-white/5 rounded-2xl hover:border-cyan/30 transition-all cursor-pointer group">
-                <div className="flex justify-between items-start mb-3">
-                  <span className="text-[9px] px-2 py-0.5 bg-purple-500/10 text-purple-400 rounded border border-purple-500/20 font-bold uppercase tracking-widest">SaaS</span>
-                  <span className="text-[10px] font-bold text-white">$4,500/mo</span>
-                </div>
-                <h4 className="text-sm font-bold text-white group-hover:text-purple-400 transition-colors mb-2 italic">AI-First Privacy Proxy</h4>
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full bg-purple-500 w-[62%]" />
-                  </div>
-                  <span className="text-[8px] font-bold text-purple-400">62% Match</span>
-                </div>
-              </div>
-            </div>
-
-            <button className="w-full mt-8 py-3 rounded-xl border border-white/5 text-[9px] uppercase tracking-widest text-text-muted hover:bg-white/5 transition-all">
-              Initialize New Venture Run
+            <button className="w-full mt-8 py-4 bg-cyan/10 hover:bg-cyan/20 border border-cyan/20 rounded-2xl text-[9px] uppercase tracking-[0.3em] font-bold text-cyan transition-all">
+              Initialize New Stream
             </button>
           </div>
         </div>
       </div>
-
       {/* --- FOOTER STATUS --- */}
       <footer className="fixed bottom-0 left-0 w-full p-4 bg-[#0A0A0F] border-t border-white/5 z-20 flex justify-between items-center">
         <div className="flex items-center gap-4">
