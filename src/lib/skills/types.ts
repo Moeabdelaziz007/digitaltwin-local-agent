@@ -20,10 +20,13 @@ export interface SkillMetadata {
   name: string;
   version: string;
   description: string;
-  category: 'revenue' | 'marketing' | 'devops' | 'system';
-  revenue_impact: 'low' | 'medium' | 'high';
+  category: string;
+  revenue_impact: 'low' | 'medium' | 'high' | 'critical';
   permissions: string[];
   required_tools: string[];
+  when_to_use?: string;
+  successRate?: number;
+  totalEarnings?: number;
 }
 
 /**

@@ -1,5 +1,6 @@
 import { callOllama } from '../ollama-client';
-import { skillRegistry, SkillMetadata, SkillListItem } from './registry';
+import { skillRegistry, SkillListItem } from './registry';
+import { SkillMetadata } from './types';
 
 /**
  * src/lib/skills/synapse-router.ts

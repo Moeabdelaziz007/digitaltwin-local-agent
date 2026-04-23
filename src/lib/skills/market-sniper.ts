@@ -1,4 +1,4 @@
-import { BaseSkill, ExecutionResult } from './types';
+import { ISkill, SkillMetadata, ExecutionResult } from './types';
 import { callOllama } from '../ollama-client';
 import { quantumMirror } from '../quantum-mirror';
 import { TicketEngine } from '../holding/ticket-engine';
@@ -21,10 +21,6 @@ export class MarketSniperSkill extends ISkill {
     permissions: ['web_scan', 'llm_generation', 'ticket_creation'],
     required_tools: ['Puppeteer', 'Ollama']
   };
-
-  constructor() {
-    super();
-  }
 
   async scan(): Promise<any[]> {
     const queries = [
@@ -71,25 +67,25 @@ export class MarketSniperSkill extends ISkill {
     console.log(`[Market Sniper] Scoring ${items.length} leads...`);
     const scored = [];
     for (const item of items) {
-      const evaluation = await quantumMirror.evaluateStrategy(venture, {
-        type: 'market_arbitrage',
-        skill: item.expertise_required,
-        potential_revenue: item.estimated_value_usd
-      });
-      scored.push({ ...item, evaluation });
+      const simulation = await quantumMirror.simulate(
+        'market-sniper',
+        `Evaluate ROI for expert gap: ${item.expertise_required} in venture ${venture.name}`,
+        venture
+      );
+      scored.push({ ...item, evaluation: simulation });
     }
-    return scored.sort((a, b) => b.evaluation.score - a.evaluation.score);
+    return scored.sort((a, b) => b.evaluation.expectedRevenue - a.evaluation.expectedRevenue);
   }
 
   async generate(bestOpportunity: any): Promise<any> {
     console.log(`[Market Sniper] Generating automated outreach for ${bestOpportunity.expertise_required}...`);
-    const prompt = `Craft a professional outreach message for ${bestOpportunity.expertise_required}. ROI Score: ${bestOpportunity.evaluation.score}.`;
+    const prompt = `Craft a professional outreach message for ${bestOpportunity.expertise_required}. ROI Score: ${bestOpportunity.evaluation.expectedRevenue}.`;
     const message = await callOllama(prompt);
     return { ...bestOpportunity, outreach: message };
   }
 
   async execute(venture: Venture, role: Role, ticket?: Ticket): Promise<ExecutionResult> {
-    if (ticket && ticket.status === 'approved') {
+    if (ticket && ticket.status === 'done') {
       return { success: true, output: 'Outreach sent successfully via Mirage Protocol.' };
     }
 
@@ -97,13 +93,13 @@ export class MarketSniperSkill extends ISkill {
     const scored = await this.score(leads, venture);
     const top = scored[0];
 
-    if (!top || top.evaluation.score < 0.7) {
+    if (!top || top.evaluation.recommendation === 'abort') {
       return { success: false, output: 'No high-value leads passed the threshold.' };
     }
 
     const plan = await this.generate(top);
 
-    // Phase 4: Visual Evidence (NEW)
+    // Phase 4: Visual Evidence
     let screenshotUrl = '';
     try {
       const { browserManager } = await import('../browser/browser-manager');
@@ -117,33 +113,25 @@ export class MarketSniperSkill extends ISkill {
 
     const newTicket = await TicketEngine.createTicket(venture, role, {
       title: isProductGap ? `[SYNTHESIS] Micro-SaaS Idea: ${top.expertise_required}` : `[SNIPER] High-Value Lead: ${top.expertise_required}`,
-      description: isProductGap ? `Synthesized from user frustration: "${top.content}"` : `Detected on ${top.platform}. ROI: ${top.evaluation.score}`,
+      context: isProductGap ? `Synthesized from user frustration: "${top.content}"` : `Detected on ${top.platform}. ROI: ${top.evaluation.expectedRevenue}. Outreach Plan: ${plan.outreach}`,
       status: 'pending',
-      context: `Outreach Plan: ${plan.outreach}`,
       metadata: { 
         type: isProductGap ? 'venture_synthesis' : 'market_lead', 
         expertise: top.expertise_required,
-        score: top.evaluation.score,
+        score: top.evaluation.overallConfidence,
         evidence: screenshotUrl
       }
     });
 
-    // Phase 5: Autonomous Approval (NEW)
-    const { shadowBoard } = await import('../holding/shadow-board');
-    const autoApproved = await shadowBoard.evaluate(newTicket, venture, role);
-
     return {
       success: true,
       ticketId: newTicket.id,
-      output: autoApproved 
-        ? `Captured & AUTO-APPROVED lead for ${top.expertise_required}. Visual proof: ${screenshotUrl}`
-        : `Captured lead for ${top.expertise_required}. Ticket created for review.`
+      output: `Captured lead for ${top.expertise_required}. Ticket created for review.`
     };
   }
 
   async verify(result: ExecutionResult): Promise<boolean> {
-    const ticket = await TicketEngine.getTicket(result.ticketId!);
-    return !!ticket;
+    return !!result.ticketId;
   }
 
   async learn(outcome: ExecutionResult, venture: Venture): Promise<void> {
@@ -153,16 +141,4 @@ export class MarketSniperSkill extends ISkill {
 
 // Self-Register
 import { skillRegistry } from './registry';
-skillRegistry.registerSkill({
-  id: 'market-sniper',
-  metadata: {
-    name: 'Market Sniper',
-    version: '1.0.0',
-    description: 'Autonomous Browser Sniper for market leads.',
-    category: 'marketing',
-    revenue_impact: 'high',
-    permissions: ['web_scan', 'llm_generation'],
-    required_tools: ['Puppeteer', 'Ollama']
-  },
-  instructions: 'Find market gaps via real browser sessions and match them to experts.'
-});
+skillRegistry.registerSkillInstance(new MarketSniperSkill());

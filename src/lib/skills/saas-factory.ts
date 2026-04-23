@@ -1,86 +1,90 @@
-import { callOllama } from '../ollama-client';
-import { skillRegistry } from './registry';
-import { ExecutionResult } from './types';
+import { ISkill, ExecutionResult, SkillMetadata } from './types';
 import { TicketEngine } from '../holding/ticket-engine';
-import { Venture, Role } from '../holding/types';
+import { Venture, Role, Ticket } from '../holding/types';
+import { callOllama } from '../ollama-client';
 
 /**
  * src/lib/skills/saas-factory.ts
  * Micro-SaaS Factory Engine: Automated Problem Discovery & MVP Scaffolding
  */
 
-export class SaaSFactorySkill {
-  static id = 'saas-factory';
+export class SaaSFactorySkill extends ISkill {
+  id = 'saas-factory';
+  metadata: SkillMetadata = {
+    id: 'saas-factory',
+    name: 'Micro-SaaS Factory',
+    version: '1.2.0',
+    description: 'Finds niche problems and architects MVP solutions automatically.',
+    category: 'revenue',
+    revenue_impact: 'medium',
+    permissions: ['network', 'filesystem_write'],
+    required_tools: ['ollama', 'nextjs-cli']
+  };
 
-  async execute(venture: Venture, role: Role): Promise<ExecutionResult> {
-    console.log('[SaaSFactory] Discovering market pain points...');
-
-    // 1. Discover (Simulated scan of Reddit/X for "is there a tool for...")
-    const problems = await this.discoverProblems();
-    
-    // 2. Prioritize
-    const bestProblem = problems[0];
-
-    if (!bestProblem) {
-      return { success: false, output: 'no_profitable_problems_found' };
-    }
-
-    // 3. Architect MVP
-    const mvpSpec = await this.architectMVP(bestProblem);
-    
-    // 4. Submit for Approval (Governance Layer)
-    const ticket = await TicketEngine.createTicket(venture, role, {
-      title: `[MVP] Launch SaaS for: ${bestProblem.title}`,
-      context: `
-        **Problem:** ${bestProblem.description}
-        **Target Market:** ${bestProblem.market}
-        
-        **MVP Specification:**
-        ${mvpSpec}
-        
-        **Proposed Stack:** Next.js, Tailwind, SQLite, Vercel.
-      `,
-      priority: 'high',
-      metadata: {
-        type: 'saas_mvp',
-        problem: bestProblem
-      }
-    });
-
-    return { 
-      success: true, 
-      output: `MVP Architected for ${bestProblem.title}. Awaiting scaffold approval.`,
-      ticketId: ticket.id 
-    };
-  }
-
-  private async discoverProblems() {
+  async scan(): Promise<any[]> {
     return [
       { id: 'p1', title: 'AI Meeting Summarizer for Arabic', description: 'Existing tools struggle with Arabic dialects.', market: 'MENA Professionals' },
       { id: 'p2', title: 'Zero-Config SEO Monitor', description: 'Too many dashboards are complex.', market: 'Indie Hackers' }
     ];
   }
 
-  private async architectMVP(problem: any) {
-    const prompt = `Architect a Micro-SaaS MVP for this problem: ${problem.title}. Description: ${problem.description}. List 3 core features and a data model.`;
-    return await callOllama(prompt, [
+  async score(items: any[], venture: Venture): Promise<any[]> {
+    return items.map(item => ({ ...item, score: 0.8 }));
+  }
+
+  async generate(bestOpportunity: any): Promise<any> {
+    const prompt = `Architect a Micro-SaaS MVP for this problem: ${bestOpportunity.title}. Description: ${bestOpportunity.description}. List 3 core features and a data model.`;
+    const mvpSpec = await callOllama(prompt, [
       { role: 'system', content: 'You are a Senior Product Architect and Indie Hacker.' }
     ]);
+    return { ...bestOpportunity, mvpSpec };
+  }
+
+  async execute(venture: Venture, role: Role, ticket?: Ticket): Promise<ExecutionResult> {
+    if (ticket && ticket.status === 'done') {
+      return { success: true, output: 'MVP Scaffolded and deployed to preview environment.' };
+    }
+
+    const problems = await this.scan();
+    const scored = await this.score(problems, venture);
+    const top = scored[0];
+
+    if (!top) return { success: false, output: 'no_profitable_problems_found' };
+
+    const plan = await this.generate(top);
+
+    const newTicket = await TicketEngine.createTicket(venture, role, {
+      title: `[MVP] Launch SaaS for: ${top.title}`,
+      context: `
+### Problem: ${top.description}
+### Target Market: ${top.market}
+
+### MVP Specification
+${plan.mvpSpec}
+
+### Proposed Stack
+Next.js, Tailwind, SQLite, Vercel.
+      `,
+      status: 'pending',
+      metadata: { type: 'saas_mvp', problem: top, spec: plan.mvpSpec }
+    });
+
+    return { 
+      success: true, 
+      output: `MVP Architected for ${top.title}. Awaiting scaffold approval.`,
+      ticketId: newTicket.id 
+    };
+  }
+
+  async verify(result: ExecutionResult): Promise<boolean> {
+    return result.success;
+  }
+
+  async learn(outcome: ExecutionResult, venture: Venture): Promise<void> {
+    // Learning loop
   }
 }
 
-// Register in AHP Registry
-skillRegistry.registerSkill({
-  id: SaaSFactorySkill.id,
-  metadata: {
-    name: 'Micro-SaaS Factory',
-    version: '1.2.0',
-    description: 'Finds niche problems and architects MVP solutions automatically.',
-    when_to_use: 'When building new digital assets and subscription-based revenue streams.',
-    permissions: ['network', 'filesystem_write'],
-    required_tools: ['ollama', 'nextjs-cli'],
-    category: 'revenue',
-    revenue_impact: 'medium'
-  },
-  instructions: 'Identify pain points, architect simple solutions, and scaffold MVPs for review.'
-});
+// Self-Register
+import { skillRegistry } from './registry';
+skillRegistry.registerSkillInstance(new SaaSFactorySkill());

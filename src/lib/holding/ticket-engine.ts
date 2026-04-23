@@ -6,7 +6,6 @@
 import { Ticket, Role, Venture } from './types';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { BudgetMonitor } from './budget-monitor';
 import { VentureRegistry } from './venture-registry';
 
 export class TicketEngine {
@@ -45,37 +44,42 @@ export class TicketEngine {
     // 2. Immutable Audit: التسجيل في Journal
     await this.logToJournal(venture.id, `NEW TICKET: ${ticket.id} - ${ticket.title} (Budget: ${budgetRequested}$)`);
 
+    // 3. Simulation Storage: تخزين في الذاكرة المؤقتة للاختبار
+    if (!(globalThis as any)._tickets) (globalThis as any)._tickets = new Map();
+    (globalThis as any)._tickets.set(ticket.id, ticket);
+
     return ticket;
+  }
+
+  /**
+   * استرجاع تذكرة (محاكاة - في الإنتاج يتم البحث في DB)
+   */
+  public static async getTicket(ticketId: string): Promise<Ticket | null> {
+    // This is a placeholder. In a real app, we'd fetch from PocketBase or local JSON
+    return (globalThis as any)._tickets?.get(ticketId) || null;
+  }
+
+  /**
+   * استرجاع جميع التذاكر
+   */
+  public static async listTickets(): Promise<Ticket[]> {
+    return Array.from(((globalThis as any)._tickets?.values() || [])) as Ticket[];
   }
 
   /**
    * تحديث حالة تذكرة وحساب التكلفة المالية
    */
   public static async updateTicket(
-    ventureId: string, 
-    ticket: Ticket, 
-    updates: Partial<Ticket>, 
-    logEntry?: string
+    ticketId: string, 
+    updates: Partial<Ticket>
   ): Promise<Ticket> {
-    const registry = VentureRegistry.getInstance();
-    const venture = registry.getVenture(ventureId);
-    
-    // حساب التكلفة إذا تم تقديم بيانات استهلاك
-    if (updates.output && venture) {
-      const tokens = updates.output.length / 4; 
-      const model = ticket.metadata?.model || 'ollama';
-      const cost = BudgetMonitor.calculateCost(model, tokens);
-      
-      venture.budget.spent_this_month_usd += cost;
-      venture.budget.spent_tokens += tokens;
-    }
+    const ticket = await this.getTicket(ticketId);
+    if (!ticket) throw new Error(`Ticket ${ticketId} not found`);
 
     Object.assign(ticket, updates);
     ticket.updated_at = new Date().toISOString();
 
-    if (logEntry) {
-      await this.logToJournal(ventureId, `[Ticket ${ticket.id}] ${logEntry}`);
-    }
+    await this.logToJournal(ticket.venture_id, `UPDATED TICKET: ${ticket.id} - New Status: ${ticket.status}`);
 
     return ticket;
   }
@@ -84,6 +88,7 @@ export class TicketEngine {
     const journalPath = path.join(process.cwd(), 'ventures', ventureId, 'JOURNAL.md');
     const logEntry = `- [${new Date().toISOString()}] ${message}\n`;
     try {
+      await fs.mkdir(path.dirname(journalPath), { recursive: true });
       await fs.appendFile(journalPath, logEntry);
     } catch (e) {
       console.warn(`[TicketEngine] Could not write to journal for ${ventureId}`);

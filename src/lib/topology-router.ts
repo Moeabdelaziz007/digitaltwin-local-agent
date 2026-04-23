@@ -16,7 +16,6 @@ const TOPOLOGY_MAP: Record<string, () => Promise<any>> = {
   // Tier 2: Heavy / Task-Specific
   'voice': () => import('./voice/state-machine'),
   'causal': () => import('./causal/attribution'),
-  'consensus': () => import('./consensus/orchestrator'),
   'meta': () => import('./meta-cognitive/reflection-loop'),
 };
 

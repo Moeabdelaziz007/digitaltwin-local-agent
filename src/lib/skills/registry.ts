@@ -5,6 +5,7 @@ import pb from '../pocketbase-client';
 import { MercorBridgeSkill } from './mercor-bridge';
 import { BountyHunterSkill } from './bounty-hunter';
 import { MarketSniperSkill } from './market-sniper';
+import { SkillMetadata, ISkill } from './types';
 
 export const SkillSchema = z.object({
   id: z.string().optional(),
@@ -18,11 +19,11 @@ export const SkillSchema = z.object({
   output_schema: z.object({}).passthrough().optional(),
   safety_notes: z.string().optional(),
   // Performance Metrics (Merged from profit-lab)
-  successRate: z.number().default(0),
-  totalEarnings: z.number().default(0),
-  totalRuns: z.number().default(0),
+  successRate: z.number().optional().default(0),
+  totalEarnings: z.number().optional().default(0),
+  totalRuns: z.number().optional().default(0),
   lastUsed: z.string().optional(),
-  status: z.enum(['experimental', 'verified', 'deprecated']).default('experimental'),
+  status: z.enum(['experimental', 'verified', 'deprecated']).optional().default('experimental'),
   // Digital Twin Venture Lab Upgrades
   argument_hint: z.string().optional(),
   invocation_flow: z.array(z.string()).optional(),
@@ -33,9 +34,18 @@ export const SkillSchema = z.object({
   category: z.string().optional()
 });
 
-export type SkillMetadata = z.infer<typeof SkillSchema>;
+// Removed duplicate SkillMetadata type
 
 export type SkillListItem = SkillMetadata & { id: string };
+
+export interface RegisteredSkill {
+  id?: string;
+  metadata: SkillMetadata;
+  instructions: string;
+  instance?: ISkill;
+  examples?: string[];
+  enabled?: boolean;
+}
 
 export class SkillRegistry {
   private static instance: SkillRegistry;
@@ -52,7 +62,7 @@ export class SkillRegistry {
   }
 
   /**
-   * تسجيل مهارة جديدة كـ Plugin
+   * تسجيل مهارة جديدة كـ Plugin (Strict Interface)
    */
   public registerSkillInstance(instance: ISkill): void {
     this.skills.set(instance.id, {
@@ -67,6 +77,23 @@ export class SkillRegistry {
   /**
    * The Evolution Loop: Moved to ISkill.learn
    */
+
+  /**
+   * Scans the skills directory for file-based skill definitions.
+   */
+  public async discover(): Promise<void> {
+    try {
+      const folders = await fs.readdir(this.skillsDir);
+      for (const folder of folders) {
+        if ((await fs.stat(path.join(this.skillsDir, folder))).isDirectory()) {
+          await this.loadSkill(folder);
+        }
+      }
+      console.log(`[SkillRegistry] Discovered ${this.skills.size} skills total.`);
+    } catch (error) {
+      console.warn('[SkillRegistry] No skills directory found or error during discovery.');
+    }
+  }
 
   private async loadSkill(name: string): Promise<void> {
     try {
@@ -104,6 +131,13 @@ ${active.map(s => `
 
   public getSkill(name: string): RegisteredSkill | undefined {
     return this.skills.get(name);
+  }
+
+  /**
+   * Returns all skills that are currently enabled.
+   */
+  public getActiveSkills(): RegisteredSkill[] {
+    return Array.from(this.skills.values()).filter(s => s.enabled !== false);
   }
 
   public listSkills(): SkillListItem[] {

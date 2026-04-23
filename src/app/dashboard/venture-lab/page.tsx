@@ -225,6 +225,46 @@ export default function VentureLabDashboard() {
           M.A.S-ZERO VENTURE PROTOCOL // 2026-R1
         </div>
       </footer>
+      {/* Live Sentinel Feed (Phase 4) */}
+      <div className="mt-12 bg-black/40 border border-white/10 rounded-2xl p-6 backdrop-blur-xl">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+            <h2 className="text-xl font-bold text-white">Live Sentinel Feed</h2>
+          </div>
+          <span className="text-xs text-white/40 uppercase tracking-widest">Autonomous Governance Active</span>
+        </div>
+        
+        <div className="space-y-4 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
+          <div className="p-4 bg-white/5 rounded-xl border border-white/5 flex items-start gap-4 animate-in slide-in-from-bottom duration-500">
+            <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-500">
+              <span className="text-xs font-bold">SB</span>
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-sm font-medium text-white">Shadow Board</span>
+                <span className="px-1.5 py-0.5 rounded bg-emerald-500/20 text-[10px] font-bold text-emerald-500 uppercase">Auto-Approved</span>
+              </div>
+              <p className="text-sm text-white/60">Validated high-ROI lead for "Legal Compliance". Evidence stored.</p>
+              <span className="text-[10px] text-white/30">Just now</span>
+            </div>
+          </div>
+
+          <div className="p-4 bg-white/5 rounded-xl border border-white/5 flex items-start gap-4 opacity-50">
+            <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center text-blue-500">
+              <span className="text-xs font-bold">MS</span>
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-sm font-medium text-white">Market Sniper</span>
+                <span className="px-1.5 py-0.5 rounded bg-blue-500/20 text-[10px] font-bold text-blue-500 uppercase">Scanning</span>
+              </div>
+              <p className="text-sm text-white/60">Initiating stealth scan on X for "SaaS frustrated" users...</p>
+              <span className="text-[10px] text-white/30">2 mins ago</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

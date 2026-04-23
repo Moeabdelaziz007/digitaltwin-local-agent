@@ -10,9 +10,10 @@ export type DepartmentType = 'engineering' | 'revenue' | 'distribution' | 'gover
 export interface Budget {
   monthly_limit_usd: number;
   spent_this_month_usd: number;
-  daily_limit_usd?: number; // سقف يومي
+  total_spent_usd: number;
+  daily_limit_usd?: number;
   spent_today_usd?: number;
-  hourly_limit_usd?: number; // سقف ساعي
+  hourly_limit_usd?: number;
   spent_this_hour_usd?: number;
   token_limit: number;
   spent_tokens: number;
@@ -55,6 +56,7 @@ export interface Venture {
   goals: Goal[];
   created_at: string;
   skills?: string[]; // قائمة بالمهارات المسجلة لهذه الشركة
+  total_revenue_usd: number;
   metadata: Record<string, any>;
 }
 
@@ -64,7 +66,7 @@ export interface Ticket {
   assigned_role_id: string;
   title: string;
   context: string;
-  status: 'todo' | 'pending' | 'in_progress' | 'done' | 'blocked';
+  status: 'todo' | 'pending' | 'approved' | 'in_progress' | 'done' | 'blocked';
   priority: 'low' | 'medium' | 'high' | 'critical';
   budget_allocated?: number;
   output?: string;

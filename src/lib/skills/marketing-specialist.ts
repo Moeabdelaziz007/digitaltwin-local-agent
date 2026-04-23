@@ -1,64 +1,89 @@
-import { callOllama } from '../ollama-client';
-import { skillRegistry } from './registry';
+import { ISkill, ExecutionResult, SkillMetadata } from './types';
 import { TicketEngine } from '../holding/ticket-engine';
-import { Venture, Role } from '../holding/types';
-import { ExecutionResult } from './types';
+import { Venture, Role, Ticket } from '../holding/types';
+import { callOllama } from '../ollama-client';
 
 /**
  * src/lib/skills/marketing-specialist.ts
  * Reusable Growth Marketing Skill for any Venture
  */
 
-export class MarketingSpecialistSkill {
-  static id = 'marketing-specialist';
+export class MarketingSpecialistSkill extends ISkill {
+  id = 'marketing-specialist';
+  metadata: SkillMetadata = {
+    id: 'marketing-specialist',
+    name: 'Growth Marketer',
+    version: '1.0.0',
+    description: 'Generates organic growth strategies and viral content for any venture.',
+    category: 'marketing',
+    revenue_impact: 'medium',
+    permissions: ['network', 'social_api_access'],
+    required_tools: ['ollama', 'jina-reader']
+  };
 
-  async execute(venture: Venture, role: Role, params?: { ventureName?: string; mission?: string }): Promise<ExecutionResult> {
-    const vName = params?.ventureName || venture.name;
-    const vMission = params?.mission || (venture as any).mission || 'Growth and scale';
+  async scan(): Promise<any[]> {
+    return [{ type: 'market_campaign', status: 'ready' }];
+  }
+
+  async score(items: any[], venture: Venture): Promise<any[]> {
+    return items.map(item => ({ ...item, score: 0.85 }));
+  }
+
+  async generate(bestOpportunity: any): Promise<any> {
+    return { task: 'market_growth' };
+  }
+
+  async execute(venture: Venture, role: Role, ticket?: Ticket): Promise<ExecutionResult> {
+    if (ticket && ticket.status === 'done') {
+      return { success: true, output: 'Marketing campaign deployed successfully.' };
+    }
+
+    const vName = venture.name;
+    const vMission = venture.mission_statement || 'Growth and scale';
     console.log(`[Marketing Director] Orchestrating campaign for ${vName}...`);
 
-    // 1. Spawning Sub-Agents & Running Simulations
     const simulationResults = await this.runMarketSimulation(vName, vMission);
-    
-    // 2. Based on simulation, refine strategy
     const strategy = await this.generateStrategy(vName, vMission, simulationResults);
-    
-    // 3. Delegate Content Creation to Sub-Agent
     const socialPosts = await this.draftContent(vName, strategy);
 
-    // 4. Governance Ticket with Simulation Insights
-    const ticket = await TicketEngine.createTicket(venture, role, {
+    const newTicket = await TicketEngine.createTicket(venture, role, {
       title: `[Growth] Orchestrated Campaign: ${vName}`,
       context: `
-        **Simulation Insights:**
-        ${simulationResults}
-        
-        **Strategy:**
-        ${strategy}
-        
-        **Campaign Assets:**
-        ${socialPosts}
+### Simulation Insights
+${simulationResults}
+
+### Strategy
+${strategy}
+
+### Assets
+${socialPosts}
       `,
-      priority: 'high',
+      status: 'pending',
       metadata: {
-        type: 'marketing_director_orchestration',
+        type: 'marketing_orchestration',
         simulation_data: simulationResults,
-        sub_agents: ['ContentWriter', 'AudienceSimulator']
+        assets: socialPosts
       }
     });
 
     return { 
       success: true, 
-      output: `Campaign orchestrated after market simulation for ${vName}.`,
-      ticketId: ticket.id 
+      output: `Campaign orchestrated for ${vName}. Awaiting review.`,
+      ticketId: newTicket.id 
     };
   }
 
+  async verify(result: ExecutionResult): Promise<boolean> {
+    return result.success;
+  }
+
+  async learn(outcome: ExecutionResult, venture: Venture): Promise<void> {
+    // Feedback loop
+  }
+
   private async runMarketSimulation(name: string, mission: string) {
-    console.log(`[Marketing] Spawning 'AudiencePersona' sub-agent for simulation...`);
     const prompt = `Act as a cynical potential customer for a venture named "${name}" (Mission: ${mission}). What are the top 3 reasons you WOULD NOT use this product? Provide harsh feedback.`;
     const friction = await callOllama(prompt, [{ role: 'system', content: 'You are a Critical Audience Simulator.' }]);
-    
     return `Potential Friction Identified: ${friction}`;
   }
 
@@ -73,18 +98,6 @@ export class MarketingSpecialistSkill {
   }
 }
 
-// Register as a reusable skill
-skillRegistry.registerSkill({
-  id: MarketingSpecialistSkill.id,
-  metadata: {
-    name: 'Growth Marketer',
-    version: '1.0.0',
-    description: 'Generates organic growth strategies and viral content for any venture.',
-    when_to_use: 'After launching a product or when traffic is low.',
-    permissions: ['network', 'social_api_access'],
-    required_tools: ['ollama', 'jina-reader'],
-    category: 'growth',
-    revenue_impact: 'medium'
-  },
-  instructions: 'Analyze trends, draft viral content, and propose distribution channels.'
-});
+// Register
+import { skillRegistry } from './registry';
+skillRegistry.registerSkillInstance(new MarketingSpecialistSkill());

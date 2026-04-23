@@ -1,27 +1,27 @@
-import { callOllama } from '../ollama-client';
-import { skillRegistry } from './registry';
-import { BaseSkill, ExecutionResult } from './types';
+import { ISkill, ExecutionResult, SkillMetadata } from './types';
 import { TicketEngine } from '../holding/ticket-engine';
 import { ventureRegistry } from '../holding/venture-registry';
 import { Venture, Role, Ticket } from '../holding/types';
 import { tieredMemory } from '../memory/tiered-store';
 import { quantumMirror } from '../quantum-mirror';
+import { callOllama } from '../ollama-client';
 
 /**
  * MAS-ZERO Mercor Bridge Skill — Production Grade E2E
- * 
- * Lifecycle:
- * 1. Discovery (Scan active ventures for expertise gaps)
- * 2. Score (Evaluate ROI of a Mercor Expert via Quantum Mirror)
- * 3. Generate (Draft the Vouching/Referral strategy)
- * 4. TICKET (Create governance ticket with work.mercor.com links)
- * 5. EXECUTE (Manual via Dashboard / Automated via Sidecar in future)
- * 6. VERIFY (Audit the referral link)
- * 7. LEARN (Harvest expert knowledge)
  */
 
-export class MercorBridgeSkill extends BaseSkill {
+export class MercorBridgeSkill extends ISkill {
   id = 'mercor-bridge';
+  metadata: SkillMetadata = {
+    id: 'mercor-bridge',
+    name: 'Mercor Human Bridge',
+    version: '2.0.0',
+    description: 'E2E Expert Vouching & Affiliate Revenue Engine.',
+    category: 'system',
+    revenue_impact: 'high',
+    permissions: ['network', 'governance'],
+    required_tools: ['ollama', 'quantum-mirror']
+  };
 
   /**
    * PHASE 1: Discovery
@@ -32,7 +32,6 @@ export class MercorBridgeSkill extends BaseSkill {
     const needs: any[] = [];
 
     for (const v of ventures) {
-      // Logic: Scaling ventures or high-budget ones need expert validation
       if (v.status === 'active' && (v.budget.monthly_limit_usd > 500 || v.metadata?.stage === 'scaling')) {
         needs.push({
           id: `mercor-need-${v.id}`,
@@ -77,8 +76,7 @@ export class MercorBridgeSkill extends BaseSkill {
    * PHASE 4-6: Ticket & Execution
    */
   async execute(venture: Venture, role: Role, ticket?: Ticket): Promise<ExecutionResult> {
-    if (ticket) {
-      // Logic for performing the ACTUAL execution if the ticket was approved
+    if (ticket && ticket.status === 'done') {
       console.log(`[MercorBridge] Executing approved vouch for ${ticket.id}`);
       return {
         success: true,
@@ -87,7 +85,6 @@ export class MercorBridgeSkill extends BaseSkill {
       };
     }
 
-    // Standard entry point: Discovery -> Score -> Generate -> Ticket
     const needs = await this.scan();
     const scored = await this.score(needs, venture);
     const top = scored[0];
@@ -115,7 +112,7 @@ ${generated.strategy}
 2. Generate referral for: ${top.expertiseNeeded}
 3. Paste link in this ticket to VERIFY.
       `,
-      priority: 'high',
+      status: 'pending',
       metadata: { type: 'mercor_vouch', opportunity: top }
     });
 
@@ -126,16 +123,10 @@ ${generated.strategy}
     };
   }
 
-  /**
-   * PHASE 7: Verify
-   */
   async verify(result: ExecutionResult): Promise<boolean> {
     return !!result.metadata?.referral_url;
   }
 
-  /**
-   * PHASE 8: Learn
-   */
   async learn(outcome: ExecutionResult, venture: Venture): Promise<void> {
     await tieredMemory.add(
       `[Mercor Lesson] Vouching successful for ${venture.name}. Status: ${outcome.success ? 'Confirmed' : 'Pending'}`,
@@ -145,16 +136,5 @@ ${generated.strategy}
 }
 
 // Register
-skillRegistry.registerSkill({
-  id: MercorBridgeSkill.id,
-  metadata: {
-    name: 'Mercor Human Bridge',
-    version: '2.0.0',
-    description: 'E2E Expert Vouching & Affiliate Revenue Engine.',
-    category: 'governance',
-    revenue_impact: 'high',
-    permissions: ['network', 'governance'],
-    required_tools: ['ollama', 'quantum-mirror']
-  },
-  instructions: 'Bridge AI operations with human experts to secure 20% affiliate revenue.'
-});
+import { skillRegistry } from './registry';
+skillRegistry.registerSkillInstance(new MercorBridgeSkill());

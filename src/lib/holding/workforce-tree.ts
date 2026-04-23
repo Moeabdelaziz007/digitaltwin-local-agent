@@ -179,6 +179,7 @@ export class WorkforceTree {
 
     // Update node with rolled-up metrics (for visualization/caching)
     node.performance = {
+      ...node.performance,
       runs: totalRuns,
       successRate: avgSuccessRate,
       revenueGenerated: totalRevenue
@@ -246,7 +247,7 @@ export class WorkforceTree {
       reportsTo: parentId,
       manages: [],
       budget: { allocated: 0, spent: 0 },
-      performance: { runs: 0, successRate: 0, revenueGenerated: 0 },
+      performance: { runs: 0, successRate: 0, revenueGenerated: 0, roi: 0, capitalAllocation: 0 },
       status: 'mirror',
       created_at: new Date().toISOString(),
       mirrorMeta: {

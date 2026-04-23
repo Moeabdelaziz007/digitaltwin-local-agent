@@ -1,4 +1,5 @@
 import { chromium, BrowserContext, Page } from 'playwright-core';
+import path from 'path';
 
 /**
  * MAS-ZERO Browser Manager — The Mirage Protocol
@@ -46,6 +47,24 @@ export class BrowserManager {
       await page.mouse.wheel(0, amount);
       await page.waitForTimeout(Math.random() * 1000 + 500);
     }
+  }
+
+  /**
+   * Captures a screenshot of the current page for visual evidence.
+   */
+  public async takeScreenshot(page: Page, name: string): Promise<string> {
+    const fileName = `${name}-${Date.now()}.png`;
+    const screenshotDir = path.join(process.cwd(), 'public', 'evidence');
+    
+    // Ensure directory exists
+    const fs = await import('fs/promises');
+    await fs.mkdir(screenshotDir, { recursive: true });
+    
+    const filePath = path.join(screenshotDir, fileName);
+    await page.screenshot({ path: filePath });
+    
+    console.log(`[Mirage] Visual evidence captured: /evidence/${fileName}`);
+    return `/evidence/${fileName}`;
   }
 
   /**

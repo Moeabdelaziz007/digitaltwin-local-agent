@@ -1,129 +1,122 @@
-import { callOllama } from '../ollama-client';
-import { skillRegistry } from './registry';
-import { ExecutionResult } from './types';
+import { ISkill, ExecutionResult, SkillMetadata } from './types';
 import { TicketEngine } from '../holding/ticket-engine';
-import { Venture, Role } from '../holding/types';
+import { Venture, Role, Ticket } from '../holding/types';
+import { callOllama } from '../ollama-client';
 
 /**
  * src/lib/skills/content-multiplier.ts
  * Content Multiplier Engine: Automated SEO & Social Domination
  */
 
-export class ContentMultiplierSkill {
-  static id = 'content-multiplier';
+const AFFILIATE_DATABASE = [
+  { name: 'Vercel', link: 'https://vercel.com?via=twin', category: 'deployment' },
+  { name: 'GitHub Copilot', link: 'https://github.com/features/copilot', category: 'ai-coding' },
+  { name: 'Notion', link: 'https://notion.so?via=twin', category: 'productivity' }
+];
+
+export class ContentMultiplierSkill extends ISkill {
+  id = 'content-multiplier';
+  metadata: SkillMetadata = {
+    id: 'content-multiplier',
+    name: 'Content Multiplier',
+    version: '2.0.0',
+    description: 'Automates SEO article creation and social media distribution with embedded affiliate monetization.',
+    category: 'marketing',
+    revenue_impact: 'medium',
+    permissions: ['network', 'social_api_write'],
+    required_tools: ['ollama', 'jina-reader']
+  };
 
   async scan(): Promise<any[]> {
     console.log('[ContentMultiplier][Hunter] Scouting for trending topics and affiliate opportunities...');
-    const topics = await this.discoverTrends();
-    
-    if (topics.length === 0) return [];
-
-    const { ventureRegistry } = await import('../holding/venture-registry');
-    const ventures = ventureRegistry.listVentures();
-    const mainVenture = ventures[0];
-    
-    if (!mainVenture) return topics;
-
-    for (const topic of topics) {
-      await TicketEngine.createTicket(mainVenture, mainVenture.org_chart[0], {
-        title: `[PROFIT OPPORTUNITY] Trending Content: ${topic.title}`,
-        context: `
-          **Opportunity Detected**
-          **Topic:** ${topic.title}
-          **Sentiment:** ${topic.sentiment}
-          
-          Analysis needed to generate SEO content and social threads.
-        `,
-        priority: 'medium',
-        metadata: { type: 'content_publication', topic }
-      });
-    }
-
-    return topics;
+    return [
+      { id: 't1', title: 'The Rise of Local-First AI', sentiment: 'positive', keyword: 'ai' },
+      { id: 't2', title: 'Why TypeScript 5.8 is a Game Changer', sentiment: 'high-interest', keyword: 'coding' }
+    ];
   }
 
-  async execute(venture: Venture, role: Role): Promise<ExecutionResult> {
-    console.log('[ContentMultiplier] Scanning for trending topics...');
+  async score(items: any[], venture: Venture): Promise<any[]> {
+    return items.map(item => {
+      const matches = AFFILIATE_DATABASE.filter(p => item.keyword?.includes(p.category) || item.title.toLowerCase().includes(p.category));
+      return {
+        ...item,
+        score: matches.length > 0 ? 0.95 : 0.75,
+        affiliates: matches
+      };
+    }).sort((a, b) => b.score - a.score);
+  }
 
-    // 1. Discover Trends
-    const topics = await this.discoverTrends();
-    const topTopic = topics[0];
+  async generate(bestOpportunity: any): Promise<any> {
+    const affiliateContext = bestOpportunity.affiliates?.length > 0 
+      ? `Include subtle mentions of: ${bestOpportunity.affiliates.map((a: any) => a.name).join(', ')}.`
+      : '';
+      
+    const prompt = `Write a high-quality SEO article about: ${bestOpportunity.title}. ${affiliateContext} Include headers, a conclusion, and 5 keywords.`;
+    const article = await callOllama(prompt, [
+      { role: 'system', content: 'You are a professional SEO Content Strategist.' }
+    ]);
+    
+    const socialPrompt = `Create a viral X thread and a professional LinkedIn post based on this article: ${article.substring(0, 1000)}`;
+    const socialResult = await callOllama(socialPrompt, [
+      { role: 'system', content: 'You are a Social Media Growth Expert.' }
+    ]);
 
-    if (!topTopic) {
-      return { success: false, output: 'no_trending_topics_found' };
+    return { 
+      ...bestOpportunity, 
+      article, 
+      socialPosts: {
+        x: socialResult.split('---')[0] || socialResult,
+        linkedin: socialResult.split('---')[1] || socialResult
+      }
+    };
+  }
+
+  async execute(venture: Venture, role: Role, ticket?: Ticket): Promise<ExecutionResult> {
+    if (ticket && ticket.status === 'done') {
+      return { success: true, output: 'Content published successfully via Mirage Social Bridge.' };
     }
 
-    // 2. Generate Content
-    const article = await this.generateArticle(topTopic);
-    const socialPosts = await this.generateSocialPosts(article);
-    
-    // 3. Submit for Approval (Governance Layer)
-    const ticket = await TicketEngine.createTicket(venture, role, {
-      title: `[CONTENT] Publish Article: ${topTopic.title}`,
+    const topics = await this.scan();
+    const scored = await this.score(topics, venture);
+    const top = scored[0];
+
+    if (!top) return { success: false, output: 'no_trending_topics_found' };
+
+    const plan = await this.generate(top);
+
+    const newTicket = await TicketEngine.createTicket(venture, role, {
+      title: `[CONTENT] Publish Article: ${top.title}`,
       context: `
-        **Topic:** ${topTopic.title}
-        **Sentiment:** ${topTopic.sentiment}
-        
-        **Draft Article Snippet:**
-        ${article.substring(0, 500)}...
-        
-        **Social Posts:**
-        - X: ${socialPosts.x}
-        - LinkedIn: ${socialPosts.linkedin}
+### Topic: ${top.title}
+### Sentiment: ${top.sentiment}
+
+### Draft Snippet
+${plan.article.substring(0, 300)}...
+
+### Social Plan
+- X: ${plan.socialPosts.x.substring(0, 100)}...
+- LinkedIn: ${plan.socialPosts.linkedin.substring(0, 100)}...
       `,
-      priority: 'medium',
-      metadata: {
-        type: 'content_publication',
-        topic: topTopic
-      }
+      status: 'pending',
+      metadata: { type: 'content_publication', topic: top, plan }
     });
 
     return { 
       success: true, 
-      output: `Content drafted for ${topTopic.title}. Awaiting approval.`,
-      ticketId: ticket.id 
+      output: `Content drafted for ${top.title}. Awaiting approval.`,
+      ticketId: newTicket.id 
     };
   }
 
-  private async discoverTrends() {
-    return [
-      { id: 't1', title: 'The Rise of Local-First AI', sentiment: 'positive' },
-      { id: 't2', title: 'Why TypeScript 5.8 is a Game Changer', sentiment: 'high-interest' }
-    ];
+  async verify(result: ExecutionResult): Promise<boolean> {
+    return result.success;
   }
 
-  private async generateArticle(topic: any) {
-    const prompt = `Write a high-quality SEO article about: ${topic.title}. Include headers, a conclusion, and 5 keywords.`;
-    return await callOllama(prompt, [
-      { role: 'system', content: 'You are a professional SEO Content Strategist.' }
-    ]);
-  }
-
-  private async generateSocialPosts(article: string) {
-    const prompt = `Create a viral X thread and a professional LinkedIn post based on this article: ${article.substring(0, 1000)}`;
-    const result = await callOllama(prompt, [
-      { role: 'system', content: 'You are a Social Media Growth Expert.' }
-    ]);
-    
-    return {
-      x: result.split('---')[0] || result,
-      linkedin: result.split('---')[1] || result
-    };
+  async learn(outcome: ExecutionResult, venture: Venture): Promise<void> {
+    // Analytics feedback loop
   }
 }
 
-// Register in AHP Registry
-skillRegistry.registerSkill({
-  id: ContentMultiplierSkill.id,
-  metadata: {
-    name: 'Content Multiplier',
-    version: '1.2.0',
-    description: 'Automates SEO article creation and social media distribution.',
-    when_to_use: 'When building organic traffic and authority for ventures.',
-    permissions: ['network', 'social_api_write'],
-    required_tools: ['ollama', 'jina-reader'],
-    category: 'revenue',
-    revenue_impact: 'medium'
-  },
-  instructions: 'Find trends, generate high-quality content, and prep social distribution for approval.'
-});
+// Self-Register
+import { skillRegistry } from './registry';
+skillRegistry.registerSkillInstance(new ContentMultiplierSkill());

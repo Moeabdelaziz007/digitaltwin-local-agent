@@ -1,18 +1,27 @@
-import { callOllama } from '../ollama-client';
-import { skillRegistry } from './registry';
-import { BaseSkill, ExecutionResult } from './types';
+import { ISkill, ExecutionResult, SkillMetadata } from './types';
 import { TicketEngine } from '../holding/ticket-engine';
 import { Venture, Role, Ticket } from '../holding/types';
 import { quantumMirror } from '../quantum-mirror';
 import { tieredMemory } from '../memory/tiered-store';
+import { callOllama } from '../ollama-client';
 
 /**
  * src/lib/skills/bounty-hunter.ts
  * Production Grade GitHub Bounty Hunter Engine
  */
 
-export class BountyHunterSkill extends BaseSkill {
+export class BountyHunterSkill extends ISkill {
   id = 'bounty-hunter';
+  metadata: SkillMetadata = {
+    id: 'bounty-hunter',
+    name: 'GitHub Bounty Hunter',
+    version: '2.0.0',
+    description: 'Autonomous agent that finds, analyzes, and solves GitHub issues for bounties.',
+    category: 'revenue',
+    revenue_impact: 'medium',
+    permissions: ['network', 'github_api'],
+    required_tools: ['ollama', 'github-cli', 'quantum-mirror']
+  };
 
   /**
    * PHASE 1: Discovery
@@ -66,7 +75,7 @@ export class BountyHunterSkill extends BaseSkill {
         venture
       );
 
-      const score = simulation.recommendation === 'proceed' ? (simulation.confidence || 0.8) : 0.4;
+      const score = simulation.recommendation === 'proceed' ? (simulation.overallConfidence || 0.8) : 0.4;
       scored.push({ ...item, score, simulation });
     }
     return scored.sort((a, b) => b.score - a.score);
@@ -87,7 +96,7 @@ export class BountyHunterSkill extends BaseSkill {
    * PHASE 4-6: Ticket & Execution
    */
   async execute(venture: Venture, role: Role, ticket?: Ticket): Promise<ExecutionResult> {
-    if (ticket) {
+    if (ticket && ticket.status === 'done') {
       // ACTUAL EXECUTION (Approved)
       console.log(`[BountyHunter] SUBMITTING PR for ticket ${ticket.id}`);
       return {
@@ -123,7 +132,7 @@ ${generated.solution}
 ### Action Required
 Review and Approve to submit Pull Request.
       `,
-      priority: 'high',
+      status: 'pending',
       metadata: { type: 'github_bounty', issue: top, solution: generated.solution }
     });
 
@@ -153,16 +162,5 @@ Review and Approve to submit Pull Request.
 }
 
 // Register
-skillRegistry.registerSkill({
-  id: BountyHunterSkill.id,
-  metadata: {
-    name: 'GitHub Bounty Hunter',
-    version: '2.0.0',
-    description: 'Autonomous agent that finds, analyzes, and solves GitHub issues for bounties.',
-    category: 'revenue',
-    revenue_impact: 'medium',
-    permissions: ['network', 'github_api'],
-    required_tools: ['ollama', 'github-cli', 'quantum-mirror']
-  },
-  instructions: 'Find high-value GitHub issues, analyze the codebase, and submit PRs after approval.'
-});
+import { skillRegistry } from './registry';
+skillRegistry.registerSkillInstance(new BountyHunterSkill());

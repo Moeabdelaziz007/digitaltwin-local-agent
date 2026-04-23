@@ -7,19 +7,15 @@ import pb from '@/lib/pocketbase-client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MatrixRain } from '@/components/MatrixRain';
 import { TerminalIntro } from '@/components/TerminalIntro';
-import { Brain, Cpu, Shield, Sparkles, ArrowRight, ArrowLeft, Target, Fingerprint } from 'lucide-react';
+import { Shield } from 'lucide-react';
 
-const STYLE_CHIPS = [
-  { id: 'concise', label: 'Short & direct', icon: '⚡' },
-  { id: 'detailed', label: 'Deep & explanatory', icon: '📚' },
-  { id: 'witty', label: 'Humorous', icon: '🎭' },
-  { id: 'serious', label: 'Professional', icon: '👔' },
-  { id: 'mentor', label: 'Guiding', icon: '🎓' },
-  { id: 'friend', label: 'Casual friend', icon: '🤝' }
-];
+// Modular Components
+import { IdentitySync } from './components/IdentitySync';
+import { ProfessionalDNA } from './components/ProfessionalDNA';
+import { BehaviorProfile } from './components/BehaviorProfile';
+import { NeuralHandshake } from './components/NeuralHandshake';
 
-const SKILL_SUGGESTIONS = ['Next.js', 'TypeScript', 'Crypto', 'Arbitrage', 'SaaS', 'Marketing', 'Data Analysis', 'Python'];
-const INTEREST_SUGGESTIONS = ['AI', 'Passive Income', 'Cyberpunk', 'Privacy', 'Gaming', 'Finance', 'Open Source'];
+
 
 export default function OnboardPage() {
   const router = useRouter();
@@ -158,228 +154,45 @@ export default function OnboardPage() {
 
         <AnimatePresence mode="wait">
           {step === 1 && (
-            <motion.div 
-              key="step1"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="glass p-8 rounded-2xl border border-white/10"
-            >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-cyan/10 flex items-center justify-center text-cyan">
-                  <Cpu size={20} />
-                </div>
-                <div>
-                  <h1 className="text-xl font-display font-bold tracking-tight">IDENTITY SYNC</h1>
-                  <TerminalIntro text="ESTABLISHING NEURAL PARAMETERS..." />
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-[10px] uppercase tracking-[0.2em] text-cyan/60 mb-2">User Identifier</label>
-                  <input 
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    placeholder="Enter your name"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20 transition-all font-mono"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] uppercase tracking-[0.2em] text-cyan/60 mb-2">Core Objective</label>
-                  <input 
-                    value={goal}
-                    onChange={(e) => setGoal(e.target.value)}
-                    placeholder="e.g. Wealth generation, venture scouting"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20 transition-all font-mono"
-                  />
-                </div>
-              </div>
-
-              <button 
-                onClick={nextStep}
-                className="w-full mt-8 bg-cyan text-bg-void py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
-              >
-                Next Step <ArrowRight size={16} />
-              </button>
-            </motion.div>
+            <IdentitySync 
+              displayName={displayName}
+              setDisplayName={setDisplayName}
+              goal={goal}
+              setGoal={setGoal}
+              nextStep={nextStep}
+            />
           )}
 
           {step === 2 && (
-            <motion.div 
-              key="step2"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="glass p-8 rounded-2xl border border-white/10"
-            >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-cyan/10 flex items-center justify-center text-cyan">
-                  <Fingerprint size={20} />
-                </div>
-                <div>
-                  <h1 className="text-xl font-display font-bold tracking-tight">PROFESSIONAL DNA</h1>
-                  <TerminalIntro text="SCANNING SKILLS & INTERESTS..." />
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-[10px] uppercase tracking-[0.2em] text-cyan/60 mb-4">Core Skills</label>
-                  <div className="flex flex-wrap gap-2">
-                    {SKILL_SUGGESTIONS.map(skill => (
-                      <button 
-                        key={skill}
-                        onClick={() => toggleItem(skill, skills, setSkills)}
-                        className={`px-3 py-1.5 rounded-lg border text-[10px] font-bold transition-all ${
-                          skills.includes(skill) 
-                            ? 'bg-cyan/10 border-cyan text-cyan' 
-                            : 'bg-white/5 border-white/5 text-text-muted hover:border-white/20'
-                        }`}
-                      >
-                        {skill}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-[10px] uppercase tracking-[0.2em] text-cyan/60 mb-4">High-Interest Areas</label>
-                  <div className="flex flex-wrap gap-2">
-                    {INTEREST_SUGGESTIONS.map(interest => (
-                      <button 
-                        key={interest}
-                        onClick={() => toggleItem(interest, interests, setInterests)}
-                        className={`px-3 py-1.5 rounded-lg border text-[10px] font-bold transition-all ${
-                          interests.includes(interest) 
-                            ? 'bg-purple-500/10 border-purple-500 text-purple-400' 
-                            : 'bg-white/5 border-white/5 text-text-muted hover:border-white/20'
-                        }`}
-                      >
-                        {interest}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-4 mt-8">
-                <button onClick={prevStep} className="flex-1 border border-white/10 py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/5 transition-all text-text-muted flex items-center justify-center gap-2">
-                  <ArrowLeft size={14} /> Back
-                </button>
-                <button 
-                  onClick={nextStep}
-                  className="flex-[2] bg-cyan text-bg-void py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all"
-                >
-                  Next Step <ArrowRight size={16} />
-                </button>
-              </div>
-            </motion.div>
+            <ProfessionalDNA 
+              skills={skills}
+              setSkills={setSkills}
+              interests={interests}
+              setInterests={setInterests}
+              nextStep={nextStep}
+              prevStep={prevStep}
+            />
           )}
 
           {step === 3 && (
-            <motion.div 
-              key="step3"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="glass p-8 rounded-2xl border border-white/10"
-            >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-cyan/10 flex items-center justify-center text-cyan">
-                  <Brain size={20} />
-                </div>
-                <div>
-                  <h1 className="text-xl font-display font-bold tracking-tight">BEHAVIOR PROFILE</h1>
-                  <TerminalIntro text="CALIBRATING RESPONSE TONE..." />
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-[10px] uppercase tracking-[0.2em] text-cyan/60 mb-4">Response Modality</label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {STYLE_CHIPS.map(chip => (
-                      <button 
-                        key={chip.id}
-                        onClick={() => toggleStyle(chip.id)}
-                        className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-all ${
-                          selectedStyles.includes(chip.id) 
-                            ? 'bg-cyan/10 border-cyan text-white shadow-[0_0_15px_rgba(0,240,255,0.1)]' 
-                            : 'bg-white/5 border-white/5 text-text-muted hover:border-white/20'
-                        }`}
-                      >
-                        <span className="text-lg">{chip.icon}</span>
-                        <span className="text-[10px] font-bold uppercase tracking-tight">{chip.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-[10px] uppercase tracking-[0.2em] text-cyan/60 mb-2">Constraint Overrides</label>
-                  <textarea 
-                    value={extraPrefs}
-                    onChange={(e) => setExtraPrefs(e.target.value)}
-                    placeholder="Specific rules or preferences..."
-                    className="w-full h-24 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-cyan/50 focus:ring-1 focus:ring-cyan/20 transition-all font-mono resize-none"
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-4 mt-8">
-                <button onClick={prevStep} className="flex-1 border border-white/10 py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/5 transition-all text-text-muted flex items-center justify-center gap-2">
-                  <ArrowLeft size={14} /> Back
-                </button>
-                <button 
-                  onClick={generatePreview}
-                  disabled={loading}
-                  className="flex-[2] bg-cyan text-bg-void py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
-                >
-                  {loading ? 'CALIBRATING...' : 'GENERATE PREVIEW'}
-                </button>
-              </div>
-            </motion.div>
+            <BehaviorProfile 
+              selectedStyles={selectedStyles}
+              setSelectedStyles={setSelectedStyles}
+              extraPrefs={extraPrefs}
+              setExtraPrefs={setExtraPrefs}
+              generatePreview={generatePreview}
+              prevStep={prevStep}
+              loading={loading}
+            />
           )}
 
           {step === 4 && (
-            <motion.div 
-              key="step4"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="glass p-8 rounded-2xl border border-white/10"
-            >
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-cyan/10 flex items-center justify-center text-cyan">
-                  <Sparkles size={20} />
-                </div>
-                <div>
-                  <h1 className="text-xl font-display font-bold tracking-tight">NEURAL HANDSHAKE</h1>
-                  <TerminalIntro text="READY FOR DEPLOYMENT." />
-                </div>
-              </div>
-
-              <div className="p-6 bg-cyan/5 border border-cyan/20 rounded-xl relative overflow-hidden group mb-8">
-                <div className="absolute top-0 right-0 p-2 opacity-20"><Brain size={48} /></div>
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-1.5 h-1.5 bg-cyan rounded-full animate-pulse" />
-                  <span className="text-[10px] font-display text-cyan uppercase tracking-[0.2em] font-bold">Preview instance</span>
-                </div>
-                <p className="text-sm font-mono leading-relaxed text-cyan/90">{previewDraft}</p>
-              </div>
-
-              <div className="flex gap-4">
-                <button onClick={() => setStep(3)} className="flex-1 border border-white/10 py-3.5 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-white/5 transition-all text-text-muted">
-                  TUNE
-                </button>
-                <button 
-                  onClick={handleComplete}
-                  disabled={loading}
-                  className="flex-[2] bg-cyan text-bg-void py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_20px_rgba(0,240,255,0.3)]"
-                >
-                  {loading ? 'INITIALIZING...' : 'DEPLOY TWIN'}
-                </button>
-              </div>
-            </motion.div>
+            <NeuralHandshake 
+              previewDraft={previewDraft}
+              handleComplete={handleComplete}
+              setStep={setStep}
+              loading={loading}
+            />
           )}
         </AnimatePresence>
 

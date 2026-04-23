@@ -12,6 +12,8 @@ import { kernel } from '@/lib/kernel/core-kernel';
 import { v4 as uuidv4 } from 'uuid';
 import type { ConversationRequest } from '@/types/twin';
 import { env } from '@/lib/env';
+import { createHmac } from 'crypto';
+import { safeFetch } from '@/lib/safe-fetch';
 
 const asPbUserId = (identity: string) => identity.trim();
 const GUARDIAN_USER_ID = 'system_guardian';
@@ -148,8 +150,7 @@ async function triggerReflection(userId: string, sessionId: string): Promise<voi
 
     const rawBody = JSON.stringify({ user_id: userId, session_id: sessionId });
     const ts = Math.floor(Date.now() / 1000).toString();
-    const signature = crypto
-      .createHmac('sha256', secret)
+    const signature = createHmac('sha256', secret)
       .update(`${ts}.${rawBody}`)
       .digest('hex');
 

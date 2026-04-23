@@ -63,11 +63,13 @@ export class VentureRegistry {
         spent_this_month_usd: 0, 
         spent_today_usd: 0,
         spent_this_hour_usd: 0,
+        total_spent_usd: 0,
         token_limit: 100000, 
         spent_tokens: 0 
       },
       org_chart: orgChart,
       goals: [],
+      total_revenue_usd: 0,
       skills: [
         engineName === 'Freelance Arbitrage' ? 'freelance-arbitrage' : 
         engineName === 'Bounty Hunter' ? 'bounty-hunter' : 

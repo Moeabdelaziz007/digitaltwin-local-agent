@@ -32,7 +32,7 @@ export class SynapseRouter {
     `;
     // ملاحظة: هنا يمكن استدعاء LLM سريع للتقييم، حالياً سنفترض التوافق إذا لم يتوفر الـ Venture
     const relevantSkills = allSkills.filter(skill => {
-      const keywords = skill.metadata.description.toLowerCase() + " " + skill.metadata.when_to_use.toLowerCase();
+      const keywords = (skill.metadata.description + " " + (skill.metadata.when_to_use || "")).toLowerCase();
       return taskDescription.toLowerCase().split(' ').some(word => word.length > 3 && keywords.includes(word));
     });
 

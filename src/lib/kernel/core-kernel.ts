@@ -7,6 +7,9 @@ import { obs } from '@/lib/observability/observability-service';
 import { Ticket, Venture, Role } from '../holding/types';
 import { SynapseRouter } from '../holding/synapse';
 import { getSOPByDepartment } from '../holding/sops';
+import { promises as fs } from 'fs';
+import path from 'path';
+import { ventureRegistry } from '../holding/venture-registry';
 import { TicketEngine } from '../holding/ticket-engine';
 import { JSONHardener } from '../utils/json-hardener';
 import { 
@@ -43,7 +46,7 @@ export class CoreKernel {
       // 1. Idempotency Check
       if (data.idempotencyKey) {
         const existing = await PersistenceService.findTurnByIdempotency(data.userId, data.sessionId, data.idempotencyKey);
-        if (existing && existing.status === 'completed') return { replay: existing };
+        if (existing && (existing as any).status === 'completed') return { replay: existing };
       }
 
       // 2. Reserve Turn
